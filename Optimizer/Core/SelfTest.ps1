@@ -83,6 +83,50 @@ function Test-SophiaOptimizerHealth
 	foreach ($t in $Catalog) { foreach ($mk in @($t.Modes)) { if ($validModeKeys -notcontains $mk) { $badModes += "$($t.Id):$mk" } } }
 	if ($badModes.Count -gt 0) { Report "FAIL" "Tweak dùng khóa Mode không hợp lệ: $($badModes -join ', ')" } else { Report "PASS" "Mọi tweak dùng khóa Mode hợp lệ ($($validModeKeys.Count) mode)" }
 
+	# Du lieu WinUtil + Apps (vendor offline): day du, khong trung khoa đích voi native
+	try
+	{
+		if (Get-Command Get-WinUtilRawTweaks -ErrorAction SilentlyContinue)
+		{
+			$wuRaw = @(Get-WinUtilRawTweaks)
+			$wuTargets = @{}
+			$wuBad = @()
+			foreach ($raw in $wuRaw)
+			{
+				foreach ($e in @($raw.Entries))
+				{
+					if (-not $e.Path -or -not $e.Name -or -not $e.Type) { $wuBad += "$($raw.Id) (thiếu Path/Name/Type)" }
+					$wuKey = "$($e.Path)\$($e.Name)".ToLower()
+					if ($wuTargets.ContainsKey($wuKey)) { $wuBad += "$($raw.Id) (trùng khóa đích nội bộ)" }
+					else { $wuTargets[$wuKey] = $raw.Id }
+				}
+			}
+			$nativeTargets = @{}
+			foreach ($t2 in $Catalog)
+			{
+				if ($t2.Kind -eq "Registry" -and $t2.Detail -match '^(.*) = (.*)$') { $nativeTargets[$Matches[1].ToLower()] = $t2.Id }
+			}
+			$crossDup = @()
+			foreach ($k in $wuTargets.Keys) { if ($nativeTargets.ContainsKey($k)) { $crossDup += "$($wuTargets[$k])~$($nativeTargets[$k])" } }
+			if ($crossDup.Count -gt 0) { $wuBad += "trùng native: $($crossDup -join ', ')" }
+			if ($wuBad.Count -eq 0) { Report "PASS" "WinUtil data: $($wuRaw.Count) tweak, $(($wuTargets.Keys).Count) khóa đích, không trùng native" }
+			else { Report "FAIL" "WinUtil data có vấn đề: $($wuBad -join '; ')" }
+		}
+	}
+	catch { Report "WARN" "Không kiểm tra được WinUtil data: $($_.Exception.Message)" }
+	try
+	{
+		if (Get-Command Get-SophiaAppsCatalog -ErrorAction SilentlyContinue)
+		{
+			$appList = @(Get-SophiaAppsCatalog)
+			$appBad = @($appList | Where-Object { -not $_.Winget -or -not $_.Name })
+			$appDup = @($appList | Group-Object Winget | Where-Object Count -gt 1)
+			if ($appList.Count -gt 0 -and $appBad.Count -eq 0 -and $appDup.Count -eq 0) { Report "PASS" "Apps data: $($appList.Count) app winget hợp lệ, không trùng" }
+			else { Report "FAIL" "Apps data: $($appList.Count) app, $($appBad.Count) thiếu Winget/Name, $($appDup.Count) Winget trùng" }
+		}
+	}
+	catch { Report "WARN" "Không kiểm tra được Apps data: $($_.Exception.Message)" }
+
 	# 3) CheckScripts (read-only)
 	$checkErrors = @()
 	foreach ($t in $Catalog)

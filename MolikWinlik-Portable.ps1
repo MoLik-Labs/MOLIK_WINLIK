@@ -1,5 +1,5 @@
 ﻿<#
-	MOLIK WINLIK by @nggkhaiz v4.1.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
+	MOLIK WINLIK by @nggkhaiz v4.2.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
 	Chay: double-click MOLIK_WINLIK.bat (tu xin Admin), hoac powershell -ExecutionPolicy Bypass -File .\MolikWinlik-Portable.ps1
 	File nay duoc sinh tu dong boi Optimizer\Build-Portable.ps1 - dung sua tay, hay sua nguon trong Optimizer/ roi build lai.
 #>
@@ -80,7 +80,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "4.1.0"
+$Global:MolikWinlikVersion = "4.2.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -127,10 +127,22 @@ if (-not $readOnlyRequest)
 			if ($RestoreBackup) { $argList += "-RestoreBackup" }
 			if ($UndoLast) { $argList += "-UndoLast" }
 			if ($Search) { $argList += @("-Search", "`"$Search`"") }
-			Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Verb RunAs
+			try
+			{
+				Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Verb RunAs -ErrorAction Stop
+			}
+			catch
+			{
+				Write-Host "  [X] Không nâng quyền được (UAC bị hủy hoặc bị chặn). Hãy chạy MOLIK_WINLIK.bat bằng 'Run as administrator'." -ForegroundColor Red
+			}
 			return
 		}
-	} catch {}
+	}
+	catch
+	{
+		Write-Host "  [!] Không kiểm tra/nâng quyền Administrator được - dừng lại để tránh áp dụng thiếu quyền." -ForegroundColor Red
+		return
+	}
 }
 
 $RepoRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
@@ -266,7 +278,10 @@ function Get-SophiaSystemSnapshot
 	try
 	{
 		$GPUs = @(Get-CimInstance -Namespace root/CIMV2 -ClassName Win32_VideoController -ErrorAction SilentlyContinue)
-		$DedicatedGPU = $GPUs | Where-Object { $_.Name -notmatch "Microsoft Basic|Parsec|Virtual|Indirect|Luminon" } | Select-Object -First 1
+		# Uu tien GPU roi that (AdapterRAM lon nhat) thay vi adapter dau tien -
+		# may hybrid (iGPU + dGPU) truoc day de bao nham iGPU la GPU chinh
+		$realGPUs = @($GPUs | Where-Object { $_.Name -notmatch "Microsoft Basic|Parsec|Virtual|Indirect|Luminon" })
+		$DedicatedGPU = $realGPUs | Sort-Object -Property @{ Expression = { if ($_.AdapterRAM) { [long]$_.AdapterRAM } else { 0 } }; Descending = $true } | Select-Object -First 1
 		if (-not $DedicatedGPU) { $DedicatedGPU = $GPUs | Select-Object -First 1 }
 
 		if ($DedicatedGPU)
@@ -1398,7 +1413,8 @@ function Invoke-SophiaBenchmark
 		$swMulti = [System.Diagnostics.Stopwatch]::StartNew()
 		$jobs = @()
 		for ($c = 0; $c -lt $cores; $c++) { $jobs += Start-Job -ScriptBlock $jobBlock }
-		$done = $jobs | Wait-Job -Timeout 120 | Receive-Job
+		$jobs | Wait-Job -Timeout 120 | Out-Null
+		$done = @($jobs | Where-Object { $_.State -eq 'Completed' } | Receive-Job -ErrorAction SilentlyContinue)
 		$jobs | Remove-Job -Force -ErrorAction SilentlyContinue
 		$swMulti.Stop()
 		$totalIter = ($done | Measure-Object -Sum).Sum
@@ -1905,7 +1921,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "4.1.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "4.2.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -2238,7 +2254,7 @@ function Show-SophiaAppInstallerMenu
 <#
 	MOLIK WINLIK - WinUtil Tweaks Data (VENDORED, works OFFLINE - no download needed)
 	Converted from ChrisTitusTech/winutil config/tweaks.json (commit 2ef5e5d), MIT License - see LICENSE-winutil.txt
-	Only pure-registry Toggle tweaks were converted; tweaks duplicating/conflicting with the native 137-tweak catalog were excluded.
+	Only pure-registry Toggle tweaks were converted; tweaks duplicating/conflicting with the native catalog were excluded (WU05 removed in v4.2 - exact duplicate of native EXT72).
 #>
 function Get-WinUtilRawTweaks
 {
@@ -2297,13 +2313,6 @@ function Get-WinUtilRawTweaks
 				@{ Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'; Name = 'EdgeAssetDeliveryServiceEnabled'; Value = '0'; Type = 'DWord'; Original = $null }
 				@{ Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'; Name = 'WalletDonationEnabled'; Value = '0'; Type = 'DWord'; Original = $null }
 				@{ Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'; Name = 'DefaultBrowserSettingsCampaignEnabled'; Value = '0'; Type = 'DWord'; Original = $null }
-			)
-		}
-		[PSCustomObject]@{
-			Id = 'WU05'; SourceKey = 'WPFTweaksConsumerFeatures'; Name = 'ConsumerFeatures - Disable'; Description = 'Stops promoted app installs and reduces app suggestions from Microsoft Store content.'
-			SourceCategory = 'Essential Tweaks'; Risk = 'Safe'; Modes = @("SophiaStandard")
-			Entries = @(
-				@{ Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent'; Name = 'DisableWindowsConsumerFeatures'; Value = '1'; Type = 'DWord'; Original = $null }
 			)
 		}
 		[PSCustomObject]@{
@@ -2371,7 +2380,7 @@ function Get-WinUtilRawTweaks
 			Entries = @(
 				@{ Path = 'HKCU:\SOFTWARE\Microsoft\Office\16.0\Outlook\Preferences'; Name = 'UseNewOutlook'; Value = '1'; Type = 'DWord'; Original = '0' }
 				@{ Path = 'HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General'; Name = 'HideNewOutlookToggle'; Value = '0'; Type = 'DWord'; Original = '1' }
-				@{ Path = 'HKCU:\Software\Policies\Microsoft\Office\16.0\Outlook\Options\General'; Name = 'DoNewOutlookAutoMigration'; Value = '0'; Type = 'DWord'; Original = '0' }
+				@{ Path = 'HKCU:\Software\Policies\Microsoft\Office\16.0\Outlook\Options\General'; Name = 'DoNewOutlookAutoMigration'; Value = '0'; Type = 'DWord'; Original = $null }
 				@{ Path = 'HKCU:\Software\Policies\Microsoft\Office\16.0\Outlook\Preferences'; Name = 'NewOutlookMigrationUserSetting'; Value = '0'; Type = 'DWord'; Original = $null }
 			)
 		}
@@ -2797,6 +2806,50 @@ function Test-SophiaOptimizerHealth
 	$badModes = @()
 	foreach ($t in $Catalog) { foreach ($mk in @($t.Modes)) { if ($validModeKeys -notcontains $mk) { $badModes += "$($t.Id):$mk" } } }
 	if ($badModes.Count -gt 0) { Report "FAIL" "Tweak dùng khóa Mode không hợp lệ: $($badModes -join ', ')" } else { Report "PASS" "Mọi tweak dùng khóa Mode hợp lệ ($($validModeKeys.Count) mode)" }
+
+	# Du lieu WinUtil + Apps (vendor offline): day du, khong trung khoa đích voi native
+	try
+	{
+		if (Get-Command Get-WinUtilRawTweaks -ErrorAction SilentlyContinue)
+		{
+			$wuRaw = @(Get-WinUtilRawTweaks)
+			$wuTargets = @{}
+			$wuBad = @()
+			foreach ($raw in $wuRaw)
+			{
+				foreach ($e in @($raw.Entries))
+				{
+					if (-not $e.Path -or -not $e.Name -or -not $e.Type) { $wuBad += "$($raw.Id) (thiếu Path/Name/Type)" }
+					$wuKey = "$($e.Path)\$($e.Name)".ToLower()
+					if ($wuTargets.ContainsKey($wuKey)) { $wuBad += "$($raw.Id) (trùng khóa đích nội bộ)" }
+					else { $wuTargets[$wuKey] = $raw.Id }
+				}
+			}
+			$nativeTargets = @{}
+			foreach ($t2 in $Catalog)
+			{
+				if ($t2.Kind -eq "Registry" -and $t2.Detail -match '^(.*) = (.*)$') { $nativeTargets[$Matches[1].ToLower()] = $t2.Id }
+			}
+			$crossDup = @()
+			foreach ($k in $wuTargets.Keys) { if ($nativeTargets.ContainsKey($k)) { $crossDup += "$($wuTargets[$k])~$($nativeTargets[$k])" } }
+			if ($crossDup.Count -gt 0) { $wuBad += "trùng native: $($crossDup -join ', ')" }
+			if ($wuBad.Count -eq 0) { Report "PASS" "WinUtil data: $($wuRaw.Count) tweak, $(($wuTargets.Keys).Count) khóa đích, không trùng native" }
+			else { Report "FAIL" "WinUtil data có vấn đề: $($wuBad -join '; ')" }
+		}
+	}
+	catch { Report "WARN" "Không kiểm tra được WinUtil data: $($_.Exception.Message)" }
+	try
+	{
+		if (Get-Command Get-SophiaAppsCatalog -ErrorAction SilentlyContinue)
+		{
+			$appList = @(Get-SophiaAppsCatalog)
+			$appBad = @($appList | Where-Object { -not $_.Winget -or -not $_.Name })
+			$appDup = @($appList | Group-Object Winget | Where-Object Count -gt 1)
+			if ($appList.Count -gt 0 -and $appBad.Count -eq 0 -and $appDup.Count -eq 0) { Report "PASS" "Apps data: $($appList.Count) app winget hợp lệ, không trùng" }
+			else { Report "FAIL" "Apps data: $($appList.Count) app, $($appBad.Count) thiếu Winget/Name, $($appDup.Count) Winget trùng" }
+		}
+	}
+	catch { Report "WARN" "Không kiểm tra được Apps data: $($_.Exception.Message)" }
 
 	# 3) CheckScripts (read-only)
 	$checkErrors = @()
@@ -4177,7 +4230,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "4.1.0"
+	return "4.2.0"
 }
 
 function Format-MolikTruncate
@@ -4840,7 +4893,7 @@ if ($ListModes)
 }
 if ($ListTweaks)
 {
-	$list = if ($Search) { $catalog | Where-Object { $_.Name -match $Search -or $_.Id -match $Search -or $_.Category -match $Search } } else { $catalog }
+	$list = if ($Search) { $term = $Search.ToLower(); @($catalog | Where-Object { $_.Name.ToLower().Contains($term) -or $_.Id.ToLower().Contains($term) -or $_.Category.ToLower().Contains($term) }) } else { $catalog }
 	$list | Group-Object Category | ForEach-Object {
 		Write-Host ""; Write-Host "  $($_.Name) ($($_.Count))" -ForegroundColor Magenta
 		$_.Group | ForEach-Object { Write-Host ("    {0} [{1,-8}] {2}" -f $_.Id, $_.Risk, $_.Name) }

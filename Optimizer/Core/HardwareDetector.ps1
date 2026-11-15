@@ -123,7 +123,10 @@ function Get-SophiaSystemSnapshot
 	try
 	{
 		$GPUs = @(Get-CimInstance -Namespace root/CIMV2 -ClassName Win32_VideoController -ErrorAction SilentlyContinue)
-		$DedicatedGPU = $GPUs | Where-Object { $_.Name -notmatch "Microsoft Basic|Parsec|Virtual|Indirect|Luminon" } | Select-Object -First 1
+		# Uu tien GPU roi that (AdapterRAM lon nhat) thay vi adapter dau tien -
+		# may hybrid (iGPU + dGPU) truoc day de bao nham iGPU la GPU chinh
+		$realGPUs = @($GPUs | Where-Object { $_.Name -notmatch "Microsoft Basic|Parsec|Virtual|Indirect|Luminon" })
+		$DedicatedGPU = $realGPUs | Sort-Object -Property @{ Expression = { if ($_.AdapterRAM) { [long]$_.AdapterRAM } else { 0 } }; Descending = $true } | Select-Object -First 1
 		if (-not $DedicatedGPU) { $DedicatedGPU = $GPUs | Select-Object -First 1 }
 
 		if ($DedicatedGPU)
