@@ -3,6 +3,16 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v4.2.0 — Debug PRO
+
+- Audit chéo dữ liệu WinUtil ↔ catalog native: gỡ **WU05** (trùng tuyệt đối
+  EXT72), sửa restore vô nghĩa của WU14 → còn **196 tweak** không trùng lặp.
+  SelfTest tự kiểm tra trùng khóa đích giữa hai nguồn + dữ liệu app.
+- Hủy UAC giữa chừng: tool dừng và hướng dẫn rõ, không chạy tiếp thiếu quyền.
+- `-ListTweaks -Search` không sập khi nhập ký tự đặc biệt (regex → Contains).
+- Chọn GPU chính theo AdapterRAM lớn nhất (máy hybrid iGPU+dGPU hết báo sai).
+- Benchmark đa luồng chỉ nhận job đã hoàn thành khi đo.
+
 ## v4.1.0 — Debug sâu & hoàn thiện cực hạn
 
 - **Audit engine cực hạn** (ExtremeEngine/RAM Daemon/WinUtil): Restore của

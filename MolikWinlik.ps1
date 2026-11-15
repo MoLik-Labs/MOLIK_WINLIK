@@ -75,7 +75,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "4.1.0"
+$Global:MolikWinlikVersion = "4.2.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -122,10 +122,22 @@ if (-not $readOnlyRequest)
 			if ($RestoreBackup) { $argList += "-RestoreBackup" }
 			if ($UndoLast) { $argList += "-UndoLast" }
 			if ($Search) { $argList += @("-Search", "`"$Search`"") }
-			Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Verb RunAs
+			try
+			{
+				Start-Process -FilePath "powershell.exe" -ArgumentList $argList -Verb RunAs -ErrorAction Stop
+			}
+			catch
+			{
+				Write-Host "  [X] Không nâng quyền được (UAC bị hủy hoặc bị chặn). Hãy chạy MOLIK_WINLIK.bat bằng 'Run as administrator'." -ForegroundColor Red
+			}
 			return
 		}
-	} catch {}
+	}
+	catch
+	{
+		Write-Host "  [!] Không kiểm tra/nâng quyền Administrator được - dừng lại để tránh áp dụng thiếu quyền." -ForegroundColor Red
+		return
+	}
 }
 
 $RepoRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
@@ -285,7 +297,7 @@ if ($ListModes)
 }
 if ($ListTweaks)
 {
-	$list = if ($Search) { $catalog | Where-Object { $_.Name -match $Search -or $_.Id -match $Search -or $_.Category -match $Search } } else { $catalog }
+	$list = if ($Search) { $term = $Search.ToLower(); @($catalog | Where-Object { $_.Name.ToLower().Contains($term) -or $_.Id.ToLower().Contains($term) -or $_.Category.ToLower().Contains($term) }) } else { $catalog }
 	$list | Group-Object Category | ForEach-Object {
 		Write-Host ""; Write-Host "  $($_.Name) ($($_.Count))" -ForegroundColor Magenta
 		$_.Group | ForEach-Object { Write-Host ("    {0} [{1,-8}] {2}" -f $_.Id, $_.Risk, $_.Name) }

@@ -40,7 +40,8 @@ function Invoke-SophiaBenchmark
 		$swMulti = [System.Diagnostics.Stopwatch]::StartNew()
 		$jobs = @()
 		for ($c = 0; $c -lt $cores; $c++) { $jobs += Start-Job -ScriptBlock $jobBlock }
-		$done = $jobs | Wait-Job -Timeout 120 | Receive-Job
+		$jobs | Wait-Job -Timeout 120 | Out-Null
+		$done = @($jobs | Where-Object { $_.State -eq 'Completed' } | Receive-Job -ErrorAction SilentlyContinue)
 		$jobs | Remove-Job -Force -ErrorAction SilentlyContinue
 		$swMulti.Stop()
 		$totalIter = ($done | Measure-Object -Sum).Sum

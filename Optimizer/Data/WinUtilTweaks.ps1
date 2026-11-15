@@ -1,7 +1,7 @@
 ﻿<#
 	MOLIK WINLIK - WinUtil Tweaks Data (VENDORED, works OFFLINE - no download needed)
 	Converted from ChrisTitusTech/winutil config/tweaks.json (commit 2ef5e5d), MIT License - see LICENSE-winutil.txt
-	Only pure-registry Toggle tweaks were converted; tweaks duplicating/conflicting with the native 137-tweak catalog were excluded.
+	Only pure-registry Toggle tweaks were converted; tweaks duplicating/conflicting with the native catalog were excluded (WU05 removed in v4.2 - exact duplicate of native EXT72).
 #>
 function Get-WinUtilRawTweaks
 {
@@ -60,13 +60,6 @@ function Get-WinUtilRawTweaks
 				@{ Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'; Name = 'EdgeAssetDeliveryServiceEnabled'; Value = '0'; Type = 'DWord'; Original = $null }
 				@{ Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'; Name = 'WalletDonationEnabled'; Value = '0'; Type = 'DWord'; Original = $null }
 				@{ Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'; Name = 'DefaultBrowserSettingsCampaignEnabled'; Value = '0'; Type = 'DWord'; Original = $null }
-			)
-		}
-		[PSCustomObject]@{
-			Id = 'WU05'; SourceKey = 'WPFTweaksConsumerFeatures'; Name = 'ConsumerFeatures - Disable'; Description = 'Stops promoted app installs and reduces app suggestions from Microsoft Store content.'
-			SourceCategory = 'Essential Tweaks'; Risk = 'Safe'; Modes = @("SophiaStandard")
-			Entries = @(
-				@{ Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent'; Name = 'DisableWindowsConsumerFeatures'; Value = '1'; Type = 'DWord'; Original = $null }
 			)
 		}
 		[PSCustomObject]@{
@@ -134,7 +127,7 @@ function Get-WinUtilRawTweaks
 			Entries = @(
 				@{ Path = 'HKCU:\SOFTWARE\Microsoft\Office\16.0\Outlook\Preferences'; Name = 'UseNewOutlook'; Value = '1'; Type = 'DWord'; Original = '0' }
 				@{ Path = 'HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General'; Name = 'HideNewOutlookToggle'; Value = '0'; Type = 'DWord'; Original = '1' }
-				@{ Path = 'HKCU:\Software\Policies\Microsoft\Office\16.0\Outlook\Options\General'; Name = 'DoNewOutlookAutoMigration'; Value = '0'; Type = 'DWord'; Original = '0' }
+				@{ Path = 'HKCU:\Software\Policies\Microsoft\Office\16.0\Outlook\Options\General'; Name = 'DoNewOutlookAutoMigration'; Value = '0'; Type = 'DWord'; Original = $null }
 				@{ Path = 'HKCU:\Software\Policies\Microsoft\Office\16.0\Outlook\Preferences'; Name = 'NewOutlookMigrationUserSetting'; Value = '0'; Type = 'DWord'; Original = $null }
 			)
 		}
