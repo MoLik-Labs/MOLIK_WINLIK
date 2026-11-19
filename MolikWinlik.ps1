@@ -75,7 +75,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "4.2.0"
+$Global:MolikWinlikVersion = "5.0.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -171,8 +171,13 @@ foreach ($rel in $engineFiles)
 
 $catalog = Get-SophiaTweaksCatalog
 $modes = Get-SophiaOptimizationModes
+# PERF (v5.0): snapshot phan cung chay nhieu CIM query + quet o dia tim gia
+# lap - cac lenh chi-doc liet ke ben duoi khong can no, bo qua de khoi dong
+# gan nhu tuc thi. Tinh nang nao can snapshot (TUI/Apply/Plan/Smart/Doctor/
+# ExportReport/Profile/Preset/ApplyIds) van tinh day du nhu truoc.
+$quickReadOnly = ($ListModes -or $ListTweaks -or $ListApps -or $Version -or $ListPresets -or $ListBackups -or $ListProfiles -or $ListApps -or $SelfTest -or $CompareBenchmarks -or $BackupOnly -or $RestoreBackup -or $UndoLast -or $Benchmark -or $PurgeRAM -or $BoostEmulators -or $InstallApps -or $AppsMenu -or $RestoreDefaults -or ($Status -ne "__none__"))
 $snapshot = $null
-try { $snapshot = Get-SophiaSystemSnapshot } catch {}
+if (-not $quickReadOnly) { try { $snapshot = Get-SophiaSystemSnapshot } catch {} }
 
 # Bridge vao module goc upstream la TUY CHON (mac dinh TAT de khoi dong nhanh va
 # tranh import module lon khong can thiet). Bat bang -LoadNativeSophia khi can.
@@ -182,7 +187,7 @@ if ($LoadNativeSophia)
 }
 
 $smartRec = $null
-if (Get-Command Get-SophiaSmartRecommendation -ErrorAction SilentlyContinue)
+if ($snapshot -and (Get-Command Get-SophiaSmartRecommendation -ErrorAction SilentlyContinue))
 {
 	try { $smartRec = Get-SophiaSmartRecommendation -Snapshot $snapshot -Catalog $catalog } catch {}
 }

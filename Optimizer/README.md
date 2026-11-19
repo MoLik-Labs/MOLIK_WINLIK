@@ -90,6 +90,16 @@ online cũ) đã bị xóa hẳn.
 .\MolikWinlik.ps1 -RestoreDefaults -Yes             # khôi phục mặc định
 ```
 
+## ⚡ v5.0 — Skills, bảo mật & hiệu năng khởi động
+
+- **`skills/` ở gốc repo**: bộ Agent Skills nội bộ (deep-debug, security,
+  perf, TUI, tweaks, release) + `audit_molik.py` quét tĩnh toàn dự án trên
+  mọi nền tảng. Xem `skills/README.md`.
+- **Khởi động nhanh**: lệnh chỉ-đọc không còn quét phần cứng; TUI vẽ bằng
+  Console API trực tiếp; quét giả lập/Mode được cache trong phiên.
+- **Bảo mật**: `.bat` escape đối số khi xin UAC; xem `docs/ADR-001` về quyết
+  định giữ engine PowerShell thay vì viết lại Rust/Go.
+
 ## 🩺 v4.2 — Debug PRO: dữ liệu chéo & đường chạy
 
 - **Audit chéo WinUtil ↔ native**: gỡ WU05 (trùng tuyệt đối với EXT72 — lọt qua bộ lọc loại trùng khi vendor), sửa WU14 (Restore viết lại đúng giá trị vừa áp). Catalog còn **196 tweak** sạch trùng lặp; SelfTest từ nay tự kiểm tra trùng khóa đích giữa 2 nguồn + tính hợp lệ của dữ liệu 24 tweak WinUtil và 239 app.

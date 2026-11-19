@@ -38,9 +38,16 @@ fltmc >nul 2>&1
 if errorlevel 1 (
   echo.
   echo  MOLIK WINLIK needs Administrator. Opening the UAC prompt...
+  rem Escape single quotes ('' doubling) before embedding args in the
+  rem PowerShell -Command string below - a raw %* would let a quote in an
+  rem argument break out of the string. Paths/args stay data, never code.
+  set "RAWARGS=%*"
+  set "ESCARGS=%RAWARGS:'=''%"
   set "ARGOPT="
-  if not "%*"=="" set "ARGOPT=-ArgumentList '%*'"
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "try { Start-Process -FilePath '%~f0' %ARGOPT% -Verb RunAs -ErrorAction Stop } catch { Write-Host 'UAC was cancelled or blocked.'; exit 1 }"
+  if not "%*"=="" set "ARGOPT=-ArgumentList '%ESCARGS%'"
+  set "SELFPATH=%~f0"
+  set "ESCSELF=%SELFPATH:'=''%"
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "try { Start-Process -FilePath '%ESCSELF%' %ARGOPT% -Verb RunAs -ErrorAction Stop } catch { Write-Host 'UAC was cancelled or blocked.'; exit 1 }"
   if errorlevel 1 (
     echo.
     echo  [ERROR] Could not request Administrator rights.

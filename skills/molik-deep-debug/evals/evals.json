@@ -1,0 +1,23 @@
+{
+  "skill_name": "molik-deep-debug",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Kiểm tra giúp tôi catalog có tweak nào trùng ID hoặc xung đột registry không, và reboot list có ID lạ không.",
+      "expected_output": "Chạy scripts/audit_molik.py, báo số tweak/ID/reboot-list kèm PASS-FAIL từng mục, không kết luận suông.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Tôi vừa sửa TweaksCatalog.ps1 bằng script Python, nghi mất BOM và có tweak Restore không đối xứng. Debug sâu giúp.",
+      "expected_output": "Chạy audit (encoding + đối xứng), chỉ ra file thiếu BOM nếu có, liệt kê cặp Apply/Restore lệch để sửa, rồi hướng dẫn build lại Portable.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Bản Portable có còn khớp với source không? Tôi sửa engine hôm qua mà chưa build lại.",
+      "expected_output": "Audit mục Portable freshness/version/SHA256; nếu lệch thì hướng dẫn build lại và đối chiếu hash.",
+      "files": []
+    }
+  ]
+}

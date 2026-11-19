@@ -11,9 +11,16 @@
 function Get-SophiaModeTweakIds
 {
 	param([string]$ModeKey, $Catalog)
-	if ($ModeKey -eq "GodMode") { return @($Catalog | ForEach-Object { $_.Id }) }
 	if ([string]::IsNullOrWhiteSpace($ModeKey)) { return @() }
-	return @($Catalog | Where-Object { $_.Modes -contains $ModeKey } | ForEach-Object { $_.Id })
+	# PERF: catalog khong doi trong mot phien - nho ket qua theo Mode de
+	# menu/tab khong quet lai 196 tweak moi lan ve.
+	if (-not $script:MolikModeIdsCache) { $script:MolikModeIdsCache = @{} }
+	$cacheKey = "$ModeKey|$($Catalog.Count)"
+	if ($script:MolikModeIdsCache.ContainsKey($cacheKey)) { return @($script:MolikModeIdsCache[$cacheKey]) }
+	if ($ModeKey -eq "GodMode") { $result = @($Catalog | ForEach-Object { $_.Id }) }
+	else { $result = @($Catalog | Where-Object { $_.Modes -contains $ModeKey } | ForEach-Object { $_.Id }) }
+	$script:MolikModeIdsCache[$cacheKey] = $result
+	return $result
 }
 
 function Invoke-SophiaSelectedTweaks
@@ -202,7 +209,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "4.2.0"
+	return "5.0.0"
 }
 
 function Format-MolikTruncate
@@ -386,6 +393,18 @@ function Show-SophiaSimpleMenu
 	}
 }
 
+function Write-MolikText
+{
+	# PERF: ghi thang ra Console API thay vi Write-Host (di qua pipeline nen
+	# cham) - vong lap ve TUI goi ham nay cho tung dong cua khung hinh.
+	# Mau nen/chu duoc dat lai sau moi doan nhu Write-Host -ForegroundColor.
+	param([Parameter(Position = 0)][AllowEmptyString()][string]$Text = "", [string]$Fg = "", [string]$Bg = "", [switch]$NoNewline)
+	if ($Fg) { try { [Console]::ForegroundColor = [ConsoleColor]$Fg } catch {} }
+	if ($Bg) { try { [Console]::BackgroundColor = [ConsoleColor]$Bg } catch {} }
+	if ($NoNewline) { [Console]::Write($Text) } else { [Console]::WriteLine($Text) }
+	try { [Console]::ResetColor() } catch {}
+}
+
 function Show-SophiaOptimizerUI
 {
 	param($Catalog, $Snapshot, [string]$InitialMode = "EmulatorFarm")
@@ -457,15 +476,15 @@ function Show-SophiaOptimizerUI
 			if ($Snapshot.PendingReboot) { $titleRight += " · restart pending" }
 			$titleRight = Format-MolikTruncate $titleRight 44
 		}
-		Write-Host $titleLeft -ForegroundColor White -NoNewline
-		Write-Host $titleVer -ForegroundColor DarkGray -NoNewline
+		Write-MolikText $titleLeft -Fg White -NoNewline
+		Write-MolikText $titleVer -Fg DarkGray -NoNewline
 		if ($titleRight)
 		{
 			$usedWidth = $titleLeft.Length + $titleVer.Length + $titleRight.Length
-			if ($usedWidth -lt ($width - 2)) { Write-Host (" " * ($width - 2 - $usedWidth)) -NoNewline }
-			Write-Host $titleRight -ForegroundColor DarkGray -NoNewline
+			if ($usedWidth -lt ($width - 2)) { Write-MolikText (" " * ($width - 2 - $usedWidth)) -NoNewline }
+			Write-MolikText $titleRight -Fg DarkGray -NoNewline
 		}
-		Write-Host ""
+		Write-MolikText ""
 
 		$tabsLen = 1
 		for ($i = 0; $i -lt $modes.Count; $i++)
@@ -475,19 +494,19 @@ function Show-SophiaOptimizerUI
 			if (-not $label) { $label = $m.Key }
 			$tabText = " $($i + 1) $label "
 			$tabsLen += $tabText.Length + 1
-			if ($m.Key -eq $currentMode) { Write-Host $tabText -ForegroundColor White -BackgroundColor DarkCyan -NoNewline }
-			else { Write-Host $tabText -ForegroundColor DarkGray -NoNewline }
-			Write-Host " " -NoNewline
+			if ($m.Key -eq $currentMode) { Write-MolikText $tabText -Fg White -Bg DarkCyan -NoNewline }
+			else { Write-MolikText $tabText -Fg DarkGray -NoNewline }
+			Write-MolikText " " -NoNewline
 		}
 		$status = " {0}/{1} selected" -f $selectedCount, $Catalog.Count
 		if ($appliedKnown -gt 0) { $status += " · $appliedKnown applied" }
 		if ($smartRec) { $status += " · G Smart: $($tabLabels[$smartRec.Mode])" }
 		if ($filterMode -ne "All") { $status += " · filter: $filterMode" }
 		if ($searchTerm) { $status += " · search: '$searchTerm'" }
-		Write-Host (Format-MolikTruncate $status ([Math]::Max(10, $width - $tabsLen - 1))) -ForegroundColor DarkGray
+		Write-MolikText (Format-MolikTruncate $status ([Math]::Max(10, $width - $tabsLen - 1))) -Fg DarkGray
 
 		$rule = " " + ("─" * ($width - 2))
-		Write-Host $rule -ForegroundColor DarkGray
+		Write-MolikText $rule -Fg DarkGray
 
 		# ── Danh sach (1 dong/tweak, cot thang hang) ──
 		$listLines = 0
@@ -498,7 +517,7 @@ function Show-SophiaOptimizerUI
 			if ($t.Category -ne $lastCategory)
 			{
 				$lastCategory = $t.Category
-				Write-Host (" " + (Format-MolikCategoryName $t.Category)) -ForegroundColor DarkCyan
+				Write-MolikText (" " + (Format-MolikCategoryName $t.Category)) -Fg DarkCyan
 				$listLines++
 			}
 			$isOn = ($selected.ContainsKey($t.Id) -and $selected[$t.Id])
@@ -512,33 +531,33 @@ function Show-SophiaOptimizerUI
 			$row = $prefix + (Format-MolikTruncate $t.Name $nameMax).PadRight($nameMax) + $badgeCol
 			if ($idx -eq $cursor)
 			{
-				Write-Host $row.PadRight($width - 1) -ForegroundColor White -BackgroundColor DarkBlue
+				Write-MolikText $row.PadRight($width - 1) -Fg White -Bg DarkBlue
 			}
-			elseif ($isOn) { Write-Host $row -ForegroundColor White }
-			else { Write-Host $row -ForegroundColor Gray }
+			elseif ($isOn) { Write-MolikText $row -Fg White }
+			else { Write-MolikText $row -Fg Gray }
 			$listLines++
 		}
 		if ($filtered.Count -eq 0)
 		{
-			Write-Host " (no tweaks)" -ForegroundColor DarkGray
+			Write-MolikText " (no tweaks)" -Fg DarkGray
 			$listLines++
 		}
 
 		# ── Panel chi tiet co dinh (2 dong) + thanh phim tat (1 dong) ──
-		Write-Host $rule -ForegroundColor DarkGray
+		Write-MolikText $rule -Fg DarkGray
 		$cur = $null
 		if ($filtered.Count -gt 0) { $cur = $filtered[$cursor] }
 		if ($cur)
 		{
-			Write-Host (" " + (Format-MolikTruncate $cur.Description ($width - 3))) -ForegroundColor Gray
+			Write-MolikText (" " + (Format-MolikTruncate $cur.Description ($width - 3))) -Fg Gray
 			$detailLine = $cur.Detail
 			if ($rebootIds -contains $cur.Id) { $detailLine += " · Restart required" }
-			Write-Host (" " + (Format-MolikTruncate $detailLine ($width - 3))) -ForegroundColor DarkGray
+			Write-MolikText (" " + (Format-MolikTruncate $detailLine ($width - 3))) -Fg DarkGray
 		}
 		else
 		{
-			Write-Host " " -ForegroundColor Gray
-			Write-Host " " -ForegroundColor DarkGray
+			Write-MolikText " " -Fg Gray
+			Write-MolikText " " -Fg DarkGray
 		}
 		$keys = " Enter apply · Space toggle · ↑↓ move · 1-6 mode · / search · F filter · ? help · Q quit"
 		$pageInfo = "{0}/{1} · page {2}/{3} " -f ($cursor + 1), $filtered.Count, ([Math]::Floor($pageStart / $pageSize) + 1), ([Math]::Ceiling($filtered.Count / $pageSize))
@@ -546,14 +565,14 @@ function Show-SophiaOptimizerUI
 		$padFooter = $width - 1 - $keys.Length - $pageInfo.Length
 		if ($padFooter -ge 2) { $footer = $keys + (" " * $padFooter) + $pageInfo }
 		else { $footer = (Format-MolikTruncate $keys ([Math]::Max(20, $width - 1 - $pageInfo.Length))) + $pageInfo }
-		Write-Host (Format-MolikTruncate $footer ($width - 1)) -ForegroundColor DarkGray
+		Write-MolikText (Format-MolikTruncate $footer ($width - 1)) -Fg DarkGray
 
 		# Xoa phan du cua khung hinh truoc (dai hon) de khong con "rac" phia duoi
 		$frameLines = 7 + $listLines
 		if ($frameLines -lt $lastFrameLines)
 		{
 			$padLine = " " * [Math]::Max(10, $width - 1)
-			for ($pad = $frameLines; $pad -lt $lastFrameLines; $pad++) { Write-Host $padLine }
+			for ($pad = $frameLines; $pad -lt $lastFrameLines; $pad++) { Write-MolikText $padLine }
 			try { [Console]::SetCursorPosition(0, 0) } catch {}
 		}
 		$lastFrameLines = $frameLines

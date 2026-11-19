@@ -3,6 +3,29 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.0.0 — Skills, bảo mật & hiệu năng
+
+- **Bộ Agent Skills nội bộ** (`skills/`): 6 skill theo chuẩn Agent Skills
+  (học từ anthropics/skills, viết lại cho dự án) — deep-debug, security-audit,
+  perf-optimizer, tui-design, windows-tweaks, release-qa — kèm công cụ audit
+  tĩnh chạy đa nền tảng `audit_molik.py`. Từ nay debug có checklist + lệnh
+  kiểm chứng đóng gói sẵn, dùng lại được ở mọi đợt sau.
+- **Bảo mật**: `MOLIK_WINLIK.bat` escape dấu `'` trong đối số trước khi nhúng
+  vào lệnh nâng quyền UAC (trước đây đối số chứa `'` bẻ vỡ chuỗi lệnh);
+  fallback Chocolatey không còn gọi với ID rỗng (app chỉ có winget báo rõ).
+- **Hiệu năng khởi động**: lệnh chỉ-đọc (`-ListTweaks`, `-Version`,
+  `-ListModes`...) bỏ qua toàn bộ quét phần cứng/CIM — mở gần như tức thì.
+  TUI vẽ bằng Console API trực tiếp thay `Write-Host` (hết chậm/nhấp nháy
+  mỗi phím), danh sách tweak theo Mode và kết quả quét giả lập được nhớ
+  trong phiên.
+- **Đúng đắn**: gỡ ID `RAM03` trùng trong danh sách cần-restart (audit bắt
+  được); Benchmark tái sử dụng một đối tượng SHA256 thay vì tạo 4000 lần/job
+  làm sai chính số đo. SelfTest thêm kiểm tra trùng reboot-ID và lệch
+  version Portable.
+- **Kiến trúc**: ghi `docs/ADR-001` — đánh giá Rust/Go rewrite và lý do giữ
+  PowerShell (nút thắt là I/O registry của Windows, minh bạch nguồn là tính
+  năng bảo mật); Python lo phần audit đa nền tảng.
+
 ## v4.2.0 — Debug PRO
 
 - Audit chéo dữ liệu WinUtil ↔ catalog native: gỡ **WU05** (trùng tuyệt đối
