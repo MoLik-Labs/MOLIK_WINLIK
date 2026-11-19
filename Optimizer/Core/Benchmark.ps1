@@ -29,12 +29,19 @@ function Invoke-SophiaBenchmark
 	{
 		$cores = [Environment]::ProcessorCount
 		$jobBlock = {
-			$h = 0
-			for ($i = 0; $i -lt 4000; $i++)
+			# PERF: tao SHA256 mot lan - tao moi trong vong lap (4000 lan/job)
+			# vua ton tai nguyen vua lam cham chinh so do cua benchmark.
+			$sha = [System.Security.Cryptography.SHA256]::Create()
+			try
 			{
-				$bytes = [System.Text.Encoding]::UTF8.GetBytes("molikwinlik-bench-$i-$h")
-				$h = [BitConverter]::ToString([System.Security.Cryptography.SHA256]::Create().ComputeHash($bytes)).Length + $i
+				$h = 0
+				for ($i = 0; $i -lt 4000; $i++)
+				{
+					$bytes = [System.Text.Encoding]::UTF8.GetBytes("molikwinlik-bench-$i-$h")
+					$h = $sha.ComputeHash($bytes).Length + $i
+				}
 			}
+			finally { $sha.Dispose() }
 			return 4000
 		}
 		$swMulti = [System.Diagnostics.Stopwatch]::StartNew()

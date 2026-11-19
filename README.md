@@ -105,7 +105,7 @@ href="https://trendshift.io/repositories/17603"><img src="https://trendshift.io/
 
 </div>
 
-## 👑 MOLIK_WINLIK — MOLIK WINLIK v3.0 by @nggkhaiz (Offline Optimizer — Tick-Select CLI)
+## 👑 MOLIK_WINLIK — MOLIK WINLIK v5.0 by @nggkhaiz (Offline Optimizer — Tick-Select CLI)
 
 > 🇻🇳 Tool tối ưu sâu do fork này bổ sung, nằm ngoài module Sophia gốc (`src/` giữ nguyên 100%): **196 tweak cực mạnh**, **6 mode riêng** cho từng nhu cầu và giao diện **tick-chọn CLI** `[✓]/[ ]`.
 
@@ -122,6 +122,8 @@ href="https://trendshift.io/repositories/17603"><img src="https://trendshift.io/
 | 🥔 `LowSpec` | Máy yếu/Potato PC |
 | 🛡️ `SophiaStandard` | Privacy & gọn gàng an toàn chuẩn Sophia |
 | 👑 `GodMode` | Toàn bộ tweak kể cả Extreme |
+
+> 🧰 **v5.0**: bộ Agent Skills nội bộ trong [`skills/`](skills/README.md) (deep-debug, bảo mật, hiệu năng, TUI, phát hành) kèm `audit_molik.py` quét tĩnh đa nền tảng; khởi động nhanh cho lệnh chỉ-đọc, TUI render mượt, `.bat` escape đối số UAC. Kiến trúc: [`docs/ADR-001`](docs/ADR-001-engine-language.md).
 
 Tích hợp sẵn **winutil của Chris Titus Tech** (24 tweak + 239 app winget, vendor offline, MIT) — nhóm `10. WINUTIL` trong CLI và `-ListApps`/`-InstallApps`. Chi tiết: [Optimizer/README.md](Optimizer/README.md) · Chạy `.\MolikWinlik.ps1 -ListTweaks` để xem toàn bộ catalog. Tool tự tạo System Restore Point + backup Registry/BCD trước khi áp dụng và khôi phục được bằng phím `R`.
 

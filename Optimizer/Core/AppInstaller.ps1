@@ -44,9 +44,16 @@ function Install-SophiaApps
 			{
 				& winget install --id $app.Winget -e --silent --accept-source-agreements --accept-package-agreements 2>&1 | Out-Null
 			}
-			else
+			elseif ($app.Choco)
 			{
 				& choco install $app.Choco -y 2>&1 | Out-Null
+			}
+			else
+			{
+				# Nhieu app khong co goi Chocolatey (Choco = '') - dung im lang
+				# bao ro thay vi goi choco voi id rong.
+				Write-Host "      [!] $($app.Name) khong co goi Chocolatey - can winget (App Installer) de cai." -ForegroundColor Yellow
+				continue
 			}
 			if ($LASTEXITCODE -eq 0) { Write-Host "      [✓] Xong: $($app.Name)" -ForegroundColor Green }
 			else { Write-Host "      [!] Trình cài trả mã $LASTEXITCODE cho $($app.Name) (có thể đã cài rồi hoặc cần tương tác)." -ForegroundColor Yellow }

@@ -250,7 +250,11 @@ function Get-SophiaSystemSnapshot
 function Find-InstalledEmulators
 {
 	[CmdletBinding()]
-	param()
+	param([switch]$Refresh)
+
+	# PERF: quet o dia + registry ton thoi gian; catalog khong doi trong mot
+	# phien nen nho ket qua (Snapshot va ExtremeEngine cung dung chung).
+	if (-not $Refresh -and $script:MolikEmulatorCache) { return $script:MolikEmulatorCache }
 
 	$FoundNames   = [System.Collections.Generic.List[string]]::new()
 	$FoundExes    = [System.Collections.Generic.List[string]]::new()
@@ -353,9 +357,10 @@ function Find-InstalledEmulators
 		}
 	}
 
-	return [PSCustomObject]@{
+	$script:MolikEmulatorCache = [PSCustomObject]@{
 		Names    = $FoundNames.ToArray()
 		ExePaths = $FoundExes.ToArray()
 		Folders  = $FoundFolders.ToArray()
 	}
+	return $script:MolikEmulatorCache
 }

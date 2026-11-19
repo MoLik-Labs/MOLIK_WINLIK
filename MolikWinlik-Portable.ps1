@@ -1,5 +1,5 @@
 ﻿<#
-	MOLIK WINLIK by @nggkhaiz v4.2.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
+	MOLIK WINLIK by @nggkhaiz v5.0.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
 	Chay: double-click MOLIK_WINLIK.bat (tu xin Admin), hoac powershell -ExecutionPolicy Bypass -File .\MolikWinlik-Portable.ps1
 	File nay duoc sinh tu dong boi Optimizer\Build-Portable.ps1 - dung sua tay, hay sua nguon trong Optimizer/ roi build lai.
 #>
@@ -80,7 +80,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "4.2.0"
+$Global:MolikWinlikVersion = "5.0.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -405,7 +405,11 @@ function Get-SophiaSystemSnapshot
 function Find-InstalledEmulators
 {
 	[CmdletBinding()]
-	param()
+	param([switch]$Refresh)
+
+	# PERF: quet o dia + registry ton thoi gian; catalog khong doi trong mot
+	# phien nen nho ket qua (Snapshot va ExtremeEngine cung dung chung).
+	if (-not $Refresh -and $script:MolikEmulatorCache) { return $script:MolikEmulatorCache }
 
 	$FoundNames   = [System.Collections.Generic.List[string]]::new()
 	$FoundExes    = [System.Collections.Generic.List[string]]::new()
@@ -508,11 +512,12 @@ function Find-InstalledEmulators
 		}
 	}
 
-	return [PSCustomObject]@{
+	$script:MolikEmulatorCache = [PSCustomObject]@{
 		Names    = $FoundNames.ToArray()
 		ExePaths = $FoundExes.ToArray()
 		Folders  = $FoundFolders.ToArray()
 	}
+	return $script:MolikEmulatorCache
 }
 
 
@@ -1402,12 +1407,19 @@ function Invoke-SophiaBenchmark
 	{
 		$cores = [Environment]::ProcessorCount
 		$jobBlock = {
-			$h = 0
-			for ($i = 0; $i -lt 4000; $i++)
+			# PERF: tao SHA256 mot lan - tao moi trong vong lap (4000 lan/job)
+			# vua ton tai nguyen vua lam cham chinh so do cua benchmark.
+			$sha = [System.Security.Cryptography.SHA256]::Create()
+			try
 			{
-				$bytes = [System.Text.Encoding]::UTF8.GetBytes("molikwinlik-bench-$i-$h")
-				$h = [BitConverter]::ToString([System.Security.Cryptography.SHA256]::Create().ComputeHash($bytes)).Length + $i
+				$h = 0
+				for ($i = 0; $i -lt 4000; $i++)
+				{
+					$bytes = [System.Text.Encoding]::UTF8.GetBytes("molikwinlik-bench-$i-$h")
+					$h = $sha.ComputeHash($bytes).Length + $i
+				}
 			}
+			finally { $sha.Dispose() }
 			return 4000
 		}
 		$swMulti = [System.Diagnostics.Stopwatch]::StartNew()
@@ -1532,7 +1544,7 @@ function Get-SophiaRebootTweakIds
 {
 	return @(
 		"EMU01","EMU02","EMU03","EMU04","EMU06","CPU01","CPU04","CPU05","RAM01","RAM02","RAM03","RAM09",
-		"GPU01","GPU03","GPU04","GPU05","NET01","NET08","NET09","SYS04","EXT01","EXT21","EXT22","EXT38","EXT39","EXT51","EXT54","RAM03","EXT25","EXT79","EXT80","EXT83"
+		"GPU01","GPU03","GPU04","GPU05","NET01","NET08","NET09","SYS04","EXT01","EXT21","EXT22","EXT38","EXT39","EXT51","EXT54","EXT25","EXT79","EXT80","EXT83"
 	)
 }
 
@@ -1921,7 +1933,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "4.2.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.0.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -2218,9 +2230,16 @@ function Install-SophiaApps
 			{
 				& winget install --id $app.Winget -e --silent --accept-source-agreements --accept-package-agreements 2>&1 | Out-Null
 			}
-			else
+			elseif ($app.Choco)
 			{
 				& choco install $app.Choco -y 2>&1 | Out-Null
+			}
+			else
+			{
+				# Nhieu app khong co goi Chocolatey (Choco = '') - dung im lang
+				# bao ro thay vi goi choco voi id rong.
+				Write-Host "      [!] $($app.Name) khong co goi Chocolatey - can winget (App Installer) de cai." -ForegroundColor Yellow
+				continue
 			}
 			if ($LASTEXITCODE -eq 0) { Write-Host "      [✓] Xong: $($app.Name)" -ForegroundColor Green }
 			else { Write-Host "      [!] Trình cài trả mã $LASTEXITCODE cho $($app.Name) (có thể đã cài rồi hoặc cần tương tác)." -ForegroundColor Yellow }
@@ -2802,6 +2821,11 @@ function Test-SophiaOptimizerHealth
 		if ($rebootMissing.Count -gt 0) { Report "FAIL" "Reboot-list chứa ID không tồn tại: $($rebootMissing -join ', ')" }
 		else { Report "PASS" "Reboot-list: mọi ID cần-restart đều tồn tại trong catalog" }
 	} catch { Report "WARN" "Không kiểm tra được reboot-list: $($_.Exception.Message)" }
+	try
+	{
+		$rebootDupes = @(Get-SophiaRebootTweakIds | Group-Object | Where-Object { $_.Count -gt 1 })
+		if ($rebootDupes.Count -gt 0) { Report "FAIL" "Reboot-list trùng ID: $($rebootDupes.Name -join ', ')" } else { Report "PASS" "Reboot-list không trùng ID ($((Get-SophiaRebootTweakIds).Count) ID)" }
+	} catch { }
 	$validModeKeys = @((Get-SophiaOptimizationModes).Key)
 	$badModes = @()
 	foreach ($t in $Catalog) { foreach ($mk in @($t.Modes)) { if ($validModeKeys -notcontains $mk) { $badModes += "$($t.Id):$mk" } } }
@@ -2932,6 +2956,9 @@ function Test-SophiaOptimizerHealth
 		{
 			$content = Get-Content $portable -Raw
 			$markers = ([regex]::Matches($content, "PORTABLE-INLINE")).Count
+			$portableVer = ""
+			if ($content -match 'MolikWinlikVersion = "([0-9.]+)"') { $portableVer = $Matches[1] }
+			if ($portableVer -and $Global:MolikWinlikVersion -and $portableVer -ne $Global:MolikWinlikVersion) { Report "FAIL" "Portable lech version: Portable v$portableVer khac launcher v$($Global:MolikWinlikVersion) - build lai bang Optimizer\Build-Portable.ps1" }
 			if ($markers -ge 10 -and $content -match "Get-WinUtilConvertedTweaks" -and $content -match "EXT86") { Report "PASS" "Portable: $markers module inline, du WinUtil + EXT86 (offline)" }
 			else { Report "WARN" "Portable co ve thieu module (markers=$markers) - chay Optimizer\\Build-Portable.ps1 de sinh lai" }
 			$scanText = (($content -split "`n") | Where-Object { $_ -notmatch "OFFLINE guard|-match|-notmatch" }) -join "`n"
@@ -4039,9 +4066,16 @@ function Get-SophiaTweaksCatalog
 function Get-SophiaModeTweakIds
 {
 	param([string]$ModeKey, $Catalog)
-	if ($ModeKey -eq "GodMode") { return @($Catalog | ForEach-Object { $_.Id }) }
 	if ([string]::IsNullOrWhiteSpace($ModeKey)) { return @() }
-	return @($Catalog | Where-Object { $_.Modes -contains $ModeKey } | ForEach-Object { $_.Id })
+	# PERF: catalog khong doi trong mot phien - nho ket qua theo Mode de
+	# menu/tab khong quet lai 196 tweak moi lan ve.
+	if (-not $script:MolikModeIdsCache) { $script:MolikModeIdsCache = @{} }
+	$cacheKey = "$ModeKey|$($Catalog.Count)"
+	if ($script:MolikModeIdsCache.ContainsKey($cacheKey)) { return @($script:MolikModeIdsCache[$cacheKey]) }
+	if ($ModeKey -eq "GodMode") { $result = @($Catalog | ForEach-Object { $_.Id }) }
+	else { $result = @($Catalog | Where-Object { $_.Modes -contains $ModeKey } | ForEach-Object { $_.Id }) }
+	$script:MolikModeIdsCache[$cacheKey] = $result
+	return $result
 }
 
 function Invoke-SophiaSelectedTweaks
@@ -4230,7 +4264,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "4.2.0"
+	return "5.0.0"
 }
 
 function Format-MolikTruncate
@@ -4414,6 +4448,18 @@ function Show-SophiaSimpleMenu
 	}
 }
 
+function Write-MolikText
+{
+	# PERF: ghi thang ra Console API thay vi Write-Host (di qua pipeline nen
+	# cham) - vong lap ve TUI goi ham nay cho tung dong cua khung hinh.
+	# Mau nen/chu duoc dat lai sau moi doan nhu Write-Host -ForegroundColor.
+	param([Parameter(Position = 0)][AllowEmptyString()][string]$Text = "", [string]$Fg = "", [string]$Bg = "", [switch]$NoNewline)
+	if ($Fg) { try { [Console]::ForegroundColor = [ConsoleColor]$Fg } catch {} }
+	if ($Bg) { try { [Console]::BackgroundColor = [ConsoleColor]$Bg } catch {} }
+	if ($NoNewline) { [Console]::Write($Text) } else { [Console]::WriteLine($Text) }
+	try { [Console]::ResetColor() } catch {}
+}
+
 function Show-SophiaOptimizerUI
 {
 	param($Catalog, $Snapshot, [string]$InitialMode = "EmulatorFarm")
@@ -4485,15 +4531,15 @@ function Show-SophiaOptimizerUI
 			if ($Snapshot.PendingReboot) { $titleRight += " · restart pending" }
 			$titleRight = Format-MolikTruncate $titleRight 44
 		}
-		Write-Host $titleLeft -ForegroundColor White -NoNewline
-		Write-Host $titleVer -ForegroundColor DarkGray -NoNewline
+		Write-MolikText $titleLeft -Fg White -NoNewline
+		Write-MolikText $titleVer -Fg DarkGray -NoNewline
 		if ($titleRight)
 		{
 			$usedWidth = $titleLeft.Length + $titleVer.Length + $titleRight.Length
-			if ($usedWidth -lt ($width - 2)) { Write-Host (" " * ($width - 2 - $usedWidth)) -NoNewline }
-			Write-Host $titleRight -ForegroundColor DarkGray -NoNewline
+			if ($usedWidth -lt ($width - 2)) { Write-MolikText (" " * ($width - 2 - $usedWidth)) -NoNewline }
+			Write-MolikText $titleRight -Fg DarkGray -NoNewline
 		}
-		Write-Host ""
+		Write-MolikText ""
 
 		$tabsLen = 1
 		for ($i = 0; $i -lt $modes.Count; $i++)
@@ -4503,19 +4549,19 @@ function Show-SophiaOptimizerUI
 			if (-not $label) { $label = $m.Key }
 			$tabText = " $($i + 1) $label "
 			$tabsLen += $tabText.Length + 1
-			if ($m.Key -eq $currentMode) { Write-Host $tabText -ForegroundColor White -BackgroundColor DarkCyan -NoNewline }
-			else { Write-Host $tabText -ForegroundColor DarkGray -NoNewline }
-			Write-Host " " -NoNewline
+			if ($m.Key -eq $currentMode) { Write-MolikText $tabText -Fg White -Bg DarkCyan -NoNewline }
+			else { Write-MolikText $tabText -Fg DarkGray -NoNewline }
+			Write-MolikText " " -NoNewline
 		}
 		$status = " {0}/{1} selected" -f $selectedCount, $Catalog.Count
 		if ($appliedKnown -gt 0) { $status += " · $appliedKnown applied" }
 		if ($smartRec) { $status += " · G Smart: $($tabLabels[$smartRec.Mode])" }
 		if ($filterMode -ne "All") { $status += " · filter: $filterMode" }
 		if ($searchTerm) { $status += " · search: '$searchTerm'" }
-		Write-Host (Format-MolikTruncate $status ([Math]::Max(10, $width - $tabsLen - 1))) -ForegroundColor DarkGray
+		Write-MolikText (Format-MolikTruncate $status ([Math]::Max(10, $width - $tabsLen - 1))) -Fg DarkGray
 
 		$rule = " " + ("─" * ($width - 2))
-		Write-Host $rule -ForegroundColor DarkGray
+		Write-MolikText $rule -Fg DarkGray
 
 		# ── Danh sach (1 dong/tweak, cot thang hang) ──
 		$listLines = 0
@@ -4526,7 +4572,7 @@ function Show-SophiaOptimizerUI
 			if ($t.Category -ne $lastCategory)
 			{
 				$lastCategory = $t.Category
-				Write-Host (" " + (Format-MolikCategoryName $t.Category)) -ForegroundColor DarkCyan
+				Write-MolikText (" " + (Format-MolikCategoryName $t.Category)) -Fg DarkCyan
 				$listLines++
 			}
 			$isOn = ($selected.ContainsKey($t.Id) -and $selected[$t.Id])
@@ -4540,33 +4586,33 @@ function Show-SophiaOptimizerUI
 			$row = $prefix + (Format-MolikTruncate $t.Name $nameMax).PadRight($nameMax) + $badgeCol
 			if ($idx -eq $cursor)
 			{
-				Write-Host $row.PadRight($width - 1) -ForegroundColor White -BackgroundColor DarkBlue
+				Write-MolikText $row.PadRight($width - 1) -Fg White -Bg DarkBlue
 			}
-			elseif ($isOn) { Write-Host $row -ForegroundColor White }
-			else { Write-Host $row -ForegroundColor Gray }
+			elseif ($isOn) { Write-MolikText $row -Fg White }
+			else { Write-MolikText $row -Fg Gray }
 			$listLines++
 		}
 		if ($filtered.Count -eq 0)
 		{
-			Write-Host " (no tweaks)" -ForegroundColor DarkGray
+			Write-MolikText " (no tweaks)" -Fg DarkGray
 			$listLines++
 		}
 
 		# ── Panel chi tiet co dinh (2 dong) + thanh phim tat (1 dong) ──
-		Write-Host $rule -ForegroundColor DarkGray
+		Write-MolikText $rule -Fg DarkGray
 		$cur = $null
 		if ($filtered.Count -gt 0) { $cur = $filtered[$cursor] }
 		if ($cur)
 		{
-			Write-Host (" " + (Format-MolikTruncate $cur.Description ($width - 3))) -ForegroundColor Gray
+			Write-MolikText (" " + (Format-MolikTruncate $cur.Description ($width - 3))) -Fg Gray
 			$detailLine = $cur.Detail
 			if ($rebootIds -contains $cur.Id) { $detailLine += " · Restart required" }
-			Write-Host (" " + (Format-MolikTruncate $detailLine ($width - 3))) -ForegroundColor DarkGray
+			Write-MolikText (" " + (Format-MolikTruncate $detailLine ($width - 3))) -Fg DarkGray
 		}
 		else
 		{
-			Write-Host " " -ForegroundColor Gray
-			Write-Host " " -ForegroundColor DarkGray
+			Write-MolikText " " -Fg Gray
+			Write-MolikText " " -Fg DarkGray
 		}
 		$keys = " Enter apply · Space toggle · ↑↓ move · 1-6 mode · / search · F filter · ? help · Q quit"
 		$pageInfo = "{0}/{1} · page {2}/{3} " -f ($cursor + 1), $filtered.Count, ([Math]::Floor($pageStart / $pageSize) + 1), ([Math]::Ceiling($filtered.Count / $pageSize))
@@ -4574,14 +4620,14 @@ function Show-SophiaOptimizerUI
 		$padFooter = $width - 1 - $keys.Length - $pageInfo.Length
 		if ($padFooter -ge 2) { $footer = $keys + (" " * $padFooter) + $pageInfo }
 		else { $footer = (Format-MolikTruncate $keys ([Math]::Max(20, $width - 1 - $pageInfo.Length))) + $pageInfo }
-		Write-Host (Format-MolikTruncate $footer ($width - 1)) -ForegroundColor DarkGray
+		Write-MolikText (Format-MolikTruncate $footer ($width - 1)) -Fg DarkGray
 
 		# Xoa phan du cua khung hinh truoc (dai hon) de khong con "rac" phia duoi
 		$frameLines = 7 + $listLines
 		if ($frameLines -lt $lastFrameLines)
 		{
 			$padLine = " " * [Math]::Max(10, $width - 1)
-			for ($pad = $frameLines; $pad -lt $lastFrameLines; $pad++) { Write-Host $padLine }
+			for ($pad = $frameLines; $pad -lt $lastFrameLines; $pad++) { Write-MolikText $padLine }
 			try { [Console]::SetCursorPosition(0, 0) } catch {}
 		}
 		$lastFrameLines = $frameLines
@@ -4767,8 +4813,13 @@ function Show-SophiaOptimizerUI
 
 $catalog = Get-SophiaTweaksCatalog
 $modes = Get-SophiaOptimizationModes
+# PERF (v5.0): snapshot phan cung chay nhieu CIM query + quet o dia tim gia
+# lap - cac lenh chi-doc liet ke ben duoi khong can no, bo qua de khoi dong
+# gan nhu tuc thi. Tinh nang nao can snapshot (TUI/Apply/Plan/Smart/Doctor/
+# ExportReport/Profile/Preset/ApplyIds) van tinh day du nhu truoc.
+$quickReadOnly = ($ListModes -or $ListTweaks -or $ListApps -or $Version -or $ListPresets -or $ListBackups -or $ListProfiles -or $ListApps -or $SelfTest -or $CompareBenchmarks -or $BackupOnly -or $RestoreBackup -or $UndoLast -or $Benchmark -or $PurgeRAM -or $BoostEmulators -or $InstallApps -or $AppsMenu -or $RestoreDefaults -or ($Status -ne "__none__"))
 $snapshot = $null
-try { $snapshot = Get-SophiaSystemSnapshot } catch {}
+if (-not $quickReadOnly) { try { $snapshot = Get-SophiaSystemSnapshot } catch {} }
 
 # Bridge vao module goc upstream la TUY CHON (mac dinh TAT de khoi dong nhanh va
 # tranh import module lon khong can thiet). Bat bang -LoadNativeSophia khi can.
@@ -4778,7 +4829,7 @@ if ($LoadNativeSophia)
 }
 
 $smartRec = $null
-if (Get-Command Get-SophiaSmartRecommendation -ErrorAction SilentlyContinue)
+if ($snapshot -and (Get-Command Get-SophiaSmartRecommendation -ErrorAction SilentlyContinue))
 {
 	try { $smartRec = Get-SophiaSmartRecommendation -Snapshot $snapshot -Catalog $catalog } catch {}
 }

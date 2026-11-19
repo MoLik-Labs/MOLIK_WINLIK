@@ -78,6 +78,11 @@ function Test-SophiaOptimizerHealth
 		if ($rebootMissing.Count -gt 0) { Report "FAIL" "Reboot-list chứa ID không tồn tại: $($rebootMissing -join ', ')" }
 		else { Report "PASS" "Reboot-list: mọi ID cần-restart đều tồn tại trong catalog" }
 	} catch { Report "WARN" "Không kiểm tra được reboot-list: $($_.Exception.Message)" }
+	try
+	{
+		$rebootDupes = @(Get-SophiaRebootTweakIds | Group-Object | Where-Object { $_.Count -gt 1 })
+		if ($rebootDupes.Count -gt 0) { Report "FAIL" "Reboot-list trùng ID: $($rebootDupes.Name -join ', ')" } else { Report "PASS" "Reboot-list không trùng ID ($((Get-SophiaRebootTweakIds).Count) ID)" }
+	} catch { }
 	$validModeKeys = @((Get-SophiaOptimizationModes).Key)
 	$badModes = @()
 	foreach ($t in $Catalog) { foreach ($mk in @($t.Modes)) { if ($validModeKeys -notcontains $mk) { $badModes += "$($t.Id):$mk" } } }
@@ -208,6 +213,9 @@ function Test-SophiaOptimizerHealth
 		{
 			$content = Get-Content $portable -Raw
 			$markers = ([regex]::Matches($content, "PORTABLE-INLINE")).Count
+			$portableVer = ""
+			if ($content -match 'MolikWinlikVersion = "([0-9.]+)"') { $portableVer = $Matches[1] }
+			if ($portableVer -and $Global:MolikWinlikVersion -and $portableVer -ne $Global:MolikWinlikVersion) { Report "FAIL" "Portable lech version: Portable v$portableVer khac launcher v$($Global:MolikWinlikVersion) - build lai bang Optimizer\Build-Portable.ps1" }
 			if ($markers -ge 10 -and $content -match "Get-WinUtilConvertedTweaks" -and $content -match "EXT86") { Report "PASS" "Portable: $markers module inline, du WinUtil + EXT86 (offline)" }
 			else { Report "WARN" "Portable co ve thieu module (markers=$markers) - chay Optimizer\\Build-Portable.ps1 de sinh lai" }
 			$scanText = (($content -split "`n") | Where-Object { $_ -notmatch "OFFLINE guard|-match|-notmatch" }) -join "`n"
