@@ -7,10 +7,13 @@ description: Security-audit MOLIK WINLIK: offline purity (no download/exec at ru
 
 ## Bất biến bảo mật của dự án
 
-1. **Offline 100% khi chạy**: không `Invoke-RestMethod`/`Invoke-WebRequest`/
+1. **Core offline 100%**: Portable không `Invoke-RestMethod`/`Invoke-WebRequest`/
    `DownloadString`/`iex` ngoài các dòng guard của chính bộ kiểm tra. Ngoại
    lệ duy nhất đã biết: winget/choco cài app do người dùng chủ động chọn,
    với `--id` exact-match từ dữ liệu vendor cố định.
+   Kênh online tùy chọn DUY NHẤT: `win.ps1`, `MOLIK_WINLIK-Online.bat`,
+   `Optimizer/Core/OnlineUpdate.ps1` — bắt buộc kiểm chứng SHA256 (lệch = hủy),
+   sao lưu `.bak` trước khi thay, không inline vào Portable (audit kiểm tra).
 2. **Minh bạch nguồn**: toàn bộ hành vi nằm trong `.ps1` đọc được. Đây là lý
    do dự án không đóng thành binary mờ (xem `docs/ADR-001-...`).
 3. Mọi tweak Extreme phải: có cảnh báo, cần xác nhận riêng, reversible.

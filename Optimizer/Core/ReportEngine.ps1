@@ -43,7 +43,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.2.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.3.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -166,6 +166,7 @@ function Show-MolikSystemDoctor
 		return
 	}
 	Write-Host ("  {0} | Build {1}.{2} | {3} | {4} luồng | RAM {5}GB (trống {6}GB) | {7} trống {8}GB" -f $Snapshot.OSName, $Snapshot.OSBuild, $Snapshot.OSUBR, $Snapshot.CPUName, $Snapshot.CPUThreads, $Snapshot.RAMTotalGB, $Snapshot.RAMFreeGB, $Snapshot.SystemDriveType, $Snapshot.SystemDriveFreeGB) -ForegroundColor Gray
+	Write-Host ("  Phân tầng máy: {0} (Low=yếu · Medium=trung bình · High=mạnh) — Smart Advisor (phím G / -Smart) chọn Mode theo tầng này." -f $(if ($Snapshot.PerformanceTier) { $Snapshot.PerformanceTier } else { "Medium" })) -ForegroundColor DarkGray
 	Write-Host ("  GPU: {0} ({1}) | WDDM {2} | Power Plan: {3} | Tiến trình: {4} | Giả lập: {5}" -f $Snapshot.GPUName, $Snapshot.GPUVendor, $Snapshot.WDDMVersion, $Snapshot.ActivePowerPlan, $Snapshot.ProcessCount, $(if ($Snapshot.InstalledEmulators) { $Snapshot.InstalledEmulators -join ", " } else { "không phát hiện" })) -ForegroundColor Gray
 	Write-Host ""
 

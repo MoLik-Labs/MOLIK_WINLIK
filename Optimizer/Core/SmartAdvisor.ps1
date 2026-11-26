@@ -55,6 +55,17 @@ function Get-SophiaSmartRecommendation
 		$mode = "Workstation"
 	}
 
+	# Phan tang may (v5.3): may yeu khong day sang Gaming - ve LowSpec cho on dinh
+	$tier = "Medium"
+	if ($Snapshot.PSObject.Properties.Name -contains "PerformanceTier") { $tier = [string]$Snapshot.PerformanceTier }
+	if ($tier -eq "Low" -and $mode -ne "EmulatorFarm")
+	{
+		$mode = "LowSpec"
+		$reasons += "Phân tầng máy: LOW (máy yếu: RAM/luồng CPU/ổ đĩa thấp) -> Mode LOW-SPEC để ổn định, mát máy."
+	}
+	elseif ($tier -eq "High") { $reasons += "Phân tầng máy: HIGH (máy mạnh) — đủ sức cho Gaming/Farm nặng, các tweak sâu phát huy tối đa." }
+	else { $reasons += "Phân tầng máy: MEDIUM (trung bình) — giữ cân bằng hiệu năng/nhiệt độ." }
+
 	if ($Snapshot.GPUVendor -eq "AMD") { $extraIds += "EXT12" ; $reasons += "GPU AMD: bổ sung EXT12 tắt ULPS chống stutter." }
 	if ($Snapshot.GPUVendor -eq "NVIDIA") { $extraIds += "EXT43" ; $reasons += "GPU NVIDIA: bổ sung EXT43 ép Power Limit tối đa qua nvidia-smi." }
 	if ($Snapshot.RAMTotalGB -ge 32) { $extraIds += "CPU10" ; $reasons += "RAM $($Snapshot.RAMTotalGB)GB (>= 32GB): bổ sung CPU10 tắt Page Combining — đổi RAM lấy CPU cho farm nhiều instance giống nhau." }
@@ -76,5 +87,6 @@ function Get-SophiaSmartRecommendation
 		Reasons = $reasons
 		Warnings = $warnings
 		IsLaptop = $isLaptop
+		Tier = $tier
 	}
 }

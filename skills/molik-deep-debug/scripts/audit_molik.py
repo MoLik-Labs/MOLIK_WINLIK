@@ -55,11 +55,14 @@ def main() -> int:
 
     # -- 1. duplicate functions -------------------------------------------------
     fn_defs = {}
+    online_only_fns = set()
     for f in ps_files:
         if f.name == "MolikWinlik-Portable.ps1":
             continue  # portable inlines everything on purpose
         for m in re.finditer(r"(?m)^\s*function\s+([A-Za-z0-9_-]+)", read_text(f)):
             fn_defs.setdefault(m.group(1), []).append(f.name)
+            if f.name == "OnlineUpdate.ps1":
+                online_only_fns.add(m.group(1))  # must NOT be inlined into Portable
     dup_fns = {k: v for k, v in fn_defs.items() if len(v) > 1}
     if dup_fns:
         report(FAIL, f"Duplicate function definitions: {dup_fns}")
@@ -143,6 +146,8 @@ def main() -> int:
     danger = []
     guard_ok = ("OFFLINE guard", "-match", "-notmatch")
     for f in ps_files:
+        if f.name == "OnlineUpdate.ps1":
+            continue  # the single opt-in online channel; verified separately below
         for n, line in enumerate(read_text(f).splitlines(), 1):
             if any(g in line for g in guard_ok):
                 continue
@@ -192,6 +197,10 @@ def main() -> int:
     else:
         report(FAIL, f"Version drift: {vers}")
 
+    online_file = root / "Optimizer" / "Core" / "OnlineUpdate.ps1"
+    if online_file.exists() and "Invoke-WebRequest" in read_text(online_file):
+        report(PASS, "Online channel isolated: only Optimizer/Core/OnlineUpdate.ps1 may download (opt-in -Update/-Repair, SHA256-verified, never in Portable)")
+
     # -- engine loader parity (launcher vs portable builder vs build list) --------
     def engine_basenames(text, anchor):
         m = re.search(anchor + r"\s*=\s*@\((.*?)\)", text, re.S)
@@ -228,7 +237,9 @@ def main() -> int:
     if portable.exists():
         ptxt = read_text(portable)
         markers = ptxt.count("PORTABLE-INLINE")
-        missing_fns = [fn for fn in fn_defs if f"function {fn}" not in ptxt]
+        missing_fns = [fn for fn in fn_defs if fn not in online_only_fns and f"function {fn}" not in ptxt]
+        if "function Update-MolikWinlik" in ptxt:  # download-cmdlet purity is covered by the danger scan above (guard lines excluded)
+            report(FAIL, "Portable contains the online updater - the distributed Portable must stay 100% offline")
         pv = re.search(r"MolikWinlikVersion\s*=\s*\"([0-9.]+)\"", ptxt)
         lv = re.search(r"MolikWinlikVersion\s*=\s*\"([0-9.]+)\"", read_text(root / "MolikWinlik.ps1"))
         if markers < 10:
