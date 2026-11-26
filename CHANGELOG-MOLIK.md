@@ -3,6 +3,24 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.1.0 — GUI winutil-style, kho skills mở rộng & dashboard mới
+
+- **GUI cửa sổ kiểu winutil** (`MOLIK_WINLIK.bat -Gui`): 4 tab
+  Tweaks/Apps/Presets/System, tick chọn + chọn Mode + tìm kiếm, cài app
+  winget, backup/hoàn tác/benchmark/xuất báo cáo, log + thanh tiến trình.
+  Lỗi khởi tạo (không STA...) tự fallback về TUI/Menu — không crash.
+- **Kho skills mở rộng**: vendor thêm superpowers (systematic-debugging,
+  verification, plans, TDD), golang (samber + spf13), low-level profiling,
+  design (impeccable, taste, ui-ux-pro-max, web-design-guidelines) vào
+  `skills/external/` kèm `SOURCES.md`; thêm `AGENTS.md`/`CLAUDE.md` ở gốc
+  để mọi phiên chat/agent mới tự nạp skills của dự án.
+- **Dashboard HTML thiết kế lại**: lưới thẻ responsive, bảng cuộn ngang +
+  header dính, semantic header/main/footer, hỗ trợ in ấn & giảm chuyển
+  động — vẫn offline 100%, không tài nguyên ngoài.
+- Engine áp dụng: có tweak FAIL sẽ chỉ thẳng tới `-UndoLast`/phím U.
+- Audit tĩnh thêm 2 kiểm tra: parity danh sách engine (launcher ↔ builder)
+  và frontmatter toàn bộ 24 SKILL.md. Tổng 13/13 PASS.
+
 ## v5.0.0 — Skills, bảo mật & hiệu năng
 
 - **Bộ Agent Skills nội bộ** (`skills/`): 6 skill theo chuẩn Agent Skills

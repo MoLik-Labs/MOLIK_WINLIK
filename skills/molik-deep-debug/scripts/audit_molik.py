@@ -192,6 +192,37 @@ def main() -> int:
     else:
         report(FAIL, f"Version drift: {vers}")
 
+    # -- engine loader parity (launcher vs portable builder vs build list) --------
+    def engine_basenames(text, anchor):
+        m = re.search(anchor + r"\s*=\s*@\((.*?)\)", text, re.S)
+        if not m:
+            return None
+        return sorted({Path(p.replace("\\", "/")).name for p in re.findall(r'"([^"]+\.ps1)"', m.group(1))})
+
+    l_list = engine_basenames(read_text(root / "MolikWinlik.ps1"), r"\$engineFiles")
+    b_list = engine_basenames(read_text(root / "Optimizer" / "Build-Portable.ps1"), r"\$engineFiles")
+    if not l_list or not b_list:
+        report(FAIL, "Could not parse engine file lists (launcher/builder) - loader parity unverifiable")
+    elif l_list != b_list:
+        report(FAIL, f"Engine list drift launcher vs builder: only-launcher={set(l_list) - set(b_list)} only-builder={set(b_list) - set(l_list)}")
+    else:
+        report(PASS, f"Engine loader parity: {len(l_list)} files identical in launcher + builder")
+
+    # -- skills pack sanity ---------------------------------------------------------
+    skill_files = sorted((root / "skills").rglob("SKILL.md"))
+    bad_skills = []
+    for sf in skill_files:
+        head = read_text(sf)[:1200]
+        m = re.match(r"---\s*\nname:\s*(\S+)\s*\ndescription:\s*(.+)", head, re.S)
+        if not m:
+            bad_skills.append(f"{sf.parent.name} (no frontmatter)")
+        elif sf.parent.parent.name == "skills" and m.group(1) != sf.parent.name:
+            bad_skills.append(f"{sf.parent.name} (name={m.group(1)} != folder)")
+    if bad_skills:
+        report(FAIL, "Skills with broken frontmatter: " + ", ".join(bad_skills))
+    elif skill_files:
+        report(PASS, f"Skills pack sane: {len(skill_files)} SKILL.md with valid frontmatter")
+
     # -- portable freshness ---------------------------------------------------------
     portable = root / "MolikWinlik-Portable.ps1"
     if portable.exists():

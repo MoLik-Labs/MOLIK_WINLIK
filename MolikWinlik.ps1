@@ -50,6 +50,7 @@ param(
 	[switch]$DryRun,
 	[string]$Profile = "",
 	[switch]$Menu,
+	[switch]$Gui,
 	[switch]$Smart,
 	[switch]$Plan,
 	[switch]$ListApps,
@@ -75,7 +76,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "5.0.0"
+$Global:MolikWinlikVersion = "5.1.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -105,6 +106,7 @@ if (-not $readOnlyRequest)
 			if ($PurgeRAM) { $argList += "-PurgeRAM" }
 			if ($Profile) { $argList += @("-Profile", "`"$Profile`"") }
 			if ($Menu) { $argList += "-Menu" }
+			if ($Gui) { $argList += "-Gui" }
 			if ($Smart) { $argList += "-Smart" }
 			if ($Plan) { $argList += "-Plan" }
 			if ($SelfTest) { $argList += "-SelfTest" }
@@ -160,7 +162,8 @@ $engineFiles = @(
 	"Optimizer\Core\BackupRestore.ps1",
 	"Optimizer\Core\SophiaBridge.ps1",
 	"Optimizer\Catalog\TweaksCatalog.ps1",
-	"Optimizer\UI\InteractiveCLI.ps1"
+	"Optimizer\UI\InteractiveCLI.ps1",
+	"Optimizer\UI\GuiWinForms.ps1"
 )
 foreach ($rel in $engineFiles)
 {
@@ -477,6 +480,15 @@ if ($Apply)
 		if ($confirm -notmatch '^[Yy]') { Write-Host "  Đã hủy. Chạy không có -Apply để mở giao diện tick-chọn."; return }
 	}
 	Invoke-SophiaSelectedTweaks -Catalog $catalog -SelectedIds $ids -SkipBackup:$NoBackup -Force:$Yes -Snapshot $snapshot
+	return
+}
+
+# ── Window GUI (winutil-style) - loi khoi tao thi fallback Menu, khong crash ──
+if ($Gui)
+{
+	$guiOk = $false
+	try { $guiOk = Show-MolikWinlikGui -Catalog $catalog -Snapshot $snapshot -InitialMode $Mode } catch {}
+	if (-not $guiOk) { Show-SophiaSimpleMenu -Catalog $catalog -Snapshot $snapshot -LauncherPath $PSCommandPath }
 	return
 }
 

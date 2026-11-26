@@ -125,6 +125,7 @@ function Invoke-SophiaSelectedTweaks
 	}
 	Write-Host ""
 	Write-Host "  Hoàn tất: $ok OK ($verifiedCount verified, $unverifiedCount unverified) / $fail FAIL — Log: $logFile" -ForegroundColor Cyan
+	if ($fail -gt 0) { Write-Host "  [i] Có $fail tweak FAIL — xem log ở trên; chạy -UndoLast (hoặc phím U) để hoàn tác cả phiên nếu cần." -ForegroundColor DarkGray }
 	try { Remove-Item $sessionMarker -Force -ErrorAction SilentlyContinue } catch {}
 	Write-Host "  [!] Nhiều tweak (HAGS, VBS, BCD, Pagefile) cần RESTART để có hiệu lực." -ForegroundColor Yellow
 	if (-not $Force -and -not $NoRestartPrompt)
@@ -209,7 +210,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.0.0"
+	return "5.1.0"
 }
 
 function Format-MolikTruncate
