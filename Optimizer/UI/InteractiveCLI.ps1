@@ -228,7 +228,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.2.0"
+	return "5.3.0"
 }
 
 function Format-MolikTruncate
@@ -287,9 +287,9 @@ function Show-SophiaSimpleMenu
 		Write-Host "  I  Tick-select UI     G  Smart Auto       P  Purge RAM" -ForegroundColor Gray
 		Write-Host "  E  Boost emulators  T  Benchmark        C  Compare benchmarks" -ForegroundColor Gray
 		Write-Host "  A  Install apps     X  Presets          H  HTML report" -ForegroundColor Gray
-		Write-Host "  B  Backup           U  Undo session     R  Restore defaults" -ForegroundColor Gray
+		Write-Host "  B  Backup           U  Undo session     R  Restore defaults   Z  Cleanup rác" -ForegroundColor Gray
 		Write-Host "  S  Desktop shortcut D  Self-test        K  Doctor           0  Exit" -ForegroundColor Gray
-		$choice = Read-Host "  Chọn (số Mode 1-$($modes.Count), 0 = thoát, hoặc phím I/G/P/E/A/T/C/R/S/D/X/H/B/U/K)"
+		$choice = Read-Host "  Chọn (số Mode 1-$($modes.Count), 0 = thoát, hoặc phím I/G/P/E/A/T/C/R/S/D/X/H/B/U/K/Z)"
 		if ($choice -match '^\d+$' -and [int]$choice -ge 1 -and [int]$choice -le $modes.Count)
 		{
 			$m = $modes[[int]::Parse($choice) - 1]
@@ -406,6 +406,15 @@ function Show-SophiaSimpleMenu
 		elseif ($choice -eq 'U' -or $choice -eq 'u')
 		{
 			if (Get-Command Restore-MolikLastSession -ErrorAction SilentlyContinue) { Restore-MolikLastSession -Catalog $Catalog | Out-Null }
+		}
+		elseif ($choice -eq 'Z' -or $choice -eq 'z')
+		{
+			if (Get-Command Invoke-MolikCleanup -ErrorAction SilentlyContinue)
+			{
+				$deepChoice = Read-Host "  Dọn sâu bằng công cụ Windows (cleanmgr + DISM, lâu hơn)? (Y/N)"
+				Invoke-MolikCleanup -Deep:($deepChoice -match '^[Yy]') | Out-Null
+				Read-Host '  Nhấn ENTER để quay lại menu'
+			}
 		}
 		elseif ($choice -eq '0') { return }
 		else { Write-Host "  Lựa chọn không hợp lệ." -ForegroundColor Yellow }
@@ -725,6 +734,13 @@ function Show-SophiaOptimizerUI
 			Read-Host "  Nhấn ENTER để tiếp tục"
 			$firstFrame = $true
 		}
+		elseif ($ch -eq 'c' -or $ch -eq 'C') {
+			try { [Console]::CursorVisible = $true } catch {}
+			if (Get-Command Invoke-MolikCleanup -ErrorAction SilentlyContinue) { Invoke-MolikCleanup | Out-Null }
+			else { Write-Host "  [!] Không tìm thấy Cleanup Engine." -ForegroundColor Yellow }
+			Read-Host "  Nhấn ENTER để tiếp tục"
+			$firstFrame = $true
+		}
 		elseif ($ch -eq 'f' -or $ch -eq 'F') {
 			$filterModes = @("All", "Selected", "Extreme", "NotApplied")
 			$filterMode = $filterModes[([array]::IndexOf($filterModes, $filterMode) + 1) % $filterModes.Count]
@@ -741,6 +757,7 @@ function Show-SophiaOptimizerUI
 			Write-Host "  G           Smart Advisor     P / E       Purge RAM / Boost emulators" -ForegroundColor Gray
 			Write-Host "  T           Benchmark         S / L       Save / Load profile" -ForegroundColor Gray
 			Write-Host "  B           Backup            H           HTML report" -ForegroundColor Gray
+			Write-Host "  C           Cleanup cache/temp (chỉ rác hệ thống, an toàn)" -ForegroundColor Gray
 			Write-Host "  U           Undo last session R           Restore defaults" -ForegroundColor Gray
 			Write-Host "  Q, Esc      Quit" -ForegroundColor Gray
 			Write-Host ""

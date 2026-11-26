@@ -1,0 +1,55 @@
+/*
+  MOLIK WINLIK docs theme
+  - Light appearance: "Forest" — deep greens on warm paper white
+  - Dark appearance:  "Catppuccin Mocha" — official Mocha palette
+  Toggle with the standard VitePress appearance switch in the navbar.
+*/
+
+/* ---------- Forest (light) ---------- */
+:root {
+  --vp-c-bg: #f7f5ee;
+  --vp-c-bg-alt: #efead9;
+  --vp-c-bg-elv: #fffdf6;
+  --vp-c-text-1: #1c2a1e;
+  --vp-c-text-2: #41523f;
+  --vp-c-text-3: #6d7f6a;
+  --vp-c-divider: #d9d2ba;
+  --vp-c-border: #cfc7a8;
+  --vp-c-brand-1: #2e7d46;
+  --vp-c-brand-2: #359455;
+  --vp-c-brand-3: #43ad66;
+  --vp-c-brand-soft: rgba(46, 125, 70, 0.12);
+  --vp-button-brand-bg: #2e7d46;
+  --vp-button-brand-hover-bg: #359455;
+  --vp-home-hero-name-color: #2e7d46;
+}
+
+/* ---------- Catppuccin Mocha (dark) ---------- */
+.dark {
+  --vp-c-bg: #1e1e2e;
+  --vp-c-bg-alt: #181825;
+  --vp-c-bg-elv: #313244;
+  --vp-c-text-1: #cdd6f4;
+  --vp-c-text-2: #a6adc8;
+  --vp-c-text-3: #7f849c;
+  --vp-c-divider: #313244;
+  --vp-c-border: #45475a;
+  --vp-c-brand-1: #cba6f7;
+  --vp-c-brand-2: #b4befe;
+  --vp-c-brand-3: #89b4fa;
+  --vp-c-brand-soft: rgba(203, 166, 247, 0.14);
+  --vp-button-brand-bg: #cba6f7;
+  --vp-button-brand-text: #1e1e2e;
+  --vp-button-brand-hover-bg: #b4befe;
+  --vp-button-brand-hover-text: #1e1e2e;
+  --vp-home-hero-name-color: #cba6f7;
+  --vp-code-block-bg: #181825;
+}
+
+/* Small polish: rounder cards, calm hero */
+.VPFeature {
+  border-radius: 10px;
+}
+.VPHero .name {
+  letter-spacing: 0.5px;
+}

@@ -49,6 +49,7 @@ function Get-SophiaSystemSnapshot
 		ProcessCount         = 0
 		InstalledEmulators   = @()
 		PendingReboot        = $false
+		PerformanceTier      = "Medium"
 		IsLaptop             = $false
 		EmulatorExePaths     = @()
 		EmulatorFolders      = @()
@@ -243,6 +244,18 @@ function Get-SophiaSystemSnapshot
 	$Snapshot.InstalledEmulators = $EmulatorInfo.Names
 	$Snapshot.EmulatorExePaths   = $EmulatorInfo.ExePaths
 	$Snapshot.EmulatorFolders    = $EmulatorInfo.Folders
+
+	# Phan tang hieu nang (v5.3): Low = may yeu, Medium = trung binh, High = manh.
+	# Smart Advisor + Doctor dung tang nay de chon Mode va canh bao ro rang.
+	if ($Snapshot.RAMTotalGB -le 8 -or $Snapshot.CPUThreads -le 4 -or $Snapshot.SystemDriveType -match "HDD")
+	{
+		$Snapshot.PerformanceTier = "Low"
+	}
+	elseif ($Snapshot.RAMTotalGB -ge 16 -and $Snapshot.CPUThreads -ge 12 -and $Snapshot.SystemDriveType -match "NVMe|SSD")
+	{
+		$Snapshot.PerformanceTier = "High"
+	}
+	else { $Snapshot.PerformanceTier = "Medium" }
 
 	return [PSCustomObject]$Snapshot
 }

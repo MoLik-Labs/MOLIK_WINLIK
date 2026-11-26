@@ -59,6 +59,35 @@ MOLIK_WINLIK.bat -ExportReport                      # xuất Dashboard HTML + JS
 MOLIK_WINLIK.bat -Gui                               # giao diện cửa sổ
 ```
 
+## Máy yếu / trung bình / mạnh — chọn Mode theo tầng máy
+
+Tool tự phân tầng phần cứng (**Low / Medium / High** từ RAM, số luồng CPU, loại ổ, GPU — xem `-Doctor`):
+
+| Tầng máy | Nhận biết | Mode khuyên dùng |
+|---|---|---|
+| **Low (yếu)** | RAM ≤ 8GB, ≤ 4 luồng, hoặc ổ HDD | `LowSpec`, `BatterySaver` — gọn, mát, ổn định |
+| **Medium (trung bình)** | Còn lại | `Workstation`, `Creator`, `DebloatMax` — cân bằng |
+| **High (mạnh)** | RAM ≥ 16GB, ≥ 12 luồng, SSD/NVMe | `HardcoreGaming`, `EmulatorFarm`, `Developer` — bung hết |
+
+Không chắc máy mình tầng nào? Chạy `MOLIK_WINLIK.bat -Smart -Plan` — Smart Advisor tự đọc tầng máy và khuyên Mode kèm lý do.
+
+## Dọn cache & temp rác (Cleanup Center)
+
+`MOLIK_WINLIK.bat -Cleanup` — dọn an toàn bằng cơ chế của Windows: Temp người dùng & Windows, thumbnail/icon cache, DirectX shader cache, báo lỗi WER, Windows Update cache, Delivery Optimization, Recycle Bin, DNS cache; báo rõ đã giải phóng bao nhiêu MB. `-DeepCleanup` dùng thêm **Disk Cleanup (`cleanmgr /autoclean`)** và **DISM StartComponentCleanup** có sẵn của Windows. Trong TUI bấm `C`, trong Menu bấm `Z`, trong GUI có nút ở tab System. Chỉ đụng cache/temp — không bao giờ chạm dữ liệu cá nhân.
+
+## Online & tự thay bản mới khi lỗi (tùy chọn)
+
+Bản chuẩn vẫn là **offline**. Khi muốn lấy bản mới nhất hoặc bản đang dùng bị lỗi:
+
+```powershell
+MOLIK_WINLIK.bat -Update    # tải bản mới từ GitHub, kiểm chứng SHA256 rồi thay (tự sao lưu .bak)
+MOLIK_WINLIK.bat -Repair    # ép thay lại bản sạch kể cả khi cùng version
+# hoặc chạy online luôn (tải + kiểm chứng + tự xin Admin):
+irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex
+```
+
+Mọi đường online đều **đối chiếu SHA256 với file `.sha256` chính thức trước khi thay** — lệch hash là hủy ngay và giữ nguyên bản hiện tại. Cũng có `MOLIK_WINLIK-Online.bat` để double-click.
+
 ## An toàn & khôi phục
 
 - **Tự backup trước khi áp**: System Restore Point + xuất registry/BCD vào `C:\MOLIK_WINLIK_Backups\`.

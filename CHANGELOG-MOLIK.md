@@ -3,6 +3,22 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.3.0 — Online/Update-Repair, Cleanup Center, tầng máy & Web docs
+
+- **Kênh online tùy chọn** (core vẫn offline 100%): `win.ps1`,
+  `MOLIK_WINLIK-Online.bat`, và `-Update`/`-Repair` trong launcher —
+  tải bản mới từ GitHub, **kiểm chứng SHA256** (lệch = hủy), sao lưu
+  `.bak` rồi thay thế an toàn kể cả khi bản Portable đang chạy.
+- **Cleanup Center** (`-Cleanup`/`-DeepCleanup`, TUI `C`, Menu `Z`, GUI):
+  dọn Temp/thumbnail/shader/WER/Update cache/Recycle Bin/DNS, đo MB
+  giải phóng; bản sâu dùng cleanmgr + DISM có sẵn của Windows.
+- **Phân tầng máy Low/Medium/High** trong Snapshot: Smart Advisor và
+  Doctor chọn/giải thích Mode theo tầng — máy yếu về LowSpec ổn định.
+- **Dọn repo**: xóa `img/`, README dịch upstream và CHANGELOG upstream
+  thừa; README gốc bổ sung mục tầng máy, Cleanup, Online/Repair.
+- **Web docs VitePress + GitHub Pages** (`docs/`, workflow pages.yml):
+  hướng dẫn đầy đủ; theme sáng **Forest**, tối **Catppuccin Mocha**.
+
 ## v5.2.0 — 11 Mode, 200 tweak & README chuyên nghiệp
 
 - **5 Mode ảo mới** (PrivacyMax 57, DebloatMax 54, Developer 78,

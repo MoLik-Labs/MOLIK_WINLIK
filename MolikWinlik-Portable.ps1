@@ -1,5 +1,5 @@
 ﻿<#
-	MOLIK WINLIK by @nggkhaiz v5.2.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
+	MOLIK WINLIK by @nggkhaiz v5.3.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
 	Chay: double-click MOLIK_WINLIK.bat (tu xin Admin), hoac powershell -ExecutionPolicy Bypass -File .\MolikWinlik-Portable.ps1
 	File nay duoc sinh tu dong boi Optimizer\Build-Portable.ps1 - dung sua tay, hay sua nguon trong Optimizer/ roi build lai.
 #>
@@ -47,6 +47,10 @@ param(
 	[switch]$ListModes,
 	[switch]$ListTweaks,
 	[switch]$PurgeRAM,
+	[switch]$Cleanup,
+	[switch]$DeepCleanup,
+	[switch]$Update,
+	[switch]$Repair,
 	[switch]$BoostEmulators,
 	[switch]$RestoreDefaults,
 	[switch]$Benchmark,
@@ -81,7 +85,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "5.2.0"
+$Global:MolikWinlikVersion = "5.3.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -109,6 +113,10 @@ if (-not $readOnlyRequest)
 			if ($BenchmarkLabel -and $BenchmarkLabel -ne "Manual") { $argList += @("-BenchmarkLabel", "`"$BenchmarkLabel`"") }
 			if ($DryRun) { $argList += "-DryRun" }
 			if ($PurgeRAM) { $argList += "-PurgeRAM" }
+			if ($Cleanup) { $argList += "-Cleanup" }
+			if ($DeepCleanup) { $argList += "-DeepCleanup" }
+			if ($Update) { $argList += "-Update" }
+			if ($Repair) { $argList += "-Repair" }
 			if ($Profile) { $argList += @("-Profile", "`"$Profile`"") }
 			if ($Menu) { $argList += "-Menu" }
 			if ($Gui) { $argList += "-Gui" }
@@ -148,6 +156,24 @@ if (-not $readOnlyRequest)
 }
 
 $RepoRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+
+# ── Online Update/Repair (kenh tuy chon, tach rieng - ban Portable khong co) ──
+if ($Update -or $Repair)
+{
+	$onlineFile = Join-Path $RepoRoot "Optimizer\Core\OnlineUpdate.ps1"
+	if (Test-Path $onlineFile)
+	{
+		. $onlineFile
+		Update-MolikWinlik -Force:$Repair | Out-Null
+	}
+	else
+	{
+		Write-Host "  [i] Đây là bản Portable OFFLINE nên không tự tải. Để cập nhật/thay bản mới:" -ForegroundColor Yellow
+		Write-Host "      Cách 1 (online): chay MOLIK_WINLIK-Online.bat (tu tai ban moi co kiem chung SHA256)." -ForegroundColor Gray
+		Write-Host "      Cách 2 (offline): tai ZIP moi tu GitHub roi giai nen de len thu muc nay." -ForegroundColor Gray
+	}
+	return
+}
 
 # ── Load engine ───────────────────────────────────────────────────────────────
 # [PORTABLE] Toan bo engine da duoc nhung truc tiep ben duoi - khong can file phu, khong tai gi khi chay.
@@ -206,6 +232,7 @@ function Get-SophiaSystemSnapshot
 		ProcessCount         = 0
 		InstalledEmulators   = @()
 		PendingReboot        = $false
+		PerformanceTier      = "Medium"
 		IsLaptop             = $false
 		EmulatorExePaths     = @()
 		EmulatorFolders      = @()
@@ -400,6 +427,18 @@ function Get-SophiaSystemSnapshot
 	$Snapshot.InstalledEmulators = $EmulatorInfo.Names
 	$Snapshot.EmulatorExePaths   = $EmulatorInfo.ExePaths
 	$Snapshot.EmulatorFolders    = $EmulatorInfo.Folders
+
+	# Phan tang hieu nang (v5.3): Low = may yeu, Medium = trung binh, High = manh.
+	# Smart Advisor + Doctor dung tang nay de chon Mode va canh bao ro rang.
+	if ($Snapshot.RAMTotalGB -le 8 -or $Snapshot.CPUThreads -le 4 -or $Snapshot.SystemDriveType -match "HDD")
+	{
+		$Snapshot.PerformanceTier = "Low"
+	}
+	elseif ($Snapshot.RAMTotalGB -ge 16 -and $Snapshot.CPUThreads -ge 12 -and $Snapshot.SystemDriveType -match "NVMe|SSD")
+	{
+		$Snapshot.PerformanceTier = "High"
+	}
+	else { $Snapshot.PerformanceTier = "Medium" }
 
 	return [PSCustomObject]$Snapshot
 }
@@ -836,6 +875,155 @@ function Unregister-SophiaAutoRamCleanerTask
 	Unregister-ScheduledTask -TaskName "MOLIK_WINLIK_RAM_Cleaner" -TaskPath "\MOLIK_WINLIK\" -Confirm:$false -ErrorAction SilentlyContinue
 	Unregister-ScheduledTask -TaskName "Sophia_Auto_RAM_Cleaner" -TaskPath "\Sophia\" -Confirm:$false -ErrorAction SilentlyContinue
 	Remove-Item -Path "$env:ProgramData\MOLIK_WINLIK\MolikRamCleaner.ps1" -Force -ErrorAction SilentlyContinue
+}
+
+
+# ============================================================
+# [PORTABLE-INLINE] Optimizer\Core\CleanupEngine.ps1
+# ============================================================
+<#
+	.SYNOPSIS
+	MOLIK WINLIK - Cleanup Center (don cache/temp rac bang cong cu Windows)
+
+	.DESCRIPTION
+	Dọn an toàn: Temp người dùng & Windows, cache thumbnail/icon, DirectX
+	shader cache, Windows Error Reporting, Delivery Optimization, Windows
+	Update download cache, Recycle Bin, DNS cache. Chế độ -Deep dùng thêm
+	công cụ có sẵn của Windows: cleanmgr /autoclean và DISM StartComponentCleanup.
+	Nguyên tắc an toàn: chỉ xóa nội dung bên trong thư mục đích (không xóa
+	thư mục gốc), file đang khóa bị bỏ qua, mỗi mục bọc try/catch riêng,
+	báo cáo MB đã giải phóng theo từng mục. -WhatIf chỉ in kế hoạch.
+#>
+
+function Get-MolikFolderSizeMB
+{
+	param([string]$Path)
+	if (-not (Test-Path $Path)) { return 0.0 }
+	try
+	{
+		$sum = (Get-ChildItem -Path $Path -Recurse -Force -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum
+		if ($null -eq $sum) { return 0.0 }
+		return [Math]::Round($sum / 1048576, 1)
+	}
+	catch { return 0.0 }
+}
+
+function Clear-MolikFolderContents
+{
+	# Xoa noi dung (file/thu muc con) trong $Path, chi file sua truoc
+	# $OlderThanDays ngay (0 = tat ca). Tra ve so MB da xoa (uoc luong).
+	param([string]$Path, [int]$OlderThanDays = 1, [switch]$WhatIf)
+	if (-not (Test-Path $Path)) { return 0.0 }
+	$before = Get-MolikFolderSizeMB -Path $Path
+	if ($WhatIf) { return $before }
+	$cutoff = (Get-Date).AddDays(-$OlderThanDays)
+	try
+	{
+		Get-ChildItem -Path $Path -Force -ErrorAction SilentlyContinue | ForEach-Object {
+			if ($OlderThanDays -le 0 -or $_.LastWriteTime -lt $cutoff)
+			{
+				Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+			}
+		}
+	}
+	catch {}
+	$after = Get-MolikFolderSizeMB -Path $Path
+	return [Math]::Round([Math]::Max(0, $before - $after), 1)
+}
+
+function Invoke-MolikCleanup
+{
+	[CmdletBinding()]
+	param([switch]$Deep, [switch]$WhatIf)
+
+	Write-Host ""
+	Write-Host "  MOLIK WINLIK — CLEANUP CENTER (dọn cache/temp an toàn)" -ForegroundColor White
+	if ($WhatIf) { Write-Host "  [WHATIF] Chỉ xem kế hoạch, không xóa gì." -ForegroundColor Yellow }
+
+	$results = @()
+	$addResult = { param($Name, $MB) $script:cleanupTotal += $MB; $results += [PSCustomObject]@{ Item = $Name; MB = $MB } }
+	$script:cleanupTotal = 0.0
+
+	$sections = @(
+		@{ Name = "Temp người dùng (%TEMP%)";        Path = $env:TEMP; Days = 1 }
+		@{ Name = "Temp Windows (C:\Windows\Temp)";  Path = "$env:SystemRoot\Temp"; Days = 1 }
+		@{ Name = "DirectX Shader Cache";            Path = "$env:LOCALAPPDATA\D3DSCache"; Days = 0 }
+		@{ Name = "Windows Error Reporting";         Path = "$env:LOCALAPPDATA\Microsoft\Windows\WER"; Days = 0 }
+		@{ Name = "Crash dumps người dùng";          Path = "$env:LOCALAPPDATA\CrashDumps"; Days = 0 }
+	)
+	foreach ($s in $sections)
+	{
+		try { $freed = Clear-MolikFolderContents -Path $s.Path -OlderThanDays $s.Days -WhatIf:$WhatIf; & $addResult $s.Name $freed } catch { & $addResult $s.Name 0 }
+	}
+
+	# Thumbnail / icon cache (chi file cache, Explorer tu dung lai)
+	try
+	{
+		$explorerCache = "$env:LOCALAPPDATA\Microsoft\Windows\Explorer"
+		$mb = 0.0
+		if ((Test-Path $explorerCache) -and -not $WhatIf)
+		{
+			$beforeT = Get-MolikFolderSizeMB -Path $explorerCache
+			Get-ChildItem -Path $explorerCache -Filter "*cache_*.db" -Force -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+			$mb = [Math]::Round([Math]::Max(0, $beforeT - (Get-MolikFolderSizeMB -Path $explorerCache)), 1)
+		}
+		& $addResult "Thumbnail/Icon cache" $mb
+	}
+	catch { & $addResult "Thumbnail/Icon cache" 0 }
+
+	# Windows Update download cache: dung dich vu -> xoa -> chay lai
+	try
+	{
+		$wuPath = "$env:SystemRoot\SoftwareDistribution\Download"
+		$wuFreed = 0.0
+		if (-not $WhatIf)
+		{
+			Stop-Service -Name @("wuauserv", "bits") -Force -ErrorAction SilentlyContinue
+			$wuFreed = Clear-MolikFolderContents -Path $wuPath -OlderThanDays 0
+			Start-Service -Name @("bits", "wuauserv") -ErrorAction SilentlyContinue
+		}
+		else { $wuFreed = Get-MolikFolderSizeMB -Path $wuPath }
+		& $addResult "Windows Update cache" $wuFreed
+	}
+	catch { & $addResult "Windows Update cache" 0 }
+
+	# Delivery Optimization cache (cmdlet co san tren Windows 10/11 moi)
+	try
+	{
+		if (-not $WhatIf -and (Get-Command Delete-DeliveryOptimizationCache -ErrorAction SilentlyContinue))
+		{
+			Delete-DeliveryOptimizationCache -Force -ErrorAction SilentlyContinue | Out-Null
+		}
+		& $addResult "Delivery Optimization cache" 0
+	}
+	catch {}
+
+	# Recycle Bin + DNS cache: cong cu nen cua Windows, an toan tuyet doi
+	if (-not $WhatIf)
+	{
+		try { Clear-RecycleBin -Force -ErrorAction SilentlyContinue } catch {}
+		try { & "$env:SystemRoot\System32\ipconfig.exe" /flushdns 2>$null | Out-Null } catch {}
+	}
+
+	if ($Deep -and -not $WhatIf)
+	{
+		Write-Host "  [Deep] Đang chạy Disk Cleanup của Windows (cleanmgr /autoclean)..." -ForegroundColor Cyan
+		try { Start-Process -FilePath "$env:SystemRoot\System32\cleanmgr.exe" -ArgumentList "/autoclean" -Wait -ErrorAction SilentlyContinue } catch {}
+		$isAdmin = $false
+		try { $isAdmin = (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) } catch {}
+		if ($isAdmin)
+		{
+			Write-Host "  [Deep] DISM StartComponentCleanup (dọn kho component, hơi lâu)..." -ForegroundColor Cyan
+			try { Start-Process -FilePath "$env:SystemRoot\System32\Dism.exe" -ArgumentList "/Online", "/Cleanup-Image", "/StartComponentCleanup" -Wait -NoNewWindow -ErrorAction SilentlyContinue } catch {}
+		}
+		else { Write-Host "  [Deep] Bỏ qua DISM (cần Admin)." -ForegroundColor Yellow }
+	}
+
+	Write-Host ""
+	$results | ForEach-Object { Write-Host ("    {0,-38} {1,8} MB" -f $_.Item, $_.MB) -ForegroundColor Gray }
+	Write-Host ("  Tổng giải phóng (ước tính): {0} MB" -f $script:cleanupTotal) -ForegroundColor Green
+	Write-Host "  Chỉ cache/temp đã được dọn — không đụng Documents/Downloads/dữ liệu cá nhân." -ForegroundColor DarkGray
+	return [PSCustomObject]@{ TotalFreedMB = $script:cleanupTotal; Items = $results; Deep = [bool]$Deep }
 }
 
 
@@ -1769,6 +1957,17 @@ function Get-SophiaSmartRecommendation
 		$mode = "Workstation"
 	}
 
+	# Phan tang may (v5.3): may yeu khong day sang Gaming - ve LowSpec cho on dinh
+	$tier = "Medium"
+	if ($Snapshot.PSObject.Properties.Name -contains "PerformanceTier") { $tier = [string]$Snapshot.PerformanceTier }
+	if ($tier -eq "Low" -and $mode -ne "EmulatorFarm")
+	{
+		$mode = "LowSpec"
+		$reasons += "Phân tầng máy: LOW (máy yếu: RAM/luồng CPU/ổ đĩa thấp) -> Mode LOW-SPEC để ổn định, mát máy."
+	}
+	elseif ($tier -eq "High") { $reasons += "Phân tầng máy: HIGH (máy mạnh) — đủ sức cho Gaming/Farm nặng, các tweak sâu phát huy tối đa." }
+	else { $reasons += "Phân tầng máy: MEDIUM (trung bình) — giữ cân bằng hiệu năng/nhiệt độ." }
+
 	if ($Snapshot.GPUVendor -eq "AMD") { $extraIds += "EXT12" ; $reasons += "GPU AMD: bổ sung EXT12 tắt ULPS chống stutter." }
 	if ($Snapshot.GPUVendor -eq "NVIDIA") { $extraIds += "EXT43" ; $reasons += "GPU NVIDIA: bổ sung EXT43 ép Power Limit tối đa qua nvidia-smi." }
 	if ($Snapshot.RAMTotalGB -ge 32) { $extraIds += "CPU10" ; $reasons += "RAM $($Snapshot.RAMTotalGB)GB (>= 32GB): bổ sung CPU10 tắt Page Combining — đổi RAM lấy CPU cho farm nhiều instance giống nhau." }
@@ -1790,6 +1989,7 @@ function Get-SophiaSmartRecommendation
 		Reasons = $reasons
 		Warnings = $warnings
 		IsLaptop = $isLaptop
+		Tier = $tier
 	}
 }
 
@@ -1935,7 +2135,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.2.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.3.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -2058,6 +2258,7 @@ function Show-MolikSystemDoctor
 		return
 	}
 	Write-Host ("  {0} | Build {1}.{2} | {3} | {4} luồng | RAM {5}GB (trống {6}GB) | {7} trống {8}GB" -f $Snapshot.OSName, $Snapshot.OSBuild, $Snapshot.OSUBR, $Snapshot.CPUName, $Snapshot.CPUThreads, $Snapshot.RAMTotalGB, $Snapshot.RAMFreeGB, $Snapshot.SystemDriveType, $Snapshot.SystemDriveFreeGB) -ForegroundColor Gray
+	Write-Host ("  Phân tầng máy: {0} (Low=yếu · Medium=trung bình · High=mạnh) — Smart Advisor (phím G / -Smart) chọn Mode theo tầng này." -f $(if ($Snapshot.PerformanceTier) { $Snapshot.PerformanceTier } else { "Medium" })) -ForegroundColor DarkGray
 	Write-Host ("  GPU: {0} ({1}) | WDDM {2} | Power Plan: {3} | Tiến trình: {4} | Giả lập: {5}" -f $Snapshot.GPUName, $Snapshot.GPUVendor, $Snapshot.WDDMVersion, $Snapshot.ActivePowerPlan, $Snapshot.ProcessCount, $(if ($Snapshot.InstalledEmulators) { $Snapshot.InstalledEmulators -join ", " } else { "không phát hiện" })) -ForegroundColor Gray
 	Write-Host ""
 
@@ -4338,7 +4539,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.2.0"
+	return "5.3.0"
 }
 
 function Format-MolikTruncate
@@ -4397,9 +4598,9 @@ function Show-SophiaSimpleMenu
 		Write-Host "  I  Tick-select UI     G  Smart Auto       P  Purge RAM" -ForegroundColor Gray
 		Write-Host "  E  Boost emulators  T  Benchmark        C  Compare benchmarks" -ForegroundColor Gray
 		Write-Host "  A  Install apps     X  Presets          H  HTML report" -ForegroundColor Gray
-		Write-Host "  B  Backup           U  Undo session     R  Restore defaults" -ForegroundColor Gray
+		Write-Host "  B  Backup           U  Undo session     R  Restore defaults   Z  Cleanup rác" -ForegroundColor Gray
 		Write-Host "  S  Desktop shortcut D  Self-test        K  Doctor           0  Exit" -ForegroundColor Gray
-		$choice = Read-Host "  Chọn (số Mode 1-$($modes.Count), 0 = thoát, hoặc phím I/G/P/E/A/T/C/R/S/D/X/H/B/U/K)"
+		$choice = Read-Host "  Chọn (số Mode 1-$($modes.Count), 0 = thoát, hoặc phím I/G/P/E/A/T/C/R/S/D/X/H/B/U/K/Z)"
 		if ($choice -match '^\d+$' -and [int]$choice -ge 1 -and [int]$choice -le $modes.Count)
 		{
 			$m = $modes[[int]::Parse($choice) - 1]
@@ -4516,6 +4717,15 @@ function Show-SophiaSimpleMenu
 		elseif ($choice -eq 'U' -or $choice -eq 'u')
 		{
 			if (Get-Command Restore-MolikLastSession -ErrorAction SilentlyContinue) { Restore-MolikLastSession -Catalog $Catalog | Out-Null }
+		}
+		elseif ($choice -eq 'Z' -or $choice -eq 'z')
+		{
+			if (Get-Command Invoke-MolikCleanup -ErrorAction SilentlyContinue)
+			{
+				$deepChoice = Read-Host "  Dọn sâu bằng công cụ Windows (cleanmgr + DISM, lâu hơn)? (Y/N)"
+				Invoke-MolikCleanup -Deep:($deepChoice -match '^[Yy]') | Out-Null
+				Read-Host '  Nhấn ENTER để quay lại menu'
+			}
 		}
 		elseif ($choice -eq '0') { return }
 		else { Write-Host "  Lựa chọn không hợp lệ." -ForegroundColor Yellow }
@@ -4835,6 +5045,13 @@ function Show-SophiaOptimizerUI
 			Read-Host "  Nhấn ENTER để tiếp tục"
 			$firstFrame = $true
 		}
+		elseif ($ch -eq 'c' -or $ch -eq 'C') {
+			try { [Console]::CursorVisible = $true } catch {}
+			if (Get-Command Invoke-MolikCleanup -ErrorAction SilentlyContinue) { Invoke-MolikCleanup | Out-Null }
+			else { Write-Host "  [!] Không tìm thấy Cleanup Engine." -ForegroundColor Yellow }
+			Read-Host "  Nhấn ENTER để tiếp tục"
+			$firstFrame = $true
+		}
 		elseif ($ch -eq 'f' -or $ch -eq 'F') {
 			$filterModes = @("All", "Selected", "Extreme", "NotApplied")
 			$filterMode = $filterModes[([array]::IndexOf($filterModes, $filterMode) + 1) % $filterModes.Count]
@@ -4851,6 +5068,7 @@ function Show-SophiaOptimizerUI
 			Write-Host "  G           Smart Advisor     P / E       Purge RAM / Boost emulators" -ForegroundColor Gray
 			Write-Host "  T           Benchmark         S / L       Save / Load profile" -ForegroundColor Gray
 			Write-Host "  B           Backup            H           HTML report" -ForegroundColor Gray
+			Write-Host "  C           Cleanup cache/temp (chỉ rác hệ thống, an toàn)" -ForegroundColor Gray
 			Write-Host "  U           Undo last session R           Restore defaults" -ForegroundColor Gray
 			Write-Host "  Q, Esc      Quit" -ForegroundColor Gray
 			Write-Host ""
@@ -5132,6 +5350,7 @@ function Show-MolikWinlikGui
 		& $mkBtn "Backup ngay" 8 { try { $p = New-SophiaSystemBackup; & $appendLog "Đã backup: $p" } catch { & $appendLog "LỖI backup: $($_.Exception.Message)" } }
 		& $mkBtn "Hoàn tác phiên" 146 { if ([System.Windows.Forms.MessageBox]::Show("Hoàn tác phiên áp dụng gần nhất?", "MOLIK WINLIK", "YesNo", "Question") -eq "Yes") { try { Restore-MolikLastSession -Catalog $Catalog -Force | Out-Null; & $appendLog "Đã hoàn tác phiên gần nhất - hãy RESTART." } catch { & $appendLog "LỖI hoàn tác: $($_.Exception.Message)" } } }
 		& $mkBtn "Benchmark" 284 { try { $r = Invoke-SophiaBenchmark -Label "GUI"; & $appendLog "Benchmark xong: CPU Score $($r.CpuScore)" } catch { & $appendLog "LỖI benchmark: $($_.Exception.Message)" } }
+		& $mkBtn "Dọn cache/temp" 560 { try { Invoke-MolikCleanup | Out-Null; & $appendLog "Đã dọn cache/temp xong." } catch { & $appendLog "LỖI cleanup: $($_.Exception.Message)" } }
 		& $mkBtn "Xuất báo cáo HTML" 422 { try { $hp = Export-MolikHtmlReport -Snapshot $Snapshot -Catalog $Catalog; & $appendLog "Đã xuất: $hp" } catch { & $appendLog "LỖI report: $($_.Exception.Message)" } }
 
 		& $refreshTweaks
@@ -5331,6 +5550,11 @@ if ($Benchmark)
 if ($CompareBenchmarks)
 {
 	Compare-SophiaBenchmarks
+	return
+}
+if ($Cleanup -or $DeepCleanup)
+{
+	Invoke-MolikCleanup -Deep:$DeepCleanup | Out-Null
 	return
 }
 if ($PurgeRAM)

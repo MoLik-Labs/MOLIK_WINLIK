@@ -243,6 +243,7 @@ function Show-MolikWinlikGui
 		& $mkBtn "Backup ngay" 8 { try { $p = New-SophiaSystemBackup; & $appendLog "Đã backup: $p" } catch { & $appendLog "LỖI backup: $($_.Exception.Message)" } }
 		& $mkBtn "Hoàn tác phiên" 146 { if ([System.Windows.Forms.MessageBox]::Show("Hoàn tác phiên áp dụng gần nhất?", "MOLIK WINLIK", "YesNo", "Question") -eq "Yes") { try { Restore-MolikLastSession -Catalog $Catalog -Force | Out-Null; & $appendLog "Đã hoàn tác phiên gần nhất - hãy RESTART." } catch { & $appendLog "LỖI hoàn tác: $($_.Exception.Message)" } } }
 		& $mkBtn "Benchmark" 284 { try { $r = Invoke-SophiaBenchmark -Label "GUI"; & $appendLog "Benchmark xong: CPU Score $($r.CpuScore)" } catch { & $appendLog "LỖI benchmark: $($_.Exception.Message)" } }
+		& $mkBtn "Dọn cache/temp" 560 { try { Invoke-MolikCleanup | Out-Null; & $appendLog "Đã dọn cache/temp xong." } catch { & $appendLog "LỖI cleanup: $($_.Exception.Message)" } }
 		& $mkBtn "Xuất báo cáo HTML" 422 { try { $hp = Export-MolikHtmlReport -Snapshot $Snapshot -Catalog $Catalog; & $appendLog "Đã xuất: $hp" } catch { & $appendLog "LỖI report: $($_.Exception.Message)" } }
 
 		& $refreshTweaks

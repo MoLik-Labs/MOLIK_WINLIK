@@ -21,8 +21,11 @@ Trong `skills/` có bộ skill đã lưu sẵn cho dự án — hãy dùng chún
 
 ## Bất biến không được phá
 
-1. **Offline 100% khi chạy**: không tải code (irm/iex/DownloadString...).
-   Entry point: `MOLIK_WINLIK.bat` → `MolikWinlik-Portable.ps1`.
+1. **Core offline 100%**: bản Portable không bao giờ tải code. Kênh online
+   là TÙY CHỌN và tách riêng duy nhất ở `win.ps1`, `MOLIK_WINLIK-Online.bat`,
+   `Optimizer/Core/OnlineUpdate.ps1` (-Update/-Repair) — luôn kiểm chứng
+   SHA256 trước khi thay file, không bao giờ được inline vào Portable.
+   Entry point chuẩn: `MOLIK_WINLIK.bat` → `MolikWinlik-Portable.ps1`.
 2. `src/` upstream giữ nguyên 100%. Mọi tweak phải reversible
    (Apply/Restore/Check), không trùng khóa registry giữa các nguồn.
 3. File `.ps1` có tiếng Việt phải UTF-8 **có BOM** (PowerShell 5.1).

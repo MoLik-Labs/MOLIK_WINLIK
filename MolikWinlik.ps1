@@ -42,6 +42,10 @@ param(
 	[switch]$ListModes,
 	[switch]$ListTweaks,
 	[switch]$PurgeRAM,
+	[switch]$Cleanup,
+	[switch]$DeepCleanup,
+	[switch]$Update,
+	[switch]$Repair,
 	[switch]$BoostEmulators,
 	[switch]$RestoreDefaults,
 	[switch]$Benchmark,
@@ -76,7 +80,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "5.2.0"
+$Global:MolikWinlikVersion = "5.3.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -104,6 +108,10 @@ if (-not $readOnlyRequest)
 			if ($BenchmarkLabel -and $BenchmarkLabel -ne "Manual") { $argList += @("-BenchmarkLabel", "`"$BenchmarkLabel`"") }
 			if ($DryRun) { $argList += "-DryRun" }
 			if ($PurgeRAM) { $argList += "-PurgeRAM" }
+			if ($Cleanup) { $argList += "-Cleanup" }
+			if ($DeepCleanup) { $argList += "-DeepCleanup" }
+			if ($Update) { $argList += "-Update" }
+			if ($Repair) { $argList += "-Repair" }
 			if ($Profile) { $argList += @("-Profile", "`"$Profile`"") }
 			if ($Menu) { $argList += "-Menu" }
 			if ($Gui) { $argList += "-Gui" }
@@ -144,10 +152,29 @@ if (-not $readOnlyRequest)
 
 $RepoRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 
+# ── Online Update/Repair (kenh tuy chon, tach rieng - ban Portable khong co) ──
+if ($Update -or $Repair)
+{
+	$onlineFile = Join-Path $RepoRoot "Optimizer\Core\OnlineUpdate.ps1"
+	if (Test-Path $onlineFile)
+	{
+		. $onlineFile
+		Update-MolikWinlik -Force:$Repair | Out-Null
+	}
+	else
+	{
+		Write-Host "  [i] Đây là bản Portable OFFLINE nên không tự tải. Để cập nhật/thay bản mới:" -ForegroundColor Yellow
+		Write-Host "      Cách 1 (online): chay MOLIK_WINLIK-Online.bat (tu tai ban moi co kiem chung SHA256)." -ForegroundColor Gray
+		Write-Host "      Cách 2 (offline): tai ZIP moi tu GitHub roi giai nen de len thu muc nay." -ForegroundColor Gray
+	}
+	return
+}
+
 # ── Load engine ───────────────────────────────────────────────────────────────
 $engineFiles = @(
 	"Optimizer\Core\HardwareDetector.ps1",
 	"Optimizer\Core\RamCleanerDaemon.ps1",
+	"Optimizer\Core\CleanupEngine.ps1",
 	"Optimizer\Core\ExtremeEngine.ps1",
 	"Optimizer\Core\Benchmark.ps1",
 	"Optimizer\Core\PlanEngine.ps1",
@@ -355,6 +382,11 @@ if ($Benchmark)
 if ($CompareBenchmarks)
 {
 	Compare-SophiaBenchmarks
+	return
+}
+if ($Cleanup -or $DeepCleanup)
+{
+	Invoke-MolikCleanup -Deep:$DeepCleanup | Out-Null
 	return
 }
 if ($PurgeRAM)
