@@ -3,7 +3,7 @@
 	MOLIK WINLIK - Interactive Tick-Select CLI ([✓]/[ ])
 
 	.DESCRIPTION
-	Keyboard: ↑/↓ (or K/J) move, SPACE tick/untick, A all, N none, 1-6 quick Mode,
+	Keyboard: ↑/↓ (or K/J) move, SPACE tick/untick, A all, N none, 1-9 quick Mode,
 	M cycle Mode, / search, P purge RAM now, E Emulator Booster, B backup, R restore defaults,
 	ENTER apply selected, Q/Esc quit. Category headers group all catalog tweaks.
 #>
@@ -13,12 +13,30 @@ function Get-SophiaModeTweakIds
 	param([string]$ModeKey, $Catalog)
 	if ([string]::IsNullOrWhiteSpace($ModeKey)) { return @() }
 	# PERF: catalog khong doi trong mot phien - nho ket qua theo Mode de
-	# menu/tab khong quet lai 196 tweak moi lan ve.
+	# menu/tab khong quet lai 200 tweak moi lan ve.
 	if (-not $script:MolikModeIdsCache) { $script:MolikModeIdsCache = @{} }
 	$cacheKey = "$ModeKey|$($Catalog.Count)"
 	if ($script:MolikModeIdsCache.ContainsKey($cacheKey)) { return @($script:MolikModeIdsCache[$cacheKey]) }
 	if ($ModeKey -eq "GodMode") { $result = @($Catalog | ForEach-Object { $_.Id }) }
-	else { $result = @($Catalog | Where-Object { $_.Modes -contains $ModeKey } | ForEach-Object { $_.Id }) }
+	else
+	{
+		$modeDef = Get-SophiaOptimizationModes | Where-Object { $_.Key -eq $ModeKey } | Select-Object -First 1
+		if ($modeDef -and ((@($modeDef.BaseModes).Count -gt 0) -or (@($modeDef.Categories).Count -gt 0)))
+		{
+			# Mode ao: hop BaseModes + Category + ExtraIds, loc tran rui ro
+			$riskMap = @{ Safe = 1; Moderate = 2; Extreme = 3 }
+			$riskCap = $riskMap[[string]$modeDef.MaxRisk]; if (-not $riskCap) { $riskCap = 3 }
+			$result = @($Catalog | Where-Object {
+				$riskLvl = $riskMap[[string]$_.Risk]; if (-not $riskLvl) { $riskLvl = 2 }
+				if ($riskLvl -gt $riskCap) { return $false }
+				if (@($_.Modes | Where-Object { $modeDef.BaseModes -contains $_ }).Count -gt 0) { return $true }
+				foreach ($catPat in @($modeDef.Categories)) { if ($_.Category -match $catPat) { return $true } }
+				if (@($modeDef.ExtraIds) -contains $_.Id) { return $true }
+				return $false
+			} | ForEach-Object { $_.Id })
+		}
+		else { $result = @($Catalog | Where-Object { $_.Modes -contains $ModeKey } | ForEach-Object { $_.Id }) }
+	}
 	$script:MolikModeIdsCache[$cacheKey] = $result
 	return $result
 }
@@ -210,7 +228,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.1.0"
+	return "5.2.0"
 }
 
 function Format-MolikTruncate
@@ -266,20 +284,20 @@ function Show-SophiaSimpleMenu
 			Write-Host ("  {0}  {1} ({2}) — {3}" -f ($i + 1), $m.Name, $cnt, (Format-MolikTruncate $m.Sub 60)) -ForegroundColor Gray
 		}
 		Write-Host ""
-		Write-Host "  7  Tick-select UI     G  Smart Auto       8  Purge RAM" -ForegroundColor Gray
-		Write-Host "  9  Boost emulators  T  Benchmark        C  Compare benchmarks" -ForegroundColor Gray
+		Write-Host "  I  Tick-select UI     G  Smart Auto       P  Purge RAM" -ForegroundColor Gray
+		Write-Host "  E  Boost emulators  T  Benchmark        C  Compare benchmarks" -ForegroundColor Gray
 		Write-Host "  A  Install apps     X  Presets          H  HTML report" -ForegroundColor Gray
 		Write-Host "  B  Backup           U  Undo session     R  Restore defaults" -ForegroundColor Gray
 		Write-Host "  S  Desktop shortcut D  Self-test        K  Doctor           0  Exit" -ForegroundColor Gray
-		$choice = Read-Host "  Chọn (0-9/G/A/T/C/R/S/D/X/H/B/U/K)"
-		if ($choice -match '^[1-6]$')
+		$choice = Read-Host "  Chọn (số Mode 1-$($modes.Count), 0 = thoát, hoặc phím I/G/P/E/A/T/C/R/S/D/X/H/B/U/K)"
+		if ($choice -match '^\d+$' -and [int]$choice -ge 1 -and [int]$choice -le $modes.Count)
 		{
 			$m = $modes[[int]::Parse($choice) - 1]
 			$ids = Get-SophiaModeTweakIds -ModeKey $m.Key -Catalog $Catalog
 			$go = Read-Host "  Áp dụng $($ids.Count) tweak của mode $($m.Name)? (Y/N)"
 			if ($go -match '^[Yy]') { Invoke-SophiaSelectedTweaks -Catalog $Catalog -SelectedIds $ids -Snapshot $Snapshot }
 		}
-		elseif ($choice -eq '7')
+		elseif ($choice -eq 'I' -or $choice -eq 'i')
 		{
 			try { Show-SophiaOptimizerUI -Catalog $Catalog -Snapshot $Snapshot }
 			catch { Write-Host "  [!] Host này không hỗ trợ giao diện phím trực tiếp ($($_.Exception.Message)) — hãy dùng các mục số trong Menu này." -ForegroundColor Yellow }
@@ -298,10 +316,10 @@ function Show-SophiaSimpleMenu
 				if ($go -match '^[Yy]') { Invoke-SophiaSelectedTweaks -Catalog $Catalog -SelectedIds $ids -Snapshot $Snapshot }
 			}
 		}
-		elseif ($choice -eq '8') { if (Get-Command Invoke-SophiaRamPurge -ErrorAction SilentlyContinue) { Invoke-SophiaRamPurge } }
+		elseif ($choice -eq 'P' -or $choice -eq 'p') { if (Get-Command Invoke-SophiaRamPurge -ErrorAction SilentlyContinue) { Invoke-SophiaRamPurge } }
 		elseif ($choice -eq 'A' -or $choice -eq 'a') { if (Get-Command Show-SophiaAppInstallerMenu -ErrorAction SilentlyContinue) { Show-SophiaAppInstallerMenu } }
 		elseif ($choice -eq 'D' -or $choice -eq 'd') { if (Get-Command Test-SophiaOptimizerHealth -ErrorAction SilentlyContinue) { Test-SophiaOptimizerHealth -Catalog $Catalog | Out-Null; Read-Host '  Nhấn ENTER để quay lại menu' } }
-		elseif ($choice -eq '9') { Invoke-EmulatorAutoBooster }
+		elseif ($choice -eq 'E' -or $choice -eq 'e') { Invoke-EmulatorAutoBooster }
 		elseif ($choice -eq 'T' -or $choice -eq 't') { if (Get-Command Invoke-SophiaBenchmark -ErrorAction SilentlyContinue) { Invoke-SophiaBenchmark -Label "Menu" | Out-Null } }
 		elseif ($choice -eq 'C' -or $choice -eq 'c') { if (Get-Command Compare-SophiaBenchmarks -ErrorAction SilentlyContinue) { Compare-SophiaBenchmarks } }
 		elseif ($choice -eq 'R' -or $choice -eq 'r')
@@ -412,7 +430,7 @@ function Show-SophiaOptimizerUI
 
 	$modes = Get-SophiaOptimizationModes
 	$modeKeys = @($modes | ForEach-Object { $_.Key })
-	$tabLabels = @{ EmulatorFarm = "Farm"; HardcoreGaming = "Gaming"; Workstation = "Workstation"; LowSpec = "LowSpec"; SophiaStandard = "Standard"; GodMode = "GodMode" }
+	$tabLabels = @{ EmulatorFarm = "Farm"; HardcoreGaming = "Gaming"; Workstation = "Workstation"; LowSpec = "LowSpec"; SophiaStandard = "Standard"; PrivacyMax = "Privacy"; DebloatMax = "Debloat"; Developer = "Dev"; Creator = "Creator"; BatterySaver = "Battery"; GodMode = "GodMode" }
 	$currentMode = $InitialMode
 
 	$selected = @{}
@@ -560,7 +578,7 @@ function Show-SophiaOptimizerUI
 			Write-MolikText " " -Fg Gray
 			Write-MolikText " " -Fg DarkGray
 		}
-		$keys = " Enter apply · Space toggle · ↑↓ move · 1-6 mode · / search · F filter · ? help · Q quit"
+		$keys = " Enter apply · Space toggle · ↑↓ move · 1-9 mode · / search · F filter · ? help · Q quit"
 		$pageInfo = "{0}/{1} · page {2}/{3} " -f ($cursor + 1), $filtered.Count, ([Math]::Floor($pageStart / $pageSize) + 1), ([Math]::Ceiling($filtered.Count / $pageSize))
 		$footer = $keys
 		$padFooter = $width - 1 - $keys.Length - $pageInfo.Length
@@ -615,7 +633,7 @@ function Show-SophiaOptimizerUI
 			foreach ($id in (Get-SophiaModeTweakIds -ModeKey $currentMode -Catalog $Catalog)) { $selected[$id] = $true }
 			$cursor = 0
 		}
-		elseif ($ch -ge '1' -and $ch -le '6') {
+		elseif ($ch -ge '1' -and $ch -le '9' -and ([int]::Parse([string]$ch) - 1) -lt $modeKeys.Count) {
 			$currentMode = $modeKeys[[int]::Parse([string]$ch) - 1]
 			$selected = @{}
 			foreach ($id in (Get-SophiaModeTweakIds -ModeKey $currentMode -Catalog $Catalog)) { $selected[$id] = $true }
@@ -717,7 +735,7 @@ function Show-SophiaOptimizerUI
 			Write-Host ""
 			Write-Host "  Keyboard" -ForegroundColor White
 			Write-Host "  ↑/↓, K/J    Move              Space       Toggle tweak" -ForegroundColor Gray
-			Write-Host "  Enter       Apply selected    1-6, M      Switch mode" -ForegroundColor Gray
+			Write-Host "  Enter       Apply selected    1-9, M      Switch mode" -ForegroundColor Gray
 			Write-Host "  A / N       Select all/none   /           Search" -ForegroundColor Gray
 			Write-Host "  F           Cycle filter      V           Scan applied (●)" -ForegroundColor Gray
 			Write-Host "  G           Smart Advisor     P / E       Purge RAM / Boost emulators" -ForegroundColor Gray

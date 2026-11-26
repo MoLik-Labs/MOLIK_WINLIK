@@ -43,7 +43,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.1.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.2.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -131,7 +131,7 @@ function Export-MolikHtmlReport
  <div class="card">Chờ restart<b>$reboot</b></div>
 </div>
 <p>🖥️ Giả lập phát hiện: <b>$emu</b></p>
-<h2>🎛️ 6 Mode tối ưu</h2>
+<h2>🎛️ $((Get-SophiaOptimizationModes).Count) Mode tối ưu</h2>
 <table><tr><th>Mode</th><th>Mô tả</th><th>Số tweak</th><th>Impact Score</th></tr>
 $modeRows</table>
 <h2>🧩 Toàn bộ catalog ($($Catalog.Count) tweak)</h2>

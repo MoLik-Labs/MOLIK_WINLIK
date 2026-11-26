@@ -1,508 +1,85 @@
-🌐 [English](/README.md) | [Deutsch](/README_de-de.md) | [Русский](/README_ru-ru.md) | [Українська](/README_uk-ua.md)
+# MOLIK WINLIK
 
-<div align="center">
+**Bộ tối ưu Windows sâu, chạy offline 100%, có giao diện đồ họa kiểu winutil + TUI tick-chọn + CLI đầy đủ.**
 
-<img src="https://raw.githubusercontent.com/farag2/Sophia-Script-for-Windows/refs/heads/main/img/Sophia.png" alt="Sophia Script for Windows" width='150'>
+`MOLIK WINLIK by @nggkhaiz` — 200 tweak hệ thống (172 native + 28 WinUtil vendored), 11 Mode theo nhu cầu, backup/khôi phục toàn diện, benchmark trước–sau, và mọi tweak đều **hoàn tác được**.
 
-# Sophia Script for Windows
+> 🇻🇳 Tiếng Việt là ngôn ngữ chính của dự án. English summary at the bottom.
 
-The most advanced PowerShell module on GitHub for fine-tuning Windows
+---
 
-Made with <img src="./img/heart.svg" height="17px"/> of Windows
+## Bắt đầu trong 10 giây (không cần Internet)
 
-<kbd>
-	<a href="https://github.com/farag2/Sophia-Script-for-Windows/actions">
-		<picture>
-			<source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/github/ci/farag2/Sophia-Script-for-Windows.svg?workflow=Sophia.yml&amp;label=build&amp;variant=outline&amp;size=sm&amp;mode=dark">
-			<img src="https://shieldcn.dev/github/ci/farag2/Sophia-Script-for-Windows.svg?workflow=Sophia.yml&amp;label=build&amp;variant=outline&amp;size=sm&amp;mode=light">
-		</picture>
-	</a>
-</kbd>
-<kbd>
-	<a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-		<picture>
-			<source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/Human%20Coded.svg?variant=outline&amp;size=sm&amp;mode=dark&amp;logo=false">
-			<img src="https://shieldcn.dev/badge/Human%20Coded.svg?variant=outline&amp;size=sm&amp;mode=light&amp;logo=false">
-		</picture>
-	</a>
-</kbd>
-<kbd>
-	<a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-		<picture>
-			<source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/Since%202014.svg?variant=outline&amp;size=sm&amp;mode=dark&amp;logo=false">
-			<img src="https://shieldcn.dev/badge/Since%202014.svg?variant=outline&amp;size=sm&amp;mode=light&amp;logo=false">
-		</picture>
-	</a>
-</kbd>
+1. Tải ZIP của repo này, giải nén vào một thư mục bất kỳ.
+2. Double-click **`MOLIK_WINLIK.bat`** → bấm **Yes** khi Windows hỏi quyền Administrator.
+3. Giao diện tick-chọn mở ra. Tick tweak → `ENTER` để áp dụng. Xong.
 
-<br>
+Không cài đặt, không tải thêm gì khi chạy, không `irm | iex`. Muốn giao diện cửa sổ: `MOLIK_WINLIK.bat -Gui`.
 
-<kbd>
-	<a href="https://github.com/farag2/Sophia-Script-for-Windows/blob/main/.github/workflows/Badge_downloads.yml">
-		<picture>
-			<source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/dynamic/json.svg?url=https://gist.githubusercontent.com/farag2/25ddc72387f298503b752ad5b8d16eed/raw/SophiaScriptDownloadsCount.json&amp;query=%24.message&amp;label=Downloads&amp;logo=github&amp;variant=outline&amp;size=sm&amp;mode=dark">
-			<img src="https://shieldcn.dev/badge/dynamic/json.svg?url=https://gist.githubusercontent.com/farag2/25ddc72387f298503b752ad5b8d16eed/raw/SophiaScriptDownloadsCount.json&amp;query=%24.message&amp;label=Downloads&amp;logo=github&amp;variant=outline&amp;size=sm&amp;mode=light">
-		</picture>
-	</a>
-</kbd>
-<kbd>
-	<a href="https://github.com/farag2/Sophia-Script-for-Windows/blob/main/.github/workflows/Badge_lines.yml">
-		<picture>
-			<source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/dynamic/json.svg?url=https://gist.githubusercontent.com/farag2/9852d6b9569a91bf69ceba8a94cc97f4/raw/SophiaScript.json&amp;query=%24.message&amp;label=Lines%20of%20Code&amp;logo=github&amp;variant=outline&amp;size=sm&amp;mode=dark">
-			<img src="https://shieldcn.dev/badge/dynamic/json.svg?url=https://gist.githubusercontent.com/farag2/9852d6b9569a91bf69ceba8a94cc97f4/raw/SophiaScript.json&amp;query=%24.message&amp;label=Lines%20of%20Code&amp;logo=github&amp;variant=outline&amp;size=sm&amp;mode=light">
-		</picture>
-	</a>
-</kbd>
+## Giao diện
 
-<br>
+| Giao diện | Lệnh | Phù hợp |
+|---|---|---|
+| **GUI (winutil-style)** | `MOLIK_WINLIK.bat -Gui` | 4 tab Tweaks / Apps / Presets / System, chuột + tick chọn, log & tiến trình trực tiếp. Tự fallback TUI nếu không mở được |
+| **TUI tick-chọn** | `MOLIK_WINLIK.bat` | Bàn phím: `↑↓` chọn, `SPACE` tick, `ENTER` áp dụng, `1-9`/`M` đổi Mode, `/` tìm, `?` trợ giúp — tối giản kiểu htop |
+| **Menu số** | `MOLIK_WINLIK.bat -Menu` | Host không hỗ trợ phím trực tiếp (ISE, output redirect...) |
+| **Headless CLI** | xem bảng dưới | Script/automation, chạy không tương tác |
 
-<kbd>
-	<a href="https://t.me/sophianews">
-		<picture>
-			<source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/Sophia%20News.svg?logo=telegram&amp;variant=outline&amp;size=sm&amp;mode=dark">
-			<img src="https://shieldcn.dev/badge/Sophia%20News.svg?logo=telegram&amp;variant=outline&amp;size=sm&amp;mode=light">
-		</picture>
-	</a>
-</kbd>
-<kbd>
-	<a href="https://t.me/sophia_chat">
-		<picture>
-			<source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/Sophia%20Chat.svg?logo=telegram&amp;variant=outline&amp;size=sm&amp;mode=dark">
-			<img src="https://shieldcn.dev/badge/Sophia%20Chat.svg?logo=telegram&amp;variant=outline&amp;size=sm&amp;mode=light">
-		</picture>
-	</a>
-</kbd>
-<kbd>
-	<a href="https://discord.gg/sSryhaEv79">
-		<picture>
-			<source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/Discord.svg?logo=discord&amp;variant=outline&amp;size=sm&amp;mode=dark">
-			<img src="https://shieldcn.dev/badge/Discord.svg?logo=discord&amp;variant=outline&amp;size=sm&amp;mode=light">
-		</picture>
-	</a>
-</kbd>
+## 11 Mode tối ưu
 
-<br>
-<br>
+| Mode (khóa) | Tweak | Dành cho |
+|---|---:|---|
+| 🖥️ Treo Giả Lập 24/7 (`EmulatorFarm`) | 109 | Farm multi-instance LDPlayer/MuMu/Nox/BlueStacks: tắt VBS/Hyper-V tranh VT-x, dọn RAM tự động, pagefile cố định |
+| 🎮 Hardcore Gaming (`HardcoreGaming`) | 78 | FPS/esports low-latency: HAGS, MPO/Game DVR off, timer & BCD latency, Nagle off, chuột 1:1, Ultimate Performance |
+| 🎬 Workstation (`Workstation`) | 21 | Render/compile/đa nhiệm nặng — mạnh nhưng giữ ổn định & mitigations |
+| 🥔 Low-Spec (`LowSpec`) | 48 | Máy yếu RAM ≤ 8GB, ổ chậm: gọn tiến trình nền, giảm tải hệ thống |
+| 🛡️ MOLIK Standard (`SophiaStandard`) | 51 | Privacy + gọn gàng an toàn, không đụng kernel/BCD |
+| 🔒 Privacy Max (`PrivacyMax`) | 57 | Riêng tư cực hạn: toàn nhóm Privacy + WinUtil, trần rủi ro Moderate |
+| 🧹 Debloat Max (`DebloatMax`) | 54 | Dọn sạch services/ứng dụng nền/Explorer tối đa |
+| 💻 Developer (`Developer`) | 78 | Môi trường lập trình sạch, ổn định khi build/test |
+| 🎥 Creator / Streamer (`Creator`) | 76 | GPU + Network cho stream/quay/dựng: encode mượt, mạng ổn định |
+| 🔋 Battery / Laptop (`BatterySaver`) | 63 | Chỉ tweak Safe: mát máy, tiết kiệm pin, không khóa xung |
+| 👑 God Mode (`GodMode`) | 200 | Toàn bộ catalog kể cả Extreme — chỉ khi đã backup và hiểu rõ đánh đổi |
 
-<kbd>
-	<a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-		<picture>
-			<source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/Download.svg?logo=download&amp;variant=outline&amp;size=sm&amp;mode=dark">
-			<img src="https://shieldcn.dev/badge/Download.svg?logo=download&amp;variant=outline&amp;size=sm&amp;mode=light">
-		</picture>
-	</a>
-</kbd>
+5 Mode cuối là **Mode ảo**: hợp từ Mode nền + nhóm tweak + trần rủi ro, nên luôn khớp catalog thật. Ngoài Mode còn có **7 Preset** tình huống (`-ListPresets`), **Smart Advisor** tự khuyên theo phần cứng (phím `G`), và **Plan Engine** sắp xếp thứ tự áp an toàn + cảnh báo mâu thuẫn trước khi chạm vào hệ thống.
 
-<br>
-<br>
-
-<img src="./img/SophiaScript.svg" width='800'>
-
-<a href="https://trendshift.io/repositories/17603"><img src="https://trendshift.io/api/badge/trendshift/repositories/17603/daily?language=PowerShell" width="250" height="55"/></a><a
-href="https://trendshift.io/repositories/17603"><img src="https://trendshift.io/api/badge/trendshift/repositories/17603/weekly?language=PowerShell" width="250" height="55"/></a><br><a
-href="https://trendshift.io/repositories/17603"><img src="https://trendshift.io/api/badge/trendshift/repositories/17603/monthly?language=PowerShell" width="250" height="55"/></a><a
-href="https://trendshift.io/repositories/17603"><img src="https://trendshift.io/api/badge/trendshift/repositories/17603/yearly?language=PowerShell" width="250" height="55"/></a>
-
-</div>
-
-## 👑 MOLIK_WINLIK — MOLIK WINLIK v5.0 by @nggkhaiz (Offline Optimizer — Tick-Select CLI)
-
-> 🇻🇳 Tool tối ưu sâu do fork này bổ sung, nằm ngoài module Sophia gốc (`src/` giữ nguyên 100%): **196 tweak cực mạnh**, **6 mode riêng** cho từng nhu cầu và giao diện **tick-chọn CLI** `[✓]/[ ]`.
-
-```text
-# OFFLINE 100% (khong con ban irm | iex): tai ZIP repo nay 1 lan, giai nen,
-# double-click MOLIK_WINLIK.bat -> bam Yes (UAC) -> dung ngay. Khong can Internet khi chay.
-```
-
-| Mode | Nhu cầu |
-|---|---|
-| 🖥️ `EmulatorFarm` | Treo giả lập Android multi-instance 24/7 (LDPlayer/MuMu/Nox/BlueStacks): tắt VBS/Hyper-V, auto dọn RAM, pagefile cố định |
-| 🎮 `HardcoreGaming` | Gaming low-latency/FPS: HAGS, MPO off, Nagle off, timer/BCD latency, chuột 1:1 |
-| 🎬 `Workstation` | Render/stream/compile ổn định |
-| 🥔 `LowSpec` | Máy yếu/Potato PC |
-| 🛡️ `SophiaStandard` | Privacy & gọn gàng an toàn chuẩn Sophia |
-| 👑 `GodMode` | Toàn bộ tweak kể cả Extreme |
-
-> 🖥️ **v5.1**: GUI cửa sổ kiểu winutil (`MOLIK_WINLIK.bat -Gui`, 4 tab Tweaks/Apps/Presets/System, tự fallback TUI), kho skills mở rộng ở `skills/external/`, Dashboard HTML thiết kế lại.
-> 🧰 **v5.0**: bộ Agent Skills nội bộ trong [`skills/`](skills/README.md) (deep-debug, bảo mật, hiệu năng, TUI, phát hành) kèm `audit_molik.py` quét tĩnh đa nền tảng; khởi động nhanh cho lệnh chỉ-đọc, TUI render mượt, `.bat` escape đối số UAC. Kiến trúc: [`docs/ADR-001`](docs/ADR-001-engine-language.md).
-
-Tích hợp sẵn **winutil của Chris Titus Tech** (24 tweak + 239 app winget, vendor offline, MIT) — nhóm `10. WINUTIL` trong CLI và `-ListApps`/`-InstallApps`. Chi tiết: [Optimizer/README.md](Optimizer/README.md) · Chạy `.\MolikWinlik.ps1 -ListTweaks` để xem toàn bộ catalog. Tool tự tạo System Restore Point + backup Registry/BCD trước khi áp dụng và khôi phục được bằng phím `R`.
-
-## Key features
-
-* `Sophia Script for Windows` takes care of your Windows stability and warns you if it detects a problem
-* More than 150 unique functions to configure Windows using Microsoft's officially documented ways without harming the system
-  * Every tweak has a corresponding function to restore the default settings
-* Fully open-source project
-  * All archives are built and uploaded using [GitHub Actions](https://github.com/farag2/Sophia-Script-for-Windows/actions)
-* Configure Windows AI
-* Configure Windows privacy, security, and personalization
-* Available via Scoop, Chocolatey, and WinGet
-* Arm64 support
-* PowerShell 7 support
-* Compatible with [VAC](https://help.steampowered.com/faqs/view/571A-97DA-70E9-FF74#whatisvac)
-* Uninstall UWP apps showing their localized package names
-  * The list of installed UWP apps is generated [dynamically](#screenshots)
-* Applied registry policies will be displayed in the Local Group Policy Editor snap-in (gpedit.msc)
-* Enable DNS-over-HTTPS using
-  * [Cloudflare DNS](https://developers.cloudflare.com/1.1.1.1/setup/windows/)
-  * [Google Public DNS](https://developers.google.com/speed/public-dns/docs/using)
-  * [Quad9 DNS](https://quad9.net/service/service-addresses-and-features/)
-  * [Comss.one DNS](https://www.comss.ru/page.php?id=7315)
-  * [AdGuard DNS](https://adguard-dns.io/public-dns.html)
-  * [OpenDNS](https://www.cisco.com/c/en/us/support/docs/security/umbrella/224705-configure-dns-over-https-doh-with.html)
-* Uninstall OneDrive
-* Interactive [prompts and pop-ups](#screenshots)
-* <kbd>TAB</kbd> [completion](#how-to-run-the-specific-functions) for functions and their arguments (using Import-TabCompletion.ps1)
-* Change the location of user folders (without moving user files) using an interactive menu
-  * Desktop
-  * Documents
-  * Downloads
-  * Music
-  * Pictures
-  * Videos
-* Install the free `Windows 11 Cursors Concept v2` cursors (light and dark) from [Jepri Creations](https://www.deviantart.com/jepricreations/art/Windows-11-Cursors-Concept-v2-886489356) on the fly
-  * The archive is downloaded to the [Cursors](https://github.com/farag2/Sophia-Script-for-Windows/tree/main/Cursors) folder using the [DeviantArt API](https://github.com/farag2/Sophia-Script-for-Windows/blob/main/.github/workflows/Cursors.yml)
-* Set a default app for a specific file extension without the `How do you want to open this file?` pop-up
-* Export and import all Windows associations. To restore associations, install all apps listed in the exported JSON file first
-* Install a WSL Linux distribution via a [pop-up](#screenshots) using friendly distro names
-* Create scheduled tasks with a [native toast notification](#screenshots)
-  * Create the `Windows Cleanup` and `Windows Cleanup Notification` scheduled tasks to clean up unused files and Windows Update files
-  * Create the `SoftwareDistribution` scheduled task to clean up `%SystemRoot%\SoftwareDistribution\Download`
-  * Create the `Temp` scheduled task to clean up temporary folders and files
-    * `%SystemDrive%\$WinREAgent`
-    * `%SystemDrive%\$SysReset`
-    * `%SystemDrive%\$Windows.~WS`
-    * `%SystemDrive%\$GetCurrent`
-    * `%SystemDrive%\ESD`
-    * `%SystemDrive%\Intel`
-    * `%SystemDrive%\PerfLogs`
-    * `%SystemRoot%\ServiceProfiles\NetworkService\AppData\Local\Temp`
-    * `%LOCALAPPDATA%\CrashDumps`
-    * `%SystemDrive%\Recovery`
-    * `%SystemRoot%\System32\config\systemprofile\AppData\Local\tw-*.tmp`
-* Install the latest Microsoft Visual C++ 2015–2026 x86/x64
-* Install the latest .NET Desktop Runtime 8, 9, 10 x64
-* Many more File Explorer and context menu tweaks
-
-## Table of Contents
-
-* [Key features](#key-features)
-* [How to download](#how-to-download)
-* [Code signing policy](#code-signing-policy)
-* [How to use](#how-to-use)
-  * [How to run the specific function(s)](#how-to-run-the-specific-functions)
-* [System Requirements](#system-requirements)
-* [Screenshots](#screenshots)
-* [How to translate](#how-to-translate)
-* [Media](#media)
-* [Acknowledgements](#acknowledgements)
-* [SophiApp 2.0](#sophiapp-20-c--winui-3)
-
-## How to download
-
-### From the release page
-
-<table>
-  <tr>
-    <td align="center">Windows 10</td>
-    <td align="center">Windows 11</td>
-  </tr>
-  <tr>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/PowerShell%205.1.svg?label=Windows%2010%20x64&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/PowerShell%205.1.svg?label=Windows%2010%20x64&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/PowerShell%205.1.svg?label=Windows%2011&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/PowerShell%205.1.svg?label=Windows%2011&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/PowerShell%207.svg?label=Windows%2010%20x64&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/PowerShell%207.svg?label=Windows%2010%20x64&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/PowerShell%207.svg?label=Windows%2011&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/PowerShell%207.svg?label=Windows%2011&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/LTSC%202019.svg?label=Windows%2010&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/LTSC%202019.svg?label=Windows%2010&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/PowerShell%205.1.svg?label=Windows%2011%20LTSC%202024&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/PowerShell%205.1.svg?label=Windows%2011%20LTSC%202024&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/LTSC%202021.svg?label=Windows%2010&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/LTSC%202021.svg?label=Windows%2010&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/PowerShell%207.svg?label=Windows%2011%20LTSC%202024&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/PowerShell%207.svg?label=Windows%2011%20LTSC%202024&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td></td>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/PowerShell%205.1.svg?label=Windows%2011%20Arm&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/PowerShell%205.1.svg?label=Windows%2011%20Arm&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td></td>
-    <td align="left">
-      <a href="https://github.com/farag2/Sophia-Script-for-Windows/releases/latest">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/PowerShell%207.svg?label=Windows%2011%20Arm&amp;variant=outline&amp;size=sm&amp;mode=dark">
-          <img src="https://shieldcn.dev/badge/PowerShell%207.svg?label=Windows%2011%20Arm&amp;variant=outline&amp;size=sm&amp;mode=light">
-        </picture>
-      </a>
-    </td>
-  </tr>
-</table>
-
-### Download via PowerShell
-
-Download the latest `Sophia Script for Windows` version for your Windows and PowerShell versions and extract it to the Downloads folder.
+## CLI headless
 
 ```powershell
-iwr script.sophia.team -useb | iex
+MOLIK_WINLIK.bat -Mode HardcoreGaming -Apply -Yes   # áp cả Mode
+MOLIK_WINLIK.bat -Preset <tên> -Apply -Yes          # áp Preset
+MOLIK_WINLIK.bat -ApplyIds GAM01,GPU01 -Yes         # áp theo ID
+MOLIK_WINLIK.bat -Smart -Plan                       # xem kế hoạch Smart Advisor khuyên
+MOLIK_WINLIK.bat -ListTweaks -Search "timer"        # tra cứu catalog
+MOLIK_WINLIK.bat -Benchmark -BenchmarkLabel Before  # đo trước / After rồi -CompareBenchmarks
+MOLIK_WINLIK.bat -Doctor                            # chẩn đoán hệ thống (chỉ đọc)
+MOLIK_WINLIK.bat -SelfTest                          # tự kiểm tra toàn diện (chỉ đọc)
+MOLIK_WINLIK.bat -UndoLast -Yes                     # hoàn tác phiên áp dụng gần nhất
+MOLIK_WINLIK.bat -ExportReport                      # xuất Dashboard HTML + JSON
+MOLIK_WINLIK.bat -Gui                               # giao diện cửa sổ
 ```
 
-Download the `Sophia Script for Windows` version from the latest [commit](https://github.com/farag2/Sophia-Script-for-Windows/commits/main/) for your Windows and PowerShell versions and extract it to the Downloads folder.
+## An toàn & khôi phục
 
-```powershell
-iwr sl.sophia.team -useb | iex
-```
+- **Tự backup trước khi áp**: System Restore Point + xuất registry/BCD vào `C:\MOLIK_WINLIK_Backups\`.
+- **Mọi tweak đều có Restore** trả về đúng trạng thái gốc; áp xong tool **tự kiểm chứng** trạng thái thật (`verified`/`unverified` trong log).
+- `-UndoLast` hoàn tác cả phiên gần nhất; phiên bị ngắt giữa chừng (mất điện...) được Doctor cảnh báo ở lần mở sau.
+- Tweak rủi ro **Extreme** phải xác nhận riêng và được Plan Engine xếp áp cuối cùng, ngay trước khi restart.
+- **Minh bạch**: toàn bộ hành vi nằm trong file `.ps1` đọc được — không binary mờ, không tải code khi chạy.
 
-### Chocolatey
+## Cho nhà phát triển
 
-Download the latest `Sophia Script for Windows` version for your Windows version and extract it to the Downloads folder.
+- Kiến trúc & quyết định kỹ thuật: `docs/ADR-001-engine-language.md` (vì sao engine là PowerShell, Go/Rust chỉ cho helper phụ trợ).
+- Bộ **Agent Skills** của dự án: `skills/` (6 skill nội bộ + skills vendor từ superpowers/golang/low-level/design) — `AGENTS.md` ở gốc repo hướng dẫn mọi phiên agent nạp chúng. Audit tĩnh đa nền tảng: `python3 skills/molik-deep-debug/scripts/audit_molik.py --root .`
+- Build bản 1-file: `Optimizer\Build-Portable.ps1` → `MolikWinlik-Portable.ps1` + `.sha256`. Không sửa tay file Portable.
+- Nhật ký thay đổi: `CHANGELOG-MOLIK.md`. Tài liệu engine: `Optimizer/README.md`.
 
-```powershell
-choco install sophia --force --yes
-```
+## Nguồn gốc & giấy phép
 
-Download the latest PowerShell 7 version of `Sophia Script for Windows` for your Windows version and extract it to the Downloads folder.
+Xây trên [Sophia Script for Windows](https://github.com/farag2/Sophia-Script-for-Windows) (thư mục `src/` giữ nguyên 100%) và dữ liệu tweak/app của [ChrisTitusTech/winutil](https://github.com/ChrisTitusTech/winutil) (MIT, vendor offline tại `Optimizer/Data/`, xem `LICENSE-winutil.txt`). Phần MOLIK WINLIK phát hành theo cùng tinh thần mã nguồn mở — đọc code trước khi chạy Admin là quyền của bạn.
 
-```powershell
-choco install sophia --params "/PS7" --force --yes
-```
+---
 
-```powershell
-# Uninstall, then delete the downloaded folder manually
-choco uninstall sophia --force --yes
-```
+### English summary
 
-### WinGet
-
-Download the latest `Sophia Script for Windows` version for Windows 11 and PowerShell 5.1 (SFX archive `sophiascript.exe`) and extract it to the Downloads folder.
-
-```powershell
-$DownloadsFolder = Get-ItemPropertyValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" -Name "{374DE290-123F-4565-9164-39C4925E467B}"
-winget install --id TeamSophia.SophiaScript --location $DownloadsFolder --accept-source-agreements --force
-
-& "$DownloadsFolder\sophiascript.exe"; Start-Sleep -Seconds 3; Remove-Item -Path "$DownloadsFolder\sophiascript.exe" -Force
-```
-
-```powershell
-# Uninstall Sophia Script for Windows
-winget uninstall --id TeamSophia.SophiaScript --force
-```
-
-### Scoop
-
-Download the latest `Sophia Script for Windows` version for Windows 11 and PowerShell 5.1 and extract it to the Downloads folder.
-
-```powershell
-# scoop bucket rm extras
-scoop bucket add extras
-scoop install sophia-script --no-cache
-```
-
-```powershell
-# scoop bucket rm versions
-scoop bucket add versions
-# sophia-script-ltsc2019, sophia-script-ltsc2021
-# sophia-script-ltsc2024-ps7.json, sophia-script-ltsc2024
-# sophia-script-ps7, sophia-script-win10-ps7
-scoop install sophia-script-win10 --no-cache
-```
-
-```powershell
-# Uninstall Sophia Script for Windows
-scoop uninstall sophia-script --purge
-```
-
-## How to use
-
-<https://github.com/user-attachments/assets/5af5c234-5fb5-4e7e-a3d0-ae496a89e6ba>
-
-* Download the archive for your system and extract it
-* Open `Sophia.ps1` and choose the functions you want to run
-  * Put `#` before a function to skip it
-  * Remove `#` before a function to run it
-* Copy the path to the extracted `Sophia Script for Windows` folder
-* Right-click the `Start` button, open Terminal (PowerShell) as administrator, and go to the copied folder
-
-```powershell
-cd path\to\folder
-```
-
-* Allow running scripts in the current PowerShell session only
-
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-```
-
-* Type `.\Sophia.ps1` and press <kbd>Enter</kbd>
-
-### How to run the specific function(s)
-
-<https://github.com/user-attachments/assets/d70150d6-af8c-4933-9ec5-b2cf3bb1dd34>
-
-* Follow the steps from [How to use](#how-to-use) up to and including setting the execution policy, but don't run `Sophia.ps1`
-* [Dot source](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_operators#dot-sourcing-operator-) the `Import-TabCompletion.ps1` file first:
-
-```powershell
-# With a dot at the beginning
-. .\Import-TabCompletion.ps1
-```
-
-* Call any script function with name autocompletion using <kbd>TAB</kbd>
-
-```powershell
-Sophia -Functions<TAB>
-Sophia -Functions temp<TAB>
-Sophia -Functions unin<TAB>
-Sophia -Functions uwp<TAB>
-Sophia -Functions "DiagTrackService -Disable", "DiagnosticDataLevel -Minimal", Uninstall-UWPApps
-
-Sophia -Functions Uninstall-UWPApps, "PinToStart -UnpinAll"
-```
-
-## System Requirements
-
-[Windows-10]: https://support.microsoft.com/topic/windows-10-update-history-8127c2c6-6edf-4fdf-8b9f-0f7be1ef3562
-[Windows-10-LTSC-2019]: https://support.microsoft.com/topic/windows-10-and-windows-server-2019-update-history-725fc2e1-4443-6831-a5ca-51ff5cbcb059
-[Windows-10-LTSC-2021]: https://support.microsoft.com/topic/windows-10-update-history-857b8ccb-71e4-49e5-b3f6-7073197d98fb
-[Windows-11-LTSC-2024]: https://support.microsoft.com/topic/windows-11-version-24h2-update-history-0929c747-1815-4543-8461-0160d16f15e5
-[Windows-11-25h2]: https://support.microsoft.com/topic/windows-11-version-25h2-update-history-99c7f493-df2a-4832-bd2d-6706baa0dec0
-
-|               Version                    |                  Build                |      Edition        |
-|:-----------------------------------------|:-------------------------------------:|:-------------------:|
-| Windows 11 25H2+                         | [Latest stable][Windows-11-25h2]      | Home/Pro/Enterprise |
-| Windows 10 x64 22H2                      | [Latest stable][Windows-10]           | Home/Pro/Enterprise |
-| Windows 11 Enterprise LTSC 2024          | [Latest stable][Windows-11-LTSC-2024] | Enterprise          |
-| Windows 10 21H2 Enterprise LTSC 2021     | [Latest stable][Windows-10-LTSC-2021] | Enterprise          |
-| Windows 10 x64 1809 Enterprise LTSC 2019 | [Latest stable][Windows-10-LTSC-2019] | Enterprise          |
-
-## Screenshots
-
-<table>
-  <tr>
-    <td align="center">
-      <img src="./img/UWP.png" width="400" alt="UWP apps removal"><br>
-      <sub>UWP apps</sub>
-    </td>
-    <td align="center">
-      <img src="./img/Tasks.png" width="400" alt="Scheduled tasks"><br>
-      <sub>Scheduled tasks</sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="./img/WSL.png" width="400" alt="WSL installation"><br>
-      <sub>WSL</sub>
-    </td>
-    <td align="center">
-      <img src="./img/Toasts.png" width="400" alt="Toast notifications"><br>
-      <sub>Toast notifications</sub>
-    </td>
-  </tr>
-</table>
-
-## How to translate
-
-* Run `$PSUICulture` in PowerShell to determine your UI language
-* Create a folder with the UI language name (e.g. `en-US`)
-* Put your localized `SophiaScript.psd1` file into this folder
-
-## Media
-
-<details>
-<summary>Articles and mentions</summary>
-
-* [Comss.ru](https://www.comss.ru/page.php?id=19917)
-* [Windows Central](https://www.windowscentral.com/microsoft/windows-11/how-to-fine-tune-your-pc-with-the-sophia-script-for-windows-11)
-* [XDA](https://www.xda-developers.com/sophia-script-returns-control-windows-11)
-* [Neowin](https://www.neowin.net/news/this-script-is-the-ultimate-tool-to-control-and-customize-windows-11)
-* [Neowin 2](https://www.neowin.net/news/this-windows-10-setup-script-lets-you-fine-tune-around-150-functions-for-new-installs)
-* [4sysops](https://4sysops.com/archives/windows-10-sophia-script-powershell-functions-for-windows-10-fine-tuning-and-automating-routine-configuration-tasks/)
-* [gHacks](https://www.ghacks.net/2020/09/27/windows-10-setup-script-has-a-new-name-and-is-now-easier-to-use/)
-* [Comss.ru 2](https://www.comss.ru/page.php?id=8019)
-* [Habr](https://habr.com/company/skillfactory/blog/553800)
-* [Deskmodder.de](https://www.deskmodder.de/blog/2021/08/07/sophia-script-for-windows-jetzt-fuer-windows-11-und-10/)
-* [Ru-Board](https://forum.ru-board.com/topic.cgi?forum=62&topic=30617#15)
-* [rutracker](https://rutracker.org/forum/viewtopic.php?t=5996011)
-* [My Digital Life](https://forums.mydigitallife.net/threads/powershell-windows-10-sophia-script.81675/)
-
-</details>
-
-## Acknowledgements
-
-Our thanks to the following organizations for providing their services at no cost:
-
-* [SignPath Foundation](https://signpath.org) & [SignPath.io](https://about.signpath.io) — code signing certificate
-
-***
-
-## SophiApp 2.0 (C# + WinUI 3)
-
-[SophiApp 2.0](https://github.com/Sophia-Community/SophiApp) is under active development. 🚀
-
-![SophiApp — Privacy](./img/Privacy.png)
-![SophiApp — Settings](./img/Settings.png)
+MOLIK WINLIK is a fully-offline Windows deep-optimization toolkit: 200 reversible tweaks, 11 need-based modes, a winutil-style window GUI plus a minimal keyboard TUI and a full headless CLI, automatic registry/BCD backup before applying, post-apply verification, one-click undo of the last session, and before/after benchmarks. Double-click `MOLIK_WINLIK.bat` (it self-elevates) — no downloads at runtime, ever.

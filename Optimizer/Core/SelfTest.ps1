@@ -6,7 +6,7 @@
 	1) Parse cú pháp mọi file .ps1 của tool bằng PowerShell Parser chính chủ
 	2) Dựng catalog, kiểm tra ID trùng, mỗi tweak đủ Apply/Restore/Check
 	3) Chạy thử toàn bộ CheckScript (chỉ đọc) và báo tweak nào lỗi
-	4) Kiểm tra 6 Mode có tweak, Plan Engine chạy được, Smart Advisor chạy được
+	4) Kiểm tra mọi Mode (11) có tweak, Plan Engine chạy được, Smart Advisor chạy được
 	5) Kiểm tra bản Portable có đủ module inline (nếu chạy trong repo)
 	Chỉ ĐỌC — không áp dụng tweak nào.
 #>
