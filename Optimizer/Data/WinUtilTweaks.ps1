@@ -1,6 +1,6 @@
 ﻿<#
 	MOLIK WINLIK - WinUtil Tweaks Data (VENDORED, works OFFLINE - no download needed)
-	Converted from ChrisTitusTech/winutil config/tweaks.json (commit 2ef5e5d), MIT License - see LICENSE-winutil.txt
+	Converted from ChrisTitusTech/winutil config/tweaks.json (commit 2ef5e5d; WU26-WU29 added in v5.2 from commit 70c23c8), MIT License - see LICENSE-winutil.txt
 	Only pure-registry Toggle tweaks were converted; tweaks duplicating/conflicting with the native catalog were excluded (WU05 removed in v4.2 - exact duplicate of native EXT72).
 #>
 function Get-WinUtilRawTweaks
@@ -207,6 +207,37 @@ function Get-WinUtilRawTweaks
 			SourceCategory = 'Customize Preferences'; Risk = 'Safe'; Modes = @("SophiaStandard")
 			Entries = @(
 				@{ Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'; Name = 'ShowTaskViewButton'; Value = '1'; Type = 'DWord'; Original = '0' }
+			)
+		}
+		[PSCustomObject]@{
+			Id = 'WU26'; SourceKey = 'WPFTweaksHiber'; Name = 'Hibernation - Disable'; Description = 'Tat Hibernate: giai phong file hiberfil.sys va bo tuy chon ngu dong khoi menu nguon (khoi phuc bang Restore).'
+			SourceCategory = 'Essential Tweaks'; Risk = 'Moderate'; Modes = @("LowSpec","SophiaStandard")
+			Entries = @(
+				@{ Path = 'HKLM:\\SYSTEM\CurrentControlSet\Control\Session Manager\Power'; Name = 'HibernateEnabled'; Value = '0'; Type = 'DWord'; Original = '1' }
+				@{ Path = 'HKLM:\\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings'; Name = 'ShowHibernateOption'; Value = '0'; Type = 'DWord'; Original = '1' }
+			)
+		}
+		[PSCustomObject]@{
+			Id = 'WU27'; SourceKey = 'WPFToggleDarkMode'; Name = 'Dark Theme for Windows'; Description = 'Bat giao dien toi cho ca he thong va ung dung (Themes Personalize).'
+			SourceCategory = 'Customize Preferences'; Risk = 'Safe'; Modes = @("SophiaStandard")
+			Entries = @(
+				@{ Path = 'HKCU:\\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize'; Name = 'AppsUseLightTheme'; Value = '0'; Type = 'DWord'; Original = '1' }
+				@{ Path = 'HKCU:\\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize'; Name = 'SystemUsesLightTheme'; Value = '0'; Type = 'DWord'; Original = '1' }
+			)
+		}
+		[PSCustomObject]@{
+			Id = 'WU28'; SourceKey = 'WPFTweaksRazerBlock'; Name = 'Razer Software Auto-Install - Disable'; Description = 'Chan Razer tu cai phan mem khi cam thiet bi (phan cung van chay binh thuong, khong kem bloatware).'
+			SourceCategory = 'z__Advanced Tweaks - CAUTION'; Risk = 'Moderate'; Modes = @("SophiaStandard","HardcoreGaming")
+			Entries = @(
+				@{ Path = 'HKLM:\\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching'; Name = 'SearchOrderConfig'; Value = '0'; Type = 'DWord'; Original = '1' }
+				@{ Path = 'HKLM:\\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Installer'; Name = 'DisableCoInstallers'; Value = '1'; Type = 'DWord'; Original = '0' }
+			)
+		}
+		[PSCustomObject]@{
+			Id = 'WU29'; SourceKey = 'WPFToggleTaskbarAlignment'; Name = 'Taskbar Centered Icons'; Description = 'Can giua icon tren Taskbar (phong cach Windows 11); Restore tra ve can trai.'
+			SourceCategory = 'Customize Preferences'; Risk = 'Safe'; Modes = @("SophiaStandard")
+			Entries = @(
+				@{ Path = 'HKCU:\\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'; Name = 'TaskbarAl'; Value = '1'; Type = 'DWord'; Original = '0' }
 			)
 		}
 	)

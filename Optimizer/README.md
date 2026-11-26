@@ -2,7 +2,7 @@
 
 > **Credit:** Phát triển bởi **@nggkhaiz** (repo [MOLIK_WINLIK](https://github.com/NggKhaiz/MOLIK_WINLIK)) — dựa trên [Sophia Script](https://github.com/farag2/Sophia-Script-for-Windows) của farag2 và tích hợp data [winutil](https://github.com/ChrisTitusTech/winutil) của Chris Titus Tech (đều MIT).
 
-Tool tối ưu Windows **sâu & cực mạnh** xây trên nền [Sophia Script for Windows](https://github.com/farag2/Sophia-Script-for-Windows) gốc (`src/`), bổ sung engine riêng trong `Optimizer/` với **196 tweak** chia 9 nhóm, **6 mode chuyên dụng** và giao diện **tick-chọn CLI** `[✓]/[ ]` bằng phím.
+Tool tối ưu Windows **sâu & cực mạnh** xây trên nền [Sophia Script for Windows](https://github.com/farag2/Sophia-Script-for-Windows) gốc (`src/`), bổ sung engine riêng trong `Optimizer/` với **200 tweak** chia 10 nhóm, **11 Mode** theo nhu cầu (6 Mode vật lý + 5 Mode ảo hợp theo nhóm/trần rủi ro), GUI cửa sổ kiểu winutil (`-Gui`) và giao diện **tick-chọn CLI** `[✓]/[ ]` bằng phím.
 
 ## 📴 OFFLINE 100% — chạy đơn giản: double-click là xong (tự xin Admin)
 
@@ -20,7 +20,7 @@ không cần Internet, không tải thêm code khi chạy.
    tiến trình PowerShell mà .bat khởi chạy).
 
 `MOLIK_WINLIK.bat` tự tìm `MolikWinlik-Portable.ps1` (bản 1 file, chứa toàn bộ engine +
-196 tweak + data 239 app) ngay cạnh nó. Giữ 2 file này cùng thư mục là đủ chạy ở mọi máy.
+200 tweak + data 239 app) ngay cạnh nó. Giữ 2 file này cùng thư mục là đủ chạy ở mọi máy.
 
 ### Chạy bằng PowerShell (khi đã mở sẵn terminal Admin)
 
@@ -50,7 +50,7 @@ Get-FileHash .\MolikWinlik-Portable.ps1 -Algorithm SHA256
 bản phát hành mới. `win.ps1` / `docs/win.ps1` / `Sophia-Ultra-Standalone.ps1` (bản
 online cũ) đã bị xóa hẳn.
 
-## 🎛️ 6 Mode tối ưu riêng cho từng nhu cầu
+## 🎛️ 11 Mode tối ưu riêng cho từng nhu cầu
 
 | Phím | Mode | Dành cho |
 |---|---|---|
@@ -59,7 +59,12 @@ online cũ) đã bị xóa hẳn.
 | `3` | 🎬 **WORKSTATION / STREAM** | Render/OBS/compile: mạnh nhưng giữ ổn định & mitigations, ưu tiên GPU encode/foreground |
 | `4` | 🥔 **LOW-SPEC / POTATO PC** | Máy yếu RAM ≤8GB: tắt visual effects, services/background apps/telemetry thừa |
 | `5` | 🛡️ **MOLIK STANDARD** | Privacy + gọn gàng an toàn, không đụng kernel/BCD (tên khóa nội bộ vẫn là `SophiaStandard` để tương thích Profile cũ) |
-| `6` | 👑 **GOD MODE** | Toàn bộ 196 tweak kể cả nhóm `Extreme` (tắt Spectre/Meltdown mitigations...) — chỉ khi đã backup |
+| `6` | 🔒 **PRIVACY MAX** | Riêng tư cực hạn (Mode ảo: Privacy + WinUtil, trần Moderate) — 57 tweak |
+| `7` | 🧹 **DEBLOAT MAX** | Dọn sạch System/Services/Debloat (Mode ảo) — 54 tweak |
+| `8` | 💻 **DEVELOPER** | Dev workstation (Mode ảo) — 78 tweak |
+| `9` | 🎥 **CREATOR / STREAMER** | GPU + Network cho stream (Mode ảo) — 76 tweak |
+| `10` | 🔋 **BATTERY / LAPTOP** | Chỉ tweak Safe cho laptop (Mode ảo) — 63 tweak |
+| `11` | 👑 **GOD MODE** | Toàn bộ 200 tweak kể cả nhóm `Extreme` (tắt Spectre/Meltdown mitigations...) — chỉ khi đã backup |
 
 ## ⌨️ Điều khiển trong CLI
 
@@ -82,13 +87,22 @@ online cũ) đã bị xóa hẳn.
 ```powershell
 .\MolikWinlik.ps1 -Mode EmulatorFarm -Apply -Yes   # áp dụng thẳng 1 mode
 .\MolikWinlik.ps1 -Mode HardcoreGaming              # mở CLI đã tick sẵn mode Gaming
-.\MolikWinlik.ps1 -ListModes                        # xem 6 mode
+.\MolikWinlik.ps1 -ListModes                        # xem 11 mode
 .\MolikWinlik.ps1 -ListTweaks                       # liệt kê 197 tweak
 .\MolikWinlik.ps1 -PurgeRAM                         # dọn RAM ngay
 .\MolikWinlik.ps1 -BoostEmulators                   # boost process giả lập
 .\MolikWinlik.ps1 -ExportReport                     # xuất JSON báo cáo phần cứng + catalog
 .\MolikWinlik.ps1 -RestoreDefaults -Yes             # khôi phục mặc định
 ```
+
+## 🎛️ v5.2 — 11 Mode, 200 tweak & README mới
+
+- **5 Mode ảo mới**: PrivacyMax, DebloatMax, Developer, Creator,
+  BatterySaver (hợp Mode nền + nhóm + trần rủi ro, giải bởi
+  `Get-SophiaModeTweakIds` — TUI/GUI/CLI dùng chung, đếm khớp catalog).
+- **Vendor winutil 70c23c8**: thêm WU26–WU29 (Hibernate off, Dark Theme,
+  Razer auto-install block, Taskbar centered) sau audit chéo khóa đích —
+  tròn **200 tweak**. README gốc viết lại chuyên nghiệp.
 
 ## 🖥️ v5.1 — GUI winutil-style & kho skills mở rộng
 
@@ -110,7 +124,7 @@ online cũ) đã bị xóa hẳn.
 
 ## 🩺 v4.2 — Debug PRO: dữ liệu chéo & đường chạy
 
-- **Audit chéo WinUtil ↔ native**: gỡ WU05 (trùng tuyệt đối với EXT72 — lọt qua bộ lọc loại trùng khi vendor), sửa WU14 (Restore viết lại đúng giá trị vừa áp). Catalog còn **196 tweak** sạch trùng lặp; SelfTest từ nay tự kiểm tra trùng khóa đích giữa 2 nguồn + tính hợp lệ của dữ liệu 24 tweak WinUtil và 239 app.
+- **Audit chéo WinUtil ↔ native**: gỡ WU05 (trùng tuyệt đối với EXT72 — lọt qua bộ lọc loại trùng khi vendor), sửa WU14 (Restore viết lại đúng giá trị vừa áp). Catalog sạch trùng lặp; SelfTest tự kiểm tra trùng khóa đích giữa 2 nguồn + tính hợp lệ của dữ liệu WinUtil (28 tweak từ v5.2) và 239 app.
 - **Vá đường chạy**: hủy UAC giữa chừng không còn khiến tool chạy tiếp với quyền thường rồi lỗi khó hiểu (dừng và hướng dẫn rõ); `-ListTweaks -Search` không còn sập khi gõ ký tự đặc biệt regex.
 - **Nhận diện GPU đúng trên máy hybrid**: ưu tiên GPU rời (AdapterRAM lớn nhất) thay vì adapter đầu tiên — Smart Advisor hết khuyên sai trên máy 2 GPU.
 - Benchmark đa luồng chỉ nhận kết quả từ job đã hoàn thành (timeout không còn làm sai số đo).
@@ -123,7 +137,7 @@ online cũ) đã bị xóa hẳn.
 
 Bản chốt của chuỗi 3.x: 197 tweak đã audit toàn diện (0 xung đột registry, Restore đối xứng, Check kiểm chứng được), engine áp dụng tự xác minh trạng thái thật, TUI tối giản 7 dòng khung cố định. v4.0 đồng bộ nốt các chi tiết vận hành: version nhất quán kể cả khi build lại Portable, `-ExportReport` ghi vào `C:\MOLIK_WINLIK_Backups\Reports`, `-RestoreDefaults -Yes` không dừng chờ phím, Menu có thêm phím `K` (Doctor), metadata backup ghi phiên bản tool. Nhật ký thay đổi đầy đủ: `CHANGELOG-MOLIK.md` ở thư mục gốc.
 
-Số tweak theo Mode hiện tại: Farm 109 · Gaming 77 · Workstation 21 · LowSpec 47 · Standard 47 · GodMode 196.
+Số tweak theo Mode hiện tại (đếm tự động từ catalog): Farm 109 · Gaming 78 · Workstation 21 · LowSpec 48 · Standard 51 · PrivacyMax 57 · DebloatMax 54 · Developer 78 · Creator 76 · BatterySaver 63 · GodMode 200.
 
 ## 🔬 v3.3 — DEEPER: kiểm chứng sau áp dụng + audit sâu catalog
 
@@ -175,7 +189,7 @@ Chạy automation bằng `-Apply -Yes` / `-Preset ... -Apply -Yes` **không còn
 
 ### 📄 Báo cáo HTML Dashboard (phím `H`)
 
-`-ExportReport` nay sinh **cả JSON lẫn HTML**: dashboard tĩnh (mở bằng trình duyệt, offline) gồm thông số máy, trạng thái chờ restart, bảng 6 Mode + Impact Score, và toàn bộ 197 tweak với trạng thái Đã áp/Chưa. Gửi kèm file này khi cần hỗ trợ kỹ thuật.
+`-ExportReport` nay sinh **cả JSON lẫn HTML**: dashboard tĩnh (mở bằng trình duyệt, offline) gồm thông số máy, trạng thái chờ restart, bảng 11 Mode + Impact Score, và toàn bộ 200 tweak với trạng thái Đã áp/Chưa. Gửi kèm file này khi cần hỗ trợ kỹ thuật.
 
 ### 🖥️ Giao diện tick-chọn nâng cấp
 
@@ -203,11 +217,11 @@ Optimizer/
   Core/ReportEngine.ps1         # Xuat Dashboard HTML + quet trang thai da ap dung
   Core/WinUtilBridge.ps1        # Cầu nối winutil (Chris Titus Tech, MIT) -> tweak bản địa, offline
   Core/AppInstaller.ps1         # Cài 239 app qua winget (data vendor từ winutil)
-  Data/WinUtilTweaks.ps1        # 24 tweak winutil đã chuyển đổi + LICENSE-winutil.txt
+  Data/WinUtilTweaks.ps1        # 28 tweak winutil đã chuyển đổi + LICENSE-winutil.txt
   Data/WinUtilApps.ps1          # 239 ứng dụng winget/choco
   Core/SophiaBridge.ps1         # Bridge vào Sophia.psm1 gốc theo đúng edition Win10/11/LTSC/ARM/PS7
                                 # (bỏ qua chặn cứng LGPO/UBR của InitialActions.ps1)
-  Catalog/TweaksCatalog.ps1     # 197 tweak: ApplyScript / RestoreScript / CheckScript, 9 nhóm, 6 mode
+  Catalog/TweaksCatalog.ps1     # 200 tweak: ApplyScript / RestoreScript / CheckScript, 10 nhóm, 11 mode
   UI/InteractiveCLI.ps1         # TUI tick-chọn [✓]/[ ], tìm kiếm, thực thi & log
 ```
 
@@ -262,7 +276,7 @@ thông thường thay vì blob `iex`. Tool không dùng bất kỳ kỹ thuật 
 
 Data của [winutil](https://github.com/ChrisTitusTech/winutil) (MIT License, xem `Optimizer/Data/LICENSE-winutil.txt`) đã được **vendor trực tiếp vào repo này** — chạy hoàn toàn offline, không tải thêm bất cứ gì lúc chạy:
 
-- **24 tweak winutil** (nhóm `10. WINUTIL` trong CLI): Brave Debloat, Edge Debloat (17 registry), tắt nhà Home/Gallery Explorer, End Task chuột phải, WPBT, giờ UTC, khóa màn hình, NumLock, Dark/BSoD verbose... Đã loại trừ các tweak trùng/mâu thuẫn với 172 tweak bản địa (GameDVR, telemetry, MPO, chuột 1:1...). Chuyển đổi bởi `Optimizer/Core/WinUtilBridge.ps1`, dữ liệu tại `Optimizer/Data/WinUtilTweaks.ps1`.
+- **28 tweak winutil** (nhóm `10. WINUTIL` trong CLI; v5.2 thêm Hibernate off, Dark Theme, Razer block, Taskbar centered từ winutil 70c23c8): Brave Debloat, Edge Debloat (17 registry), tắt nhà Home/Gallery Explorer, End Task chuột phải, WPBT, giờ UTC, khóa màn hình, NumLock, Dark/BSoD verbose... Đã loại trừ các tweak trùng/mâu thuẫn với 172 tweak bản địa (GameDVR, telemetry, MPO, chuột 1:1...). Chuyển đổi bởi `Optimizer/Core/WinUtilBridge.ps1`, dữ liệu tại `Optimizer/Data/WinUtilTweaks.ps1`.
 - **239 ứng dụng cài qua winget** (kiểu winutil) tại `Optimizer/Data/WinUtilApps.ps1`:
 
 ```powershell

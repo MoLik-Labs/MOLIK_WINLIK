@@ -1,6 +1,6 @@
 ﻿<#
 	.SYNOPSIS
-	MOLIK WINLIK - Deep Tweaks Catalog (9 categories incl. EXTREME LAB, 6 modes - run -ListTweaks for the live count)
+	MOLIK WINLIK - Deep Tweaks Catalog (10 categories incl. EXTREME LAB + WINUTIL, 11 modes - run -ListTweaks/-ListModes for live counts)
 
 	.DESCRIPTION
 	Every tweak: Id, Name, Category, Description, Risk, Modes, ApplyScript, RestoreScript, CheckScript.
@@ -95,13 +95,23 @@ function New-SophiaCmdTweak
 
 function Get-SophiaOptimizationModes
 {
+	# 5 Mode dau la Mode "vat ly" (tweak gan truc tiep qua truong Modes).
+	# 5 Mode tiep la Mode "ao" (v5.2): hop tu BaseModes + nhom Category +
+	# ExtraIds, loc theo tran rui ro MaxRisk - giai quyet boi
+	# Get-SophiaModeTweakIds nen khong can gan lai tung tweak.
+	# GodMode = toan bo catalog.
 	return @(
-		[PSCustomObject]@{ Key = "EmulatorFarm";     Icon = "🖥️"; Name = "TREO GIẢ LẬP 24/7";        Sub = "Multi-Instance Farm (LDPlayer/MuMu/Nox/BlueStacks)"; Description = "Tắt VBS/Hyper-V tranh VT-x, nén RAM, dọn Standby List tự động, pagefile cố định lớn, không ngủ/USB suspend, ưu tiên CPU/RAM cho hàng chục instance chạy 24/7 không crash, không leak RAM." }
-		[PSCustomObject]@{ Key = "HardcoreGaming";   Icon = "🎮"; Name = "HARDCORE GAMING";         Sub = "Low-Latency FPS / Esports"; Description = "HAGS, tắt MPO/Game DVR, timer & BCD latency, Nagle off, NetworkThrottlingIndex=0, SystemResponsiveness=0, mouse 1:1, Ultimate Performance — giảm input lag & frame-time spike tối đa." }
-		[PSCustomObject]@{ Key = "Workstation";      Icon = "🎬"; Name = "WORKSTATION / STREAM";    Sub = "Render, OBS, Compile, Đa nhiệm nặng"; Description = "Giữ ổn định & bảo mật hợp lý, ưu tiên foreground + GPU encode, RAM cache lớn, không tắt mitigations — mạnh nhưng không đánh đổi độ tin cậy khi render/stream dài." }
-		[PSCustomObject]@{ Key = "LowSpec";          Icon = "🥔"; Name = "LOW-SPEC / POTATO PC";     Sub = "Máy yếu, RAM <=8GB, HDD/SSD chậm"; Description = "Tắt visual effects, services & background apps thừa, giảm telemetry/startup, tối ưu RAM/pagefile cho máy yếu chạy mượt, ít nóng, ít disk 100%." }
-		[PSCustomObject]@{ Key = "SophiaStandard";   Icon = "🛡️"; Name = "MOLIK STANDARD";         Sub = "Privacy + Gọn gàng chuẩn bản gốc"; Description = "Tập tweak an toàn của bản upstream gốc: telemetry, quảng cáo, Copilot/Recall, GameBar tips, hiển thị đuôi file... Không đụng kernel/BCD." }
-		[PSCustomObject]@{ Key = "GodMode";          Icon = "👑"; Name = "GOD MODE — CỰC HẠN";       Sub = "Tất cả tweak (kể cả Extreme)"; Description = "Bật TOÀN BỘ catalog kể cả tweak Extreme (tắt Spectre/Meltdown mitigations, Defender scan exclusions...). Chỉ dùng khi đã có backup/restore point và hiểu rõ đánh đổi bảo mật." }
+		[PSCustomObject]@{ Key = "EmulatorFarm";   Icon = "🖥️"; Name = "TREO GIẢ LẬP 24/7";   Sub = "Multi-Instance Farm (LDPlayer/MuMu/Nox/BlueStacks)"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Tắt VBS/Hyper-V tranh VT-x, nén RAM, dọn Standby List tự động, pagefile cố định lớn, không ngủ/USB suspend, ưu tiên CPU/RAM cho hàng chục instance chạy 24/7 không crash, không leak RAM." }
+		[PSCustomObject]@{ Key = "HardcoreGaming"; Icon = "🎮"; Name = "HARDCORE GAMING";     Sub = "Low-Latency FPS / Esports"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "HAGS, tắt MPO/Game DVR, timer & BCD latency, Nagle off, NetworkThrottlingIndex=0, SystemResponsiveness=0, mouse 1:1, Ultimate Performance — giảm input lag & frame-time spike tối đa." }
+		[PSCustomObject]@{ Key = "Workstation";    Icon = "🎬"; Name = "WORKSTATION";         Sub = "Render, OBS, Compile, Đa nhiệm nặng"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Giữ ổn định & bảo mật hợp lý, ưu tiên foreground + GPU encode, RAM cache lớn, không tắt mitigations — mạnh nhưng không đánh đổi độ tin cậy khi render/stream dài." }
+		[PSCustomObject]@{ Key = "LowSpec";        Icon = "🥔"; Name = "LOW-SPEC / POTATO PC"; Sub = "Máy yếu, RAM <=8GB, HDD/SSD chậm"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Tắt visual effects, services & background apps thừa, giảm telemetry/startup, tối ưu RAM/pagefile cho máy yếu chạy mượt, ít nóng, ít disk 100%." }
+		[PSCustomObject]@{ Key = "SophiaStandard"; Icon = "🛡️"; Name = "MOLIK STANDARD";      Sub = "Privacy + Gọn gàng chuẩn cơ bản"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Tập tweak an toàn nền tảng: telemetry, quảng cáo, Copilot/Recall, GameBar tips, hiển thị đuôi file... Không đụng kernel/BCD." }
+		[PSCustomObject]@{ Key = "PrivacyMax";     Icon = "🔒"; Name = "PRIVACY MAX";         Sub = "Riêng tư cực hạn (không đụng kernel)"; BaseModes = @("SophiaStandard"); Categories = @("PRIVACY", "WINUTIL"); ExtraIds = @(); MaxRisk = "Moderate"; Description = "Mọi tweak riêng tư của MOLIK Standard + toàn nhóm Privacy + WinUtil (telemetry, quảng cáo, theo dõi, AI thu thập dữ liệu) nhưng trần Moderate — không tweak Extreme đụng kernel/BCD." }
+		[PSCustomObject]@{ Key = "DebloatMax";     Icon = "🧹"; Name = "DEBLOAT MAX";         Sub = "Dọn sạch Windows tối đa"; BaseModes = @("LowSpec"); Categories = @("SYSTEM"); ExtraIds = @(); MaxRisk = "Moderate"; Description = "Toàn bộ nhóm System/Services/Debloat + nền LowSpec: tắt dịch vụ & ứng dụng nền thừa, gọn Start/Taskbar/Explorer — trần Moderate, không đụng kernel." }
+		[PSCustomObject]@{ Key = "Developer";      Icon = "💻"; Name = "DEVELOPER";           Sub = "Lập trình / Dev Workstation"; BaseModes = @("Workstation", "SophiaStandard"); Categories = @("SYSTEM"); ExtraIds = @(); MaxRisk = "Moderate"; Description = "Nền Workstation + Standard + nhóm System: môi trường dev sạch, ổn định, ít tiến trình nền tranh tài nguyên khi build/test — trần Moderate." }
+		[PSCustomObject]@{ Key = "Creator";        Icon = "🎥"; Name = "CREATOR / STREAMER";  Sub = "Stream, quay, dựng video"; BaseModes = @("Workstation", "HardcoreGaming"); Categories = @("GPU", "NETWORK"); ExtraIds = @(); MaxRisk = "Moderate"; Description = "Workstation + Gaming nhưng chỉ lấy nhóm GPU/Network: encode mượt, mạng ổn định cho stream, khung hình đều khi vừa chơi vừa phát — trần Moderate." }
+		[PSCustomObject]@{ Key = "BatterySaver";   Icon = "🔋"; Name = "BATTERY / LAPTOP";    Sub = "Tiết kiệm pin, máy xách tay"; BaseModes = @("LowSpec", "SophiaStandard"); Categories = @(); ExtraIds = @(); MaxRisk = "Safe"; Description = "Chỉ tweak mức Safe của LowSpec + Standard: gọn nhẹ, mát máy, không khóa xung/idle — an toàn cho laptop dùng pin hằng ngày." }
+		[PSCustomObject]@{ Key = "GodMode";        Icon = "👑"; Name = "GOD MODE — CỰC HẠN";  Sub = "Tất cả tweak (kể cả Extreme)"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Bật TOÀN BỘ catalog kể cả tweak Extreme (tắt Spectre/Meltdown mitigations, Defender scan exclusions...). Chỉ dùng khi đã có backup/restore point và hiểu rõ đánh đổi bảo mật." }
 	)
 }
 

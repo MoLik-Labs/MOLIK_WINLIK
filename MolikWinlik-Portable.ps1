@@ -1,5 +1,5 @@
 ﻿<#
-	MOLIK WINLIK by @nggkhaiz v5.1.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
+	MOLIK WINLIK by @nggkhaiz v5.2.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
 	Chay: double-click MOLIK_WINLIK.bat (tu xin Admin), hoac powershell -ExecutionPolicy Bypass -File .\MolikWinlik-Portable.ps1
 	File nay duoc sinh tu dong boi Optimizer\Build-Portable.ps1 - dung sua tay, hay sua nguon trong Optimizer/ roi build lai.
 #>
@@ -38,7 +38,7 @@
 #Requires -Version 5.1
 [CmdletBinding()]
 param(
-	[ValidateSet("EmulatorFarm","HardcoreGaming","Workstation","LowSpec","SophiaStandard","GodMode")]
+	[ValidateSet("EmulatorFarm","HardcoreGaming","Workstation","LowSpec","SophiaStandard","PrivacyMax","DebloatMax","Developer","Creator","BatterySaver","GodMode")]
 	[string]$Mode = "EmulatorFarm",
 
 	[switch]$Apply,
@@ -81,7 +81,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "5.1.0"
+$Global:MolikWinlikVersion = "5.2.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -1935,7 +1935,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.1.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.2.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -2023,7 +2023,7 @@ function Export-MolikHtmlReport
  <div class="card">Chờ restart<b>$reboot</b></div>
 </div>
 <p>🖥️ Giả lập phát hiện: <b>$emu</b></p>
-<h2>🎛️ 6 Mode tối ưu</h2>
+<h2>🎛️ $((Get-SophiaOptimizationModes).Count) Mode tối ưu</h2>
 <table><tr><th>Mode</th><th>Mô tả</th><th>Số tweak</th><th>Impact Score</th></tr>
 $modeRows</table>
 <h2>🧩 Toàn bộ catalog ($($Catalog.Count) tweak)</h2>
@@ -2286,7 +2286,7 @@ function Show-SophiaAppInstallerMenu
 # ============================================================
 <#
 	MOLIK WINLIK - WinUtil Tweaks Data (VENDORED, works OFFLINE - no download needed)
-	Converted from ChrisTitusTech/winutil config/tweaks.json (commit 2ef5e5d), MIT License - see LICENSE-winutil.txt
+	Converted from ChrisTitusTech/winutil config/tweaks.json (commit 2ef5e5d; WU26-WU29 added in v5.2 from commit 70c23c8), MIT License - see LICENSE-winutil.txt
 	Only pure-registry Toggle tweaks were converted; tweaks duplicating/conflicting with the native catalog were excluded (WU05 removed in v4.2 - exact duplicate of native EXT72).
 #>
 function Get-WinUtilRawTweaks
@@ -2493,6 +2493,37 @@ function Get-WinUtilRawTweaks
 			SourceCategory = 'Customize Preferences'; Risk = 'Safe'; Modes = @("SophiaStandard")
 			Entries = @(
 				@{ Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'; Name = 'ShowTaskViewButton'; Value = '1'; Type = 'DWord'; Original = '0' }
+			)
+		}
+		[PSCustomObject]@{
+			Id = 'WU26'; SourceKey = 'WPFTweaksHiber'; Name = 'Hibernation - Disable'; Description = 'Tat Hibernate: giai phong file hiberfil.sys va bo tuy chon ngu dong khoi menu nguon (khoi phuc bang Restore).'
+			SourceCategory = 'Essential Tweaks'; Risk = 'Moderate'; Modes = @("LowSpec","SophiaStandard")
+			Entries = @(
+				@{ Path = 'HKLM:\\SYSTEM\CurrentControlSet\Control\Session Manager\Power'; Name = 'HibernateEnabled'; Value = '0'; Type = 'DWord'; Original = '1' }
+				@{ Path = 'HKLM:\\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings'; Name = 'ShowHibernateOption'; Value = '0'; Type = 'DWord'; Original = '1' }
+			)
+		}
+		[PSCustomObject]@{
+			Id = 'WU27'; SourceKey = 'WPFToggleDarkMode'; Name = 'Dark Theme for Windows'; Description = 'Bat giao dien toi cho ca he thong va ung dung (Themes Personalize).'
+			SourceCategory = 'Customize Preferences'; Risk = 'Safe'; Modes = @("SophiaStandard")
+			Entries = @(
+				@{ Path = 'HKCU:\\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize'; Name = 'AppsUseLightTheme'; Value = '0'; Type = 'DWord'; Original = '1' }
+				@{ Path = 'HKCU:\\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize'; Name = 'SystemUsesLightTheme'; Value = '0'; Type = 'DWord'; Original = '1' }
+			)
+		}
+		[PSCustomObject]@{
+			Id = 'WU28'; SourceKey = 'WPFTweaksRazerBlock'; Name = 'Razer Software Auto-Install - Disable'; Description = 'Chan Razer tu cai phan mem khi cam thiet bi (phan cung van chay binh thuong, khong kem bloatware).'
+			SourceCategory = 'z__Advanced Tweaks - CAUTION'; Risk = 'Moderate'; Modes = @("SophiaStandard","HardcoreGaming")
+			Entries = @(
+				@{ Path = 'HKLM:\\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching'; Name = 'SearchOrderConfig'; Value = '0'; Type = 'DWord'; Original = '1' }
+				@{ Path = 'HKLM:\\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Installer'; Name = 'DisableCoInstallers'; Value = '1'; Type = 'DWord'; Original = '0' }
+			)
+		}
+		[PSCustomObject]@{
+			Id = 'WU29'; SourceKey = 'WPFToggleTaskbarAlignment'; Name = 'Taskbar Centered Icons'; Description = 'Can giua icon tren Taskbar (phong cach Windows 11); Restore tra ve can trai.'
+			SourceCategory = 'Customize Preferences'; Risk = 'Safe'; Modes = @("SophiaStandard")
+			Entries = @(
+				@{ Path = 'HKCU:\\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'; Name = 'TaskbarAl'; Value = '1'; Type = 'DWord'; Original = '0' }
 			)
 		}
 	)
@@ -2763,7 +2794,7 @@ function Get-SophiaAppsCatalog
 	1) Parse cú pháp mọi file .ps1 của tool bằng PowerShell Parser chính chủ
 	2) Dựng catalog, kiểm tra ID trùng, mỗi tweak đủ Apply/Restore/Check
 	3) Chạy thử toàn bộ CheckScript (chỉ đọc) và báo tweak nào lỗi
-	4) Kiểm tra 6 Mode có tweak, Plan Engine chạy được, Smart Advisor chạy được
+	4) Kiểm tra mọi Mode (11) có tweak, Plan Engine chạy được, Smart Advisor chạy được
 	5) Kiểm tra bản Portable có đủ module inline (nếu chạy trong repo)
 	Chỉ ĐỌC — không áp dụng tweak nào.
 #>
@@ -3414,7 +3445,7 @@ function Invoke-SophiaNativeSafe
 # ============================================================
 <#
 	.SYNOPSIS
-	MOLIK WINLIK - Deep Tweaks Catalog (9 categories incl. EXTREME LAB, 6 modes - run -ListTweaks for the live count)
+	MOLIK WINLIK - Deep Tweaks Catalog (10 categories incl. EXTREME LAB + WINUTIL, 11 modes - run -ListTweaks/-ListModes for live counts)
 
 	.DESCRIPTION
 	Every tweak: Id, Name, Category, Description, Risk, Modes, ApplyScript, RestoreScript, CheckScript.
@@ -3509,13 +3540,23 @@ function New-SophiaCmdTweak
 
 function Get-SophiaOptimizationModes
 {
+	# 5 Mode dau la Mode "vat ly" (tweak gan truc tiep qua truong Modes).
+	# 5 Mode tiep la Mode "ao" (v5.2): hop tu BaseModes + nhom Category +
+	# ExtraIds, loc theo tran rui ro MaxRisk - giai quyet boi
+	# Get-SophiaModeTweakIds nen khong can gan lai tung tweak.
+	# GodMode = toan bo catalog.
 	return @(
-		[PSCustomObject]@{ Key = "EmulatorFarm";     Icon = "🖥️"; Name = "TREO GIẢ LẬP 24/7";        Sub = "Multi-Instance Farm (LDPlayer/MuMu/Nox/BlueStacks)"; Description = "Tắt VBS/Hyper-V tranh VT-x, nén RAM, dọn Standby List tự động, pagefile cố định lớn, không ngủ/USB suspend, ưu tiên CPU/RAM cho hàng chục instance chạy 24/7 không crash, không leak RAM." }
-		[PSCustomObject]@{ Key = "HardcoreGaming";   Icon = "🎮"; Name = "HARDCORE GAMING";         Sub = "Low-Latency FPS / Esports"; Description = "HAGS, tắt MPO/Game DVR, timer & BCD latency, Nagle off, NetworkThrottlingIndex=0, SystemResponsiveness=0, mouse 1:1, Ultimate Performance — giảm input lag & frame-time spike tối đa." }
-		[PSCustomObject]@{ Key = "Workstation";      Icon = "🎬"; Name = "WORKSTATION / STREAM";    Sub = "Render, OBS, Compile, Đa nhiệm nặng"; Description = "Giữ ổn định & bảo mật hợp lý, ưu tiên foreground + GPU encode, RAM cache lớn, không tắt mitigations — mạnh nhưng không đánh đổi độ tin cậy khi render/stream dài." }
-		[PSCustomObject]@{ Key = "LowSpec";          Icon = "🥔"; Name = "LOW-SPEC / POTATO PC";     Sub = "Máy yếu, RAM <=8GB, HDD/SSD chậm"; Description = "Tắt visual effects, services & background apps thừa, giảm telemetry/startup, tối ưu RAM/pagefile cho máy yếu chạy mượt, ít nóng, ít disk 100%." }
-		[PSCustomObject]@{ Key = "SophiaStandard";   Icon = "🛡️"; Name = "MOLIK STANDARD";         Sub = "Privacy + Gọn gàng chuẩn bản gốc"; Description = "Tập tweak an toàn của bản upstream gốc: telemetry, quảng cáo, Copilot/Recall, GameBar tips, hiển thị đuôi file... Không đụng kernel/BCD." }
-		[PSCustomObject]@{ Key = "GodMode";          Icon = "👑"; Name = "GOD MODE — CỰC HẠN";       Sub = "Tất cả tweak (kể cả Extreme)"; Description = "Bật TOÀN BỘ catalog kể cả tweak Extreme (tắt Spectre/Meltdown mitigations, Defender scan exclusions...). Chỉ dùng khi đã có backup/restore point và hiểu rõ đánh đổi bảo mật." }
+		[PSCustomObject]@{ Key = "EmulatorFarm";   Icon = "🖥️"; Name = "TREO GIẢ LẬP 24/7";   Sub = "Multi-Instance Farm (LDPlayer/MuMu/Nox/BlueStacks)"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Tắt VBS/Hyper-V tranh VT-x, nén RAM, dọn Standby List tự động, pagefile cố định lớn, không ngủ/USB suspend, ưu tiên CPU/RAM cho hàng chục instance chạy 24/7 không crash, không leak RAM." }
+		[PSCustomObject]@{ Key = "HardcoreGaming"; Icon = "🎮"; Name = "HARDCORE GAMING";     Sub = "Low-Latency FPS / Esports"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "HAGS, tắt MPO/Game DVR, timer & BCD latency, Nagle off, NetworkThrottlingIndex=0, SystemResponsiveness=0, mouse 1:1, Ultimate Performance — giảm input lag & frame-time spike tối đa." }
+		[PSCustomObject]@{ Key = "Workstation";    Icon = "🎬"; Name = "WORKSTATION";         Sub = "Render, OBS, Compile, Đa nhiệm nặng"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Giữ ổn định & bảo mật hợp lý, ưu tiên foreground + GPU encode, RAM cache lớn, không tắt mitigations — mạnh nhưng không đánh đổi độ tin cậy khi render/stream dài." }
+		[PSCustomObject]@{ Key = "LowSpec";        Icon = "🥔"; Name = "LOW-SPEC / POTATO PC"; Sub = "Máy yếu, RAM <=8GB, HDD/SSD chậm"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Tắt visual effects, services & background apps thừa, giảm telemetry/startup, tối ưu RAM/pagefile cho máy yếu chạy mượt, ít nóng, ít disk 100%." }
+		[PSCustomObject]@{ Key = "SophiaStandard"; Icon = "🛡️"; Name = "MOLIK STANDARD";      Sub = "Privacy + Gọn gàng chuẩn cơ bản"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Tập tweak an toàn nền tảng: telemetry, quảng cáo, Copilot/Recall, GameBar tips, hiển thị đuôi file... Không đụng kernel/BCD." }
+		[PSCustomObject]@{ Key = "PrivacyMax";     Icon = "🔒"; Name = "PRIVACY MAX";         Sub = "Riêng tư cực hạn (không đụng kernel)"; BaseModes = @("SophiaStandard"); Categories = @("PRIVACY", "WINUTIL"); ExtraIds = @(); MaxRisk = "Moderate"; Description = "Mọi tweak riêng tư của MOLIK Standard + toàn nhóm Privacy + WinUtil (telemetry, quảng cáo, theo dõi, AI thu thập dữ liệu) nhưng trần Moderate — không tweak Extreme đụng kernel/BCD." }
+		[PSCustomObject]@{ Key = "DebloatMax";     Icon = "🧹"; Name = "DEBLOAT MAX";         Sub = "Dọn sạch Windows tối đa"; BaseModes = @("LowSpec"); Categories = @("SYSTEM"); ExtraIds = @(); MaxRisk = "Moderate"; Description = "Toàn bộ nhóm System/Services/Debloat + nền LowSpec: tắt dịch vụ & ứng dụng nền thừa, gọn Start/Taskbar/Explorer — trần Moderate, không đụng kernel." }
+		[PSCustomObject]@{ Key = "Developer";      Icon = "💻"; Name = "DEVELOPER";           Sub = "Lập trình / Dev Workstation"; BaseModes = @("Workstation", "SophiaStandard"); Categories = @("SYSTEM"); ExtraIds = @(); MaxRisk = "Moderate"; Description = "Nền Workstation + Standard + nhóm System: môi trường dev sạch, ổn định, ít tiến trình nền tranh tài nguyên khi build/test — trần Moderate." }
+		[PSCustomObject]@{ Key = "Creator";        Icon = "🎥"; Name = "CREATOR / STREAMER";  Sub = "Stream, quay, dựng video"; BaseModes = @("Workstation", "HardcoreGaming"); Categories = @("GPU", "NETWORK"); ExtraIds = @(); MaxRisk = "Moderate"; Description = "Workstation + Gaming nhưng chỉ lấy nhóm GPU/Network: encode mượt, mạng ổn định cho stream, khung hình đều khi vừa chơi vừa phát — trần Moderate." }
+		[PSCustomObject]@{ Key = "BatterySaver";   Icon = "🔋"; Name = "BATTERY / LAPTOP";    Sub = "Tiết kiệm pin, máy xách tay"; BaseModes = @("LowSpec", "SophiaStandard"); Categories = @(); ExtraIds = @(); MaxRisk = "Safe"; Description = "Chỉ tweak mức Safe của LowSpec + Standard: gọn nhẹ, mát máy, không khóa xung/idle — an toàn cho laptop dùng pin hằng ngày." }
+		[PSCustomObject]@{ Key = "GodMode";        Icon = "👑"; Name = "GOD MODE — CỰC HẠN";  Sub = "Tất cả tweak (kể cả Extreme)"; BaseModes = @(); Categories = @(); ExtraIds = @(); MaxRisk = "Extreme"; Description = "Bật TOÀN BỘ catalog kể cả tweak Extreme (tắt Spectre/Meltdown mitigations, Defender scan exclusions...). Chỉ dùng khi đã có backup/restore point và hiểu rõ đánh đổi bảo mật." }
 	)
 }
 
@@ -4072,7 +4113,7 @@ function Get-SophiaTweaksCatalog
 	MOLIK WINLIK - Interactive Tick-Select CLI ([✓]/[ ])
 
 	.DESCRIPTION
-	Keyboard: ↑/↓ (or K/J) move, SPACE tick/untick, A all, N none, 1-6 quick Mode,
+	Keyboard: ↑/↓ (or K/J) move, SPACE tick/untick, A all, N none, 1-9 quick Mode,
 	M cycle Mode, / search, P purge RAM now, E Emulator Booster, B backup, R restore defaults,
 	ENTER apply selected, Q/Esc quit. Category headers group all catalog tweaks.
 #>
@@ -4082,12 +4123,30 @@ function Get-SophiaModeTweakIds
 	param([string]$ModeKey, $Catalog)
 	if ([string]::IsNullOrWhiteSpace($ModeKey)) { return @() }
 	# PERF: catalog khong doi trong mot phien - nho ket qua theo Mode de
-	# menu/tab khong quet lai 196 tweak moi lan ve.
+	# menu/tab khong quet lai 200 tweak moi lan ve.
 	if (-not $script:MolikModeIdsCache) { $script:MolikModeIdsCache = @{} }
 	$cacheKey = "$ModeKey|$($Catalog.Count)"
 	if ($script:MolikModeIdsCache.ContainsKey($cacheKey)) { return @($script:MolikModeIdsCache[$cacheKey]) }
 	if ($ModeKey -eq "GodMode") { $result = @($Catalog | ForEach-Object { $_.Id }) }
-	else { $result = @($Catalog | Where-Object { $_.Modes -contains $ModeKey } | ForEach-Object { $_.Id }) }
+	else
+	{
+		$modeDef = Get-SophiaOptimizationModes | Where-Object { $_.Key -eq $ModeKey } | Select-Object -First 1
+		if ($modeDef -and ((@($modeDef.BaseModes).Count -gt 0) -or (@($modeDef.Categories).Count -gt 0)))
+		{
+			# Mode ao: hop BaseModes + Category + ExtraIds, loc tran rui ro
+			$riskMap = @{ Safe = 1; Moderate = 2; Extreme = 3 }
+			$riskCap = $riskMap[[string]$modeDef.MaxRisk]; if (-not $riskCap) { $riskCap = 3 }
+			$result = @($Catalog | Where-Object {
+				$riskLvl = $riskMap[[string]$_.Risk]; if (-not $riskLvl) { $riskLvl = 2 }
+				if ($riskLvl -gt $riskCap) { return $false }
+				if (@($_.Modes | Where-Object { $modeDef.BaseModes -contains $_ }).Count -gt 0) { return $true }
+				foreach ($catPat in @($modeDef.Categories)) { if ($_.Category -match $catPat) { return $true } }
+				if (@($modeDef.ExtraIds) -contains $_.Id) { return $true }
+				return $false
+			} | ForEach-Object { $_.Id })
+		}
+		else { $result = @($Catalog | Where-Object { $_.Modes -contains $ModeKey } | ForEach-Object { $_.Id }) }
+	}
 	$script:MolikModeIdsCache[$cacheKey] = $result
 	return $result
 }
@@ -4279,7 +4338,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.1.0"
+	return "5.2.0"
 }
 
 function Format-MolikTruncate
@@ -4335,20 +4394,20 @@ function Show-SophiaSimpleMenu
 			Write-Host ("  {0}  {1} ({2}) — {3}" -f ($i + 1), $m.Name, $cnt, (Format-MolikTruncate $m.Sub 60)) -ForegroundColor Gray
 		}
 		Write-Host ""
-		Write-Host "  7  Tick-select UI     G  Smart Auto       8  Purge RAM" -ForegroundColor Gray
-		Write-Host "  9  Boost emulators  T  Benchmark        C  Compare benchmarks" -ForegroundColor Gray
+		Write-Host "  I  Tick-select UI     G  Smart Auto       P  Purge RAM" -ForegroundColor Gray
+		Write-Host "  E  Boost emulators  T  Benchmark        C  Compare benchmarks" -ForegroundColor Gray
 		Write-Host "  A  Install apps     X  Presets          H  HTML report" -ForegroundColor Gray
 		Write-Host "  B  Backup           U  Undo session     R  Restore defaults" -ForegroundColor Gray
 		Write-Host "  S  Desktop shortcut D  Self-test        K  Doctor           0  Exit" -ForegroundColor Gray
-		$choice = Read-Host "  Chọn (0-9/G/A/T/C/R/S/D/X/H/B/U/K)"
-		if ($choice -match '^[1-6]$')
+		$choice = Read-Host "  Chọn (số Mode 1-$($modes.Count), 0 = thoát, hoặc phím I/G/P/E/A/T/C/R/S/D/X/H/B/U/K)"
+		if ($choice -match '^\d+$' -and [int]$choice -ge 1 -and [int]$choice -le $modes.Count)
 		{
 			$m = $modes[[int]::Parse($choice) - 1]
 			$ids = Get-SophiaModeTweakIds -ModeKey $m.Key -Catalog $Catalog
 			$go = Read-Host "  Áp dụng $($ids.Count) tweak của mode $($m.Name)? (Y/N)"
 			if ($go -match '^[Yy]') { Invoke-SophiaSelectedTweaks -Catalog $Catalog -SelectedIds $ids -Snapshot $Snapshot }
 		}
-		elseif ($choice -eq '7')
+		elseif ($choice -eq 'I' -or $choice -eq 'i')
 		{
 			try { Show-SophiaOptimizerUI -Catalog $Catalog -Snapshot $Snapshot }
 			catch { Write-Host "  [!] Host này không hỗ trợ giao diện phím trực tiếp ($($_.Exception.Message)) — hãy dùng các mục số trong Menu này." -ForegroundColor Yellow }
@@ -4367,10 +4426,10 @@ function Show-SophiaSimpleMenu
 				if ($go -match '^[Yy]') { Invoke-SophiaSelectedTweaks -Catalog $Catalog -SelectedIds $ids -Snapshot $Snapshot }
 			}
 		}
-		elseif ($choice -eq '8') { if (Get-Command Invoke-SophiaRamPurge -ErrorAction SilentlyContinue) { Invoke-SophiaRamPurge } }
+		elseif ($choice -eq 'P' -or $choice -eq 'p') { if (Get-Command Invoke-SophiaRamPurge -ErrorAction SilentlyContinue) { Invoke-SophiaRamPurge } }
 		elseif ($choice -eq 'A' -or $choice -eq 'a') { if (Get-Command Show-SophiaAppInstallerMenu -ErrorAction SilentlyContinue) { Show-SophiaAppInstallerMenu } }
 		elseif ($choice -eq 'D' -or $choice -eq 'd') { if (Get-Command Test-SophiaOptimizerHealth -ErrorAction SilentlyContinue) { Test-SophiaOptimizerHealth -Catalog $Catalog | Out-Null; Read-Host '  Nhấn ENTER để quay lại menu' } }
-		elseif ($choice -eq '9') { Invoke-EmulatorAutoBooster }
+		elseif ($choice -eq 'E' -or $choice -eq 'e') { Invoke-EmulatorAutoBooster }
 		elseif ($choice -eq 'T' -or $choice -eq 't') { if (Get-Command Invoke-SophiaBenchmark -ErrorAction SilentlyContinue) { Invoke-SophiaBenchmark -Label "Menu" | Out-Null } }
 		elseif ($choice -eq 'C' -or $choice -eq 'c') { if (Get-Command Compare-SophiaBenchmarks -ErrorAction SilentlyContinue) { Compare-SophiaBenchmarks } }
 		elseif ($choice -eq 'R' -or $choice -eq 'r')
@@ -4481,7 +4540,7 @@ function Show-SophiaOptimizerUI
 
 	$modes = Get-SophiaOptimizationModes
 	$modeKeys = @($modes | ForEach-Object { $_.Key })
-	$tabLabels = @{ EmulatorFarm = "Farm"; HardcoreGaming = "Gaming"; Workstation = "Workstation"; LowSpec = "LowSpec"; SophiaStandard = "Standard"; GodMode = "GodMode" }
+	$tabLabels = @{ EmulatorFarm = "Farm"; HardcoreGaming = "Gaming"; Workstation = "Workstation"; LowSpec = "LowSpec"; SophiaStandard = "Standard"; PrivacyMax = "Privacy"; DebloatMax = "Debloat"; Developer = "Dev"; Creator = "Creator"; BatterySaver = "Battery"; GodMode = "GodMode" }
 	$currentMode = $InitialMode
 
 	$selected = @{}
@@ -4629,7 +4688,7 @@ function Show-SophiaOptimizerUI
 			Write-MolikText " " -Fg Gray
 			Write-MolikText " " -Fg DarkGray
 		}
-		$keys = " Enter apply · Space toggle · ↑↓ move · 1-6 mode · / search · F filter · ? help · Q quit"
+		$keys = " Enter apply · Space toggle · ↑↓ move · 1-9 mode · / search · F filter · ? help · Q quit"
 		$pageInfo = "{0}/{1} · page {2}/{3} " -f ($cursor + 1), $filtered.Count, ([Math]::Floor($pageStart / $pageSize) + 1), ([Math]::Ceiling($filtered.Count / $pageSize))
 		$footer = $keys
 		$padFooter = $width - 1 - $keys.Length - $pageInfo.Length
@@ -4684,7 +4743,7 @@ function Show-SophiaOptimizerUI
 			foreach ($id in (Get-SophiaModeTweakIds -ModeKey $currentMode -Catalog $Catalog)) { $selected[$id] = $true }
 			$cursor = 0
 		}
-		elseif ($ch -ge '1' -and $ch -le '6') {
+		elseif ($ch -ge '1' -and $ch -le '9' -and ([int]::Parse([string]$ch) - 1) -lt $modeKeys.Count) {
 			$currentMode = $modeKeys[[int]::Parse([string]$ch) - 1]
 			$selected = @{}
 			foreach ($id in (Get-SophiaModeTweakIds -ModeKey $currentMode -Catalog $Catalog)) { $selected[$id] = $true }
@@ -4786,7 +4845,7 @@ function Show-SophiaOptimizerUI
 			Write-Host ""
 			Write-Host "  Keyboard" -ForegroundColor White
 			Write-Host "  ↑/↓, K/J    Move              Space       Toggle tweak" -ForegroundColor Gray
-			Write-Host "  Enter       Apply selected    1-6, M      Switch mode" -ForegroundColor Gray
+			Write-Host "  Enter       Apply selected    1-9, M      Switch mode" -ForegroundColor Gray
 			Write-Host "  A / N       Select all/none   /           Search" -ForegroundColor Gray
 			Write-Host "  F           Cycle filter      V           Scan applied (●)" -ForegroundColor Gray
 			Write-Host "  G           Smart Advisor     P / E       Purge RAM / Boost emulators" -ForegroundColor Gray
@@ -5135,7 +5194,7 @@ if ($SelfTest)
 if ($Version)
 {
 	Write-Host "  MOLIK WINLIK v$Global:MolikWinlikVersion by @nggkhaiz - OFFLINE optimizer" -ForegroundColor Cyan
-	Write-Host "  Catalog: $($catalog.Count) tweak | 6 Mode | $(if (Get-Command Get-MolikPresets -ErrorAction SilentlyContinue) { (Get-MolikPresets).Count } else { 0 }) Preset | 239 app (winutil data, winget)" -ForegroundColor Gray
+	Write-Host "  Catalog: $($catalog.Count) tweak | $($modes.Count) Mode | $(if (Get-Command Get-MolikPresets -ErrorAction SilentlyContinue) { (Get-MolikPresets).Count } else { 0 }) Preset | 239 app (winutil data, winget)" -ForegroundColor Gray
 	return
 }
 if ($ListPresets)

@@ -3,6 +3,21 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.2.0 — 11 Mode, 200 tweak & README chuyên nghiệp
+
+- **5 Mode ảo mới** (PrivacyMax 57, DebloatMax 54, Developer 78,
+  Creator 76, BatterySaver 63): hợp từ Mode nền + nhóm Category + trần
+  rủi ro trong `Get-SophiaModeTweakIds` — dùng chung cho TUI/GUI/CLI/
+  Preset, không phải gán lại 200 tweak. Tổng **11 Mode**.
+- **Vendor winutil mới nhất (70c23c8)**: thêm WU26 Hibernate-off,
+  WU27 Dark Theme, WU28 Razer auto-install block, WU29 Taskbar centered
+  sau khi audit chéo khóa đích với native + 24 WU cũ → tròn **200 tweak**
+  (172 native + 28... gồm 28 tweak WinUtil (WU01–WU29, trừ WU05 đã gỡ)).
+- TUI: phím số 1–9 chuyển Mode nhanh; Menu số chọn Mode bằng số bất kỳ
+  (TUI/RAM/Boost chuyển sang phím I/P/E để không đụng số Mode).
+- **README gốc viết lại hoàn toàn** (chuyên nghiệp, song ngữ tóm tắt),
+  Optimizer README cập nhật đủ 11 Mode + số đếm tự động từ catalog.
+
 ## v5.1.0 — GUI winutil-style, kho skills mở rộng & dashboard mới
 
 - **GUI cửa sổ kiểu winutil** (`MOLIK_WINLIK.bat -Gui`): 4 tab
