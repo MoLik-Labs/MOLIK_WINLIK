@@ -1,5 +1,5 @@
 ﻿<#
-	MOLIK WINLIK by @nggkhaiz v5.0.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
+	MOLIK WINLIK by @nggkhaiz v5.1.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
 	Chay: double-click MOLIK_WINLIK.bat (tu xin Admin), hoac powershell -ExecutionPolicy Bypass -File .\MolikWinlik-Portable.ps1
 	File nay duoc sinh tu dong boi Optimizer\Build-Portable.ps1 - dung sua tay, hay sua nguon trong Optimizer/ roi build lai.
 #>
@@ -55,6 +55,7 @@ param(
 	[switch]$DryRun,
 	[string]$Profile = "",
 	[switch]$Menu,
+	[switch]$Gui,
 	[switch]$Smart,
 	[switch]$Plan,
 	[switch]$ListApps,
@@ -80,7 +81,7 @@ param(
 
 $ErrorActionPreference = "Continue"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "5.0.0"
+$Global:MolikWinlikVersion = "5.1.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -110,6 +111,7 @@ if (-not $readOnlyRequest)
 			if ($PurgeRAM) { $argList += "-PurgeRAM" }
 			if ($Profile) { $argList += @("-Profile", "`"$Profile`"") }
 			if ($Menu) { $argList += "-Menu" }
+			if ($Gui) { $argList += "-Gui" }
 			if ($Smart) { $argList += "-Smart" }
 			if ($Plan) { $argList += "-Plan" }
 			if ($SelfTest) { $argList += "-SelfTest" }
@@ -1933,7 +1935,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.0.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.1.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -1986,19 +1988,30 @@ function Export-MolikHtmlReport
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MOLIK WINLIK Report - $osName</title>
 <style>
- body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1117;color:#e6edf3;margin:0;padding:24px}
- h1{color:#f778ba;margin:0} h2{color:#58a6ff;border-bottom:1px solid #30363d;padding-bottom:6px}
- .sub{color:#8b949e} .cards{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}
- .card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 18px;min-width:170px}
- .card b{font-size:20px;color:#fff;display:block}
- table{border-collapse:collapse;width:100%;margin:12px 0} th,td{border:1px solid #30363d;padding:7px 10px;text-align:left;font-size:14px}
- th{background:#1f242e} code{color:#ffa657}
- .badge{padding:2px 8px;border-radius:20px;font-size:12px;font-weight:600}
- .safe{background:#238636;color:#fff}.mod{background:#9e6a03;color:#fff}.ext{background:#da3633;color:#fff}
- footer{color:#8b949e;font-size:13px;margin-top:24px}
+ :root{--bg:#0b0e14;--panel:#12161f;--line:#232a38;--text:#e8edf5;--muted:#93a0b4;--accent:#e5537a;--accent2:#4f9cf9;--ok:#2ea043;--warn:#b07d10;--bad:#d64545}
+ *{box-sizing:border-box}html{color-scheme:dark}
+ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:28px 20px 40px;line-height:1.5}
+ main{max-width:1060px;margin:0 auto}
+ header h1{font-size:26px;letter-spacing:.2px;margin:0}header h1 .accent{color:var(--accent)}
+ .sub{color:var(--muted);font-size:13px}
+ h2{font-size:17px;color:var(--text);border-bottom:1px solid var(--line);padding-bottom:6px;margin:30px 0 10px}
+ .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:18px 0}
+ .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--muted)}
+ .card b{font-size:16px;color:var(--text);display:block;margin-top:3px;overflow-wrap:anywhere}
+ .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+ table{border-collapse:collapse;width:100%;margin:0} th,td{padding:7px 10px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line)}
+ thead th{position:sticky;top:0;background:#171c28;color:var(--text)} tbody tr:hover{background:#141926}
+ code{color:#f0a35e;font-family:Consolas,monospace;font-size:12.5px}
+ .badge{padding:1px 8px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}
+ .safe{background:var(--ok);color:#fff}.mod{background:var(--warn);color:#fff}.ext{background:var(--bad);color:#fff}
+ footer{color:var(--muted);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:12px}
+ @media (max-width:640px){body{padding:18px 12px 30px}header h1{font-size:21px}}
+ @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+ @media print{body{background:#fff;color:#000}.card,thead th{background:#fff}h2,.card b{color:#000}}
 </style></head><body>
-<h1>👑 MOLIK WINLIK <span class="sub">v$ver — by @nggkhaiz</span></h1>
-<div class="sub">Báo cáo hệ thống &amp; tối ưu — tạo lúc $now (offline)</div>
+<header><h1><span class="accent">MOLIK WINLIK</span> <span class="sub">v$ver — by @nggkhaiz</span></h1>
+<div class="sub">Báo cáo hệ thống &amp; tối ưu — tạo lúc $now (offline)</div></header>
+<main>
 <div class="cards">
  <div class="card">Hệ điều hành<b>$osName</b></div>
  <div class="card">CPU<b>$cpu</b></div>
@@ -2016,6 +2029,7 @@ $modeRows</table>
 <h2>🧩 Toàn bộ catalog ($($Catalog.Count) tweak)</h2>
 <table><tr><th>ID</th><th>Tên tweak</th><th>Nhóm</th><th>Rủi ro</th><th>Trạng thái</th></tr>
 $tweakRows</table>
+</main>
 <footer>MOLIK WINLIK by @nggkhaiz — Báo cáo tĩnh, không chứa dữ liệu cá nhân ngoài thông số phần cứng trên. Backup: C:\MOLIK_WINLIK_Backups\</footer>
 </body></html>
 "@
@@ -4180,6 +4194,7 @@ function Invoke-SophiaSelectedTweaks
 	}
 	Write-Host ""
 	Write-Host "  Hoàn tất: $ok OK ($verifiedCount verified, $unverifiedCount unverified) / $fail FAIL — Log: $logFile" -ForegroundColor Cyan
+	if ($fail -gt 0) { Write-Host "  [i] Có $fail tweak FAIL — xem log ở trên; chạy -UndoLast (hoặc phím U) để hoàn tác cả phiên nếu cần." -ForegroundColor DarkGray }
 	try { Remove-Item $sessionMarker -Force -ErrorAction SilentlyContinue } catch {}
 	Write-Host "  [!] Nhiều tweak (HAGS, VBS, BCD, Pagefile) cần RESTART để có hiệu lực." -ForegroundColor Yellow
 	if (-not $Force -and -not $NoRestartPrompt)
@@ -4264,7 +4279,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.0.0"
+	return "5.1.0"
 }
 
 function Format-MolikTruncate
@@ -4810,6 +4825,269 @@ function Show-SophiaOptimizerUI
 }
 
 
+# ============================================================
+# [PORTABLE-INLINE] Optimizer\UI\GuiWinForms.ps1
+# ============================================================
+<#
+	.SYNOPSIS
+	MOLIK WINLIK - Window GUI (winutil-style, WinForms, offline)
+
+	.DESCRIPTION
+	Giao dien cua so kieu winutil: tab Tweaks (tick chon + Mode + tim kiem),
+	Apps (tick cai bang winget), Presets, System (thong tin + Backup/Undo/
+	Benchmark/Report). Chay: MOLIK_WINLIK.bat -Gui
+	Khung WinForms/.NET co san trong Windows - khong tai gi, khong can cai.
+	Neu host khong o che do STA hoac loi khoi tao, ham tra $false de
+	launcher tu fallback ve TUI/Menu nhu cu (khong bao gio crash cung).
+#>
+
+function Show-MolikWinlikGui
+{
+	[CmdletBinding()]
+	param($Catalog, $Snapshot, [string]$InitialMode = "EmulatorFarm")
+
+	if ([System.Threading.Thread]::CurrentThread.GetApartmentState() -ne 'STA')
+	{
+		Write-Host "  [!] GUI can PowerShell chay STA - hay chay truc tiep: powershell -STA -File MolikWinlik.ps1 -Gui" -ForegroundColor Yellow
+		return $false
+	}
+	try
+	{
+		Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
+		Add-Type -AssemblyName System.Drawing -ErrorAction Stop
+		[System.Windows.Forms.Application]::EnableVisualStyles()
+	}
+	catch
+	{
+		Write-Host "  [!] Không khởi tạo được WinForms ($($_.Exception.Message)) - dùng TUI thay thế." -ForegroundColor Yellow
+		return $false
+	}
+
+	try
+	{
+		$form = New-Object System.Windows.Forms.Form
+		$form.Text = "MOLIK WINLIK v$(Get-MolikUiVersion) by @nggkhaiz - Offline Optimizer"
+		$form.Size = New-Object System.Drawing.Size(1020, 720)
+		$form.StartPosition = "CenterScreen"
+		$form.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+
+		$tabs = New-Object System.Windows.Forms.TabControl
+		$tabs.Dock = "Fill"
+		$form.Controls.Add($tabs)
+
+		$logBox = New-Object System.Windows.Forms.TextBox
+		$logBox.Multiline = $true
+		$logBox.ScrollBars = "Vertical"
+		$logBox.ReadOnly = $true
+		$logBox.Dock = "Bottom"
+		$logBox.Height = 110
+		$logBox.Font = New-Object System.Drawing.Font("Consolas", 8.5)
+		$form.Controls.Add($logBox)
+
+		$progress = New-Object System.Windows.Forms.ProgressBar
+		$progress.Dock = "Bottom"
+		$progress.Height = 14
+		$form.Controls.Add($progress)
+
+		$appendLog = {
+			param([string]$Text)
+			$logBox.AppendText("[$(Get-Date -Format 'HH:mm:ss')] $Text`r`n")
+		}
+
+		# ── Tab Tweaks ────────────────────────────────────────────────────
+		$tabTweaks = New-Object System.Windows.Forms.TabPage("Tweaks")
+		$tabs.TabPages.Add($tabTweaks) | Out-Null
+		$topPanel = New-Object System.Windows.Forms.Panel
+		$topPanel.Dock = "Top"; $topPanel.Height = 40
+		$tabTweaks.Controls.Add($topPanel)
+
+		$modeCombo = New-Object System.Windows.Forms.ComboBox
+		$modeCombo.DropDownStyle = "DropDownList"
+		$modeCombo.Location = New-Object System.Drawing.Point(8, 8)
+		$modeCombo.Width = 180
+		foreach ($m in (Get-SophiaOptimizationModes)) { [void]$modeCombo.Items.Add($m.Key) }
+		$modeCombo.SelectedItem = $InitialMode
+		$topPanel.Controls.Add($modeCombo)
+
+		$searchBox = New-Object System.Windows.Forms.TextBox
+		$searchBox.Location = New-Object System.Drawing.Point(196, 9)
+		$searchBox.Width = 200
+		$topPanel.Controls.Add($searchBox)
+
+		$tweakList = New-Object System.Windows.Forms.CheckedListBox
+		$tweakList.Dock = "Fill"
+		$tweakList.CheckOnClick = $true
+		$tabTweaks.Controls.Add($tweakList)
+		$tweakList.BringToFront()
+		$tweakItems = [System.Collections.ArrayList]::new()
+
+		$refreshTweaks = {
+			$tweakList.Items.Clear(); $tweakItems.Clear()
+			$term = $searchBox.Text.Trim().ToLower()
+			foreach ($t in $Catalog)
+			{
+				if ($term -and -not ($t.Name.ToLower().Contains($term) -or $t.Id.ToLower().Contains($term) -or $t.Category.ToLower().Contains($term))) { continue }
+				[void]$tweakItems.Add($t)
+				[void]$tweakList.Items.Add(("[{0}] [{1}] {2} - {3}" -f $t.Id, $t.Risk, $t.Name, (Format-MolikCategoryName $t.Category)))
+			}
+		}
+		$searchBox.Add_TextChanged({ & $refreshTweaks })
+
+		$btnApplyMode = New-Object System.Windows.Forms.Button
+		$btnApplyMode.Text = "Tick theo Mode"
+		$btnApplyMode.Location = New-Object System.Drawing.Point(404, 7)
+		$btnApplyMode.Width = 110
+		$topPanel.Controls.Add($btnApplyMode)
+		$btnApplyMode.Add_Click({
+			$ids = @(Get-SophiaModeTweakIds -ModeKey $modeCombo.SelectedItem -Catalog $Catalog)
+			for ($i = 0; $i -lt $tweakItems.Count; $i++) { $tweakList.SetItemChecked($i, ($ids -contains $tweakItems[$i].Id)) }
+			& $appendLog "Đã tick $($ids.Count) tweak của Mode $($modeCombo.SelectedItem)."
+		})
+
+		$invokeGuiApply = {
+			param([string[]]$Ids, [string]$Verb)
+			if (-not $Ids -or $Ids.Count -eq 0) { [System.Windows.Forms.MessageBox]::Show("Chưa tick tweak nào.") | Out-Null; return }
+			$confirm = [System.Windows.Forms.MessageBox]::Show("$Verb $($Ids.Count) tweak?", "MOLIK WINLIK", "YesNo", "Question")
+			if ($confirm -ne "Yes") { return }
+			try
+			{
+				if ($Verb -eq "Áp dụng" -and (Get-Command New-SophiaSystemBackup -ErrorAction SilentlyContinue)) { New-SophiaSystemBackup -Label "Before GUI apply" | Out-Null }
+				$ordered = @($Catalog | Where-Object { $Ids -contains $_.Id })
+				if (Get-Command Get-SophiaOptimizationPlan -ErrorAction SilentlyContinue)
+				{
+					try { $ordered = @((Get-SophiaOptimizationPlan -Catalog $Catalog -SelectedIds $Ids -Snapshot $Snapshot).Items | ForEach-Object { $_.Tweak }) } catch {}
+				}
+				$progress.Maximum = $ordered.Count; $progress.Value = 0
+				$okN = 0; $failN = 0
+				foreach ($t in $ordered)
+				{
+					try
+					{
+						if ($Verb -eq "Áp dụng") { & $t.ApplyScript; $v = $false; try { $v = [bool](& $t.CheckScript) } catch {}; & $appendLog ("OK {0} {1}{2}" -f $t.Id, $t.Name, $(if ($v) { " [verified]" } else { " [unverified]" })) }
+						else { & $t.RestoreScript; & $appendLog "RESTORED $($t.Id) $($t.Name)" }
+						$okN++
+					}
+					catch { & $appendLog "FAIL $($t.Id): $($_.Exception.Message)"; $failN++ }
+					$progress.Value++
+					[System.Windows.Forms.Application]::DoEvents()
+				}
+				& $appendLog "Hoàn tất ($Verb): $okN OK / $failN FAIL. Nhiều tweak cần RESTART mới có hiệu lực."
+			}
+			catch { & $appendLog "LỖI $Verb : $($_.Exception.Message)" }
+		}
+
+		$btnApply = New-Object System.Windows.Forms.Button
+		$btnApply.Text = "ÁP DỤNG đã tick"
+		$btnApply.Location = New-Object System.Drawing.Point(522, 7)
+		$btnApply.Width = 120
+		$topPanel.Controls.Add($btnApply)
+		$btnApply.Add_Click({
+			$ids = @(); for ($i = 0; $i -lt $tweakItems.Count; $i++) { if ($tweakList.GetItemChecked($i)) { $ids += $tweakItems[$i].Id } }
+			& $invokeGuiApply $ids "Áp dụng"
+		})
+
+		$btnRestore = New-Object System.Windows.Forms.Button
+		$btnRestore.Text = "Khôi phục đã tick"
+		$btnRestore.Location = New-Object System.Drawing.Point(650, 7)
+		$btnRestore.Width = 120
+		$topPanel.Controls.Add($btnRestore)
+		$btnRestore.Add_Click({
+			$ids = @(); for ($i = 0; $i -lt $tweakItems.Count; $i++) { if ($tweakList.GetItemChecked($i)) { $ids += $tweakItems[$i].Id } }
+			& $invokeGuiApply $ids "Khôi phục"
+		})
+
+		# ── Tab Apps ──────────────────────────────────────────────────────
+		$tabApps = New-Object System.Windows.Forms.TabPage("Apps (winget)")
+		$tabs.TabPages.Add($tabApps) | Out-Null
+		$appList = New-Object System.Windows.Forms.CheckedListBox
+		$appList.Dock = "Fill"; $appList.CheckOnClick = $true
+		$tabApps.Controls.Add($appList)
+		$appItems = [System.Collections.ArrayList]::new()
+		if (Get-Command Get-SophiaAppsCatalog -ErrorAction SilentlyContinue)
+		{
+			foreach ($a in (Get-SophiaAppsCatalog)) { [void]$appItems.Add($a); [void]$appList.Items.Add("$($a.Name) ($($a.Winget))") }
+		}
+		$btnInstall = New-Object System.Windows.Forms.Button
+		$btnInstall.Text = "Cài app đã tick"
+		$btnInstall.Dock = "Top"; $btnInstall.Height = 32
+		$tabApps.Controls.Add($btnInstall)
+		$btnInstall.Add_Click({
+			$names = @(); for ($i = 0; $i -lt $appItems.Count; $i++) { if ($appList.GetItemChecked($i)) { $names += $appItems[$i].Name } }
+			if ($names.Count -eq 0) { [System.Windows.Forms.MessageBox]::Show("Chưa tick app nào.") | Out-Null; return }
+			& $appendLog "Đang cài $($names.Count) app qua winget..."
+			try { Install-SophiaApps -Queries $names; & $appendLog "Cài app xong (xem chi tiết trong cửa sổ console nếu có)." }
+			catch { & $appendLog "LỖI cài app: $($_.Exception.Message)" }
+		})
+
+		# ── Tab Presets ───────────────────────────────────────────────────
+		$tabPresets = New-Object System.Windows.Forms.TabPage("Presets")
+		$tabs.TabPages.Add($tabPresets) | Out-Null
+		$presetList = New-Object System.Windows.Forms.ListBox
+		$presetList.Dock = "Fill"
+		$tabPresets.Controls.Add($presetList)
+		$presetItems = [System.Collections.ArrayList]::new()
+		if (Get-Command Get-MolikPresets -ErrorAction SilentlyContinue)
+		{
+			foreach ($pr in (Get-MolikPresets)) { [void]$presetItems.Add($pr); [void]$presetList.Items.Add("$($pr.Icon) $($pr.Title) - $($pr.Description)") }
+		}
+		$btnPreset = New-Object System.Windows.Forms.Button
+		$btnPreset.Text = "Áp dụng Preset đã chọn"
+		$btnPreset.Dock = "Top"; $btnPreset.Height = 32
+		$tabPresets.Controls.Add($btnPreset)
+		$btnPreset.Add_Click({
+			if ($presetList.SelectedIndex -lt 0) { [System.Windows.Forms.MessageBox]::Show("Chưa chọn Preset.") | Out-Null; return }
+			$ids = @(Resolve-MolikPreset -Preset $presetItems[$presetList.SelectedIndex] -Catalog $Catalog)
+			& $invokeGuiApply $ids "Áp dụng"
+		})
+
+		# ── Tab System ────────────────────────────────────────────────────
+		$tabSys = New-Object System.Windows.Forms.TabPage("System")
+		$tabs.TabPages.Add($tabSys) | Out-Null
+		$sysText = New-Object System.Windows.Forms.TextBox
+		$sysText.Multiline = $true; $sysText.ReadOnly = $true; $sysText.Dock = "Fill"
+		$sysText.Font = New-Object System.Drawing.Font("Consolas", 9)
+		$tabSys.Controls.Add($sysText)
+		if ($Snapshot)
+		{
+			$sysText.Text = (@(
+				"OS        : $($Snapshot.OSName) (Build $($Snapshot.OSBuild).$($Snapshot.OSUBR))"
+				"CPU       : $($Snapshot.CPUName) ($($Snapshot.CPUThreads) luồng)"
+				"RAM       : $($Snapshot.RAMTotalGB) GB (trống $($Snapshot.RAMFreeGB) GB)"
+				"GPU       : $($Snapshot.GPUName) ($($Snapshot.GPUVendor))"
+				"Ổ hệ thống: $($Snapshot.SystemDriveType), trống $($Snapshot.SystemDriveFreeGB) GB"
+				"Power Plan: $($Snapshot.ActivePowerPlan)"
+				"Admin     : $($Snapshot.IsAdmin) | PendingReboot: $($Snapshot.PendingReboot) | Laptop: $($Snapshot.IsLaptop)"
+				"Giả lập   : $(if ($Snapshot.InstalledEmulators) { $Snapshot.InstalledEmulators -join ', ' } else { 'không phát hiện' })"
+			) -join "`r`n")
+		}
+		$sysPanel = New-Object System.Windows.Forms.Panel
+		$sysPanel.Dock = "Top"; $sysPanel.Height = 40
+		$tabSys.Controls.Add($sysPanel)
+		$mkBtn = {
+			param([string]$Text, [int]$X, [scriptblock]$OnClick)
+			$b = New-Object System.Windows.Forms.Button
+			$b.Text = $Text; $b.Location = New-Object System.Drawing.Point($X, 7); $b.Width = 130
+			$b.Add_Click($OnClick)
+			$sysPanel.Controls.Add($b)
+		}
+		& $mkBtn "Backup ngay" 8 { try { $p = New-SophiaSystemBackup; & $appendLog "Đã backup: $p" } catch { & $appendLog "LỖI backup: $($_.Exception.Message)" } }
+		& $mkBtn "Hoàn tác phiên" 146 { if ([System.Windows.Forms.MessageBox]::Show("Hoàn tác phiên áp dụng gần nhất?", "MOLIK WINLIK", "YesNo", "Question") -eq "Yes") { try { Restore-MolikLastSession -Catalog $Catalog -Force | Out-Null; & $appendLog "Đã hoàn tác phiên gần nhất - hãy RESTART." } catch { & $appendLog "LỖI hoàn tác: $($_.Exception.Message)" } } }
+		& $mkBtn "Benchmark" 284 { try { $r = Invoke-SophiaBenchmark -Label "GUI"; & $appendLog "Benchmark xong: CPU Score $($r.CpuScore)" } catch { & $appendLog "LỖI benchmark: $($_.Exception.Message)" } }
+		& $mkBtn "Xuất báo cáo HTML" 422 { try { $hp = Export-MolikHtmlReport -Snapshot $Snapshot -Catalog $Catalog; & $appendLog "Đã xuất: $hp" } catch { & $appendLog "LỖI report: $($_.Exception.Message)" } }
+
+		& $refreshTweaks
+		& $appendLog "MOLIK WINLIK GUI sẵn sàng: $($Catalog.Count) tweak. Tick rồi bấm ÁP DỤNG."
+		[void]$form.ShowDialog()
+		return $true
+	}
+	catch
+	{
+		Write-Host "  [!] GUI lỗi ($($_.Exception.Message)) - dùng TUI thay thế." -ForegroundColor Yellow
+		return $false
+	}
+}
+
+
 
 $catalog = Get-SophiaTweaksCatalog
 $modes = Get-SophiaOptimizationModes
@@ -5119,6 +5397,15 @@ if ($Apply)
 		if ($confirm -notmatch '^[Yy]') { Write-Host "  Đã hủy. Chạy không có -Apply để mở giao diện tick-chọn."; return }
 	}
 	Invoke-SophiaSelectedTweaks -Catalog $catalog -SelectedIds $ids -SkipBackup:$NoBackup -Force:$Yes -Snapshot $snapshot
+	return
+}
+
+# ── Window GUI (winutil-style) - loi khoi tao thi fallback Menu, khong crash ──
+if ($Gui)
+{
+	$guiOk = $false
+	try { $guiOk = Show-MolikWinlikGui -Catalog $catalog -Snapshot $snapshot -InitialMode $Mode } catch {}
+	if (-not $guiOk) { Show-SophiaSimpleMenu -Catalog $catalog -Snapshot $snapshot -LauncherPath $PSCommandPath }
 	return
 }
 

@@ -123,6 +123,7 @@ href="https://trendshift.io/repositories/17603"><img src="https://trendshift.io/
 | 🛡️ `SophiaStandard` | Privacy & gọn gàng an toàn chuẩn Sophia |
 | 👑 `GodMode` | Toàn bộ tweak kể cả Extreme |
 
+> 🖥️ **v5.1**: GUI cửa sổ kiểu winutil (`MOLIK_WINLIK.bat -Gui`, 4 tab Tweaks/Apps/Presets/System, tự fallback TUI), kho skills mở rộng ở `skills/external/`, Dashboard HTML thiết kế lại.
 > 🧰 **v5.0**: bộ Agent Skills nội bộ trong [`skills/`](skills/README.md) (deep-debug, bảo mật, hiệu năng, TUI, phát hành) kèm `audit_molik.py` quét tĩnh đa nền tảng; khởi động nhanh cho lệnh chỉ-đọc, TUI render mượt, `.bat` escape đối số UAC. Kiến trúc: [`docs/ADR-001`](docs/ADR-001-engine-language.md).
 
 Tích hợp sẵn **winutil của Chris Titus Tech** (24 tweak + 239 app winget, vendor offline, MIT) — nhóm `10. WINUTIL` trong CLI và `-ListApps`/`-InstallApps`. Chi tiết: [Optimizer/README.md](Optimizer/README.md) · Chạy `.\MolikWinlik.ps1 -ListTweaks` để xem toàn bộ catalog. Tool tự tạo System Restore Point + backup Registry/BCD trước khi áp dụng và khôi phục được bằng phím `R`.

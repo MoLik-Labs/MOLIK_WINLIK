@@ -43,7 +43,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.0.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.1.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -96,19 +96,30 @@ function Export-MolikHtmlReport
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MOLIK WINLIK Report - $osName</title>
 <style>
- body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1117;color:#e6edf3;margin:0;padding:24px}
- h1{color:#f778ba;margin:0} h2{color:#58a6ff;border-bottom:1px solid #30363d;padding-bottom:6px}
- .sub{color:#8b949e} .cards{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}
- .card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 18px;min-width:170px}
- .card b{font-size:20px;color:#fff;display:block}
- table{border-collapse:collapse;width:100%;margin:12px 0} th,td{border:1px solid #30363d;padding:7px 10px;text-align:left;font-size:14px}
- th{background:#1f242e} code{color:#ffa657}
- .badge{padding:2px 8px;border-radius:20px;font-size:12px;font-weight:600}
- .safe{background:#238636;color:#fff}.mod{background:#9e6a03;color:#fff}.ext{background:#da3633;color:#fff}
- footer{color:#8b949e;font-size:13px;margin-top:24px}
+ :root{--bg:#0b0e14;--panel:#12161f;--line:#232a38;--text:#e8edf5;--muted:#93a0b4;--accent:#e5537a;--accent2:#4f9cf9;--ok:#2ea043;--warn:#b07d10;--bad:#d64545}
+ *{box-sizing:border-box}html{color-scheme:dark}
+ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:28px 20px 40px;line-height:1.5}
+ main{max-width:1060px;margin:0 auto}
+ header h1{font-size:26px;letter-spacing:.2px;margin:0}header h1 .accent{color:var(--accent)}
+ .sub{color:var(--muted);font-size:13px}
+ h2{font-size:17px;color:var(--text);border-bottom:1px solid var(--line);padding-bottom:6px;margin:30px 0 10px}
+ .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:18px 0}
+ .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--muted)}
+ .card b{font-size:16px;color:var(--text);display:block;margin-top:3px;overflow-wrap:anywhere}
+ .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+ table{border-collapse:collapse;width:100%;margin:0} th,td{padding:7px 10px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line)}
+ thead th{position:sticky;top:0;background:#171c28;color:var(--text)} tbody tr:hover{background:#141926}
+ code{color:#f0a35e;font-family:Consolas,monospace;font-size:12.5px}
+ .badge{padding:1px 8px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}
+ .safe{background:var(--ok);color:#fff}.mod{background:var(--warn);color:#fff}.ext{background:var(--bad);color:#fff}
+ footer{color:var(--muted);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:12px}
+ @media (max-width:640px){body{padding:18px 12px 30px}header h1{font-size:21px}}
+ @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+ @media print{body{background:#fff;color:#000}.card,thead th{background:#fff}h2,.card b{color:#000}}
 </style></head><body>
-<h1>👑 MOLIK WINLIK <span class="sub">v$ver — by @nggkhaiz</span></h1>
-<div class="sub">Báo cáo hệ thống &amp; tối ưu — tạo lúc $now (offline)</div>
+<header><h1><span class="accent">MOLIK WINLIK</span> <span class="sub">v$ver — by @nggkhaiz</span></h1>
+<div class="sub">Báo cáo hệ thống &amp; tối ưu — tạo lúc $now (offline)</div></header>
+<main>
 <div class="cards">
  <div class="card">Hệ điều hành<b>$osName</b></div>
  <div class="card">CPU<b>$cpu</b></div>
@@ -126,6 +137,7 @@ $modeRows</table>
 <h2>🧩 Toàn bộ catalog ($($Catalog.Count) tweak)</h2>
 <table><tr><th>ID</th><th>Tên tweak</th><th>Nhóm</th><th>Rủi ro</th><th>Trạng thái</th></tr>
 $tweakRows</table>
+</main>
 <footer>MOLIK WINLIK by @nggkhaiz — Báo cáo tĩnh, không chứa dữ liệu cá nhân ngoài thông số phần cứng trên. Backup: C:\MOLIK_WINLIK_Backups\</footer>
 </body></html>
 "@

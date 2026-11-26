@@ -90,6 +90,14 @@ online cũ) đã bị xóa hẳn.
 .\MolikWinlik.ps1 -RestoreDefaults -Yes             # khôi phục mặc định
 ```
 
+## 🖥️ v5.1 — GUI winutil-style & kho skills mở rộng
+
+- **GUI cửa sổ** (`MOLIK_WINLIK.bat -Gui`): tab Tweaks/Apps/Presets/System
+  kiểu winutil, tự fallback TUI khi không mở được. Dashboard HTML cũng
+  được thiết kế lại (responsive, offline).
+- **`skills/external/`**: vendor superpowers/golang/low-level/design
+  skills; `AGENTS.md` ở gốc repo để mọi phiên agent sau tự dùng.
+
 ## ⚡ v5.0 — Skills, bảo mật & hiệu năng khởi động
 
 - **`skills/` ở gốc repo**: bộ Agent Skills nội bộ (deep-debug, security,

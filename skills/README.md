@@ -30,6 +30,15 @@ thương mại nào; nguồn cảm hứng và giấy phép gốc xem `THIRD_PART
 | `molik-windows-tweaks` | Kiến thức miền: viết/sửa tweak sao cho reversible, có Check thật, đúng pha Plan Engine, đúng mức Risk. |
 | `molik-release-qa` | Đóng đợt phát hành: bump version đồng bộ, build Portable, đối chiếu SHA256, PR → merge → xóa branch. |
 
+## Skills vendor bên ngoài
+
+`skills/external/` chứa skill vendor nguyên văn (MIT/Apache-2.0) từ
+superpowers, samber/cc-skills-golang, spf13/go-skills,
+mohitmishra786/low-level-dev-skills, pbakaus/impeccable,
+leonxlnx/taste-skill, nextlevelbuilder/ui-ux-pro-max-skill và
+vercel-labs/agent-skills — chi tiết ở `skills/external/SOURCES.md`.
+`AGENTS.md` ở gốc repo chỉ thị mọi phiên agent mới nạp bộ skills này.
+
 ## Quy tắc viết skill mới (rút từ skill-creator)
 
 1. `name`: kebab-case, không chứa từ khóa bị cấm (`claude`, `anthropic`).
