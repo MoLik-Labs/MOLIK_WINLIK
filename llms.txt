@@ -1,0 +1,39 @@
+# MOLIK WINLIK
+
+> MOLIK WINLIK by @nggkhaiz — bộ tối ưu Windows sâu, an toàn, hoàn tác được:
+> 200 tweak (172 native + 28 WinUtil), 11 Mode theo nhu cầu, 8 Preset,
+> GUI kiểu winutil + TUI tick-chọn + headless CLI, Backup/hoàn tác toàn diện,
+> Cleanup Center, kênh online kiểm chứng SHA256. Core chạy offline 100%;
+> mạng chỉ dùng khi người dùng chủ động chọn kênh online.
+> Trang chủ tài liệu: https://molik-labs.github.io/MOLIK_WINLIK/
+> Mã nguồn: https://github.com/MoLik-Labs/MOLIK_WINLIK
+
+## Chạy ngay
+
+- Online (1 dòng lệnh, tải + kiểm chứng SHA256 rồi chạy local):
+  irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex
+- Offline (khuyến nghị lâu dài): tải ZIP repo, double-click MOLIK_WINLIK.bat
+- Kiểm tra/cập nhật/sửa bản lỗi: MOLIK_WINLIK.bat -CheckUpdate | -Update | -Repair
+
+## Tài liệu
+
+- [Cài đặt & chạy lần đầu](https://molik-labs.github.io/MOLIK_WINLIK/guide/getting-started/): online 10 giây hoặc offline 3 bước
+- [Tải xuống & các bản phân phối](https://molik-labs.github.io/MOLIK_WINLIK/guide/download/): từng file, yêu cầu hệ thống, kiểm chứng SHA256 thủ công
+- [Bản Online](https://molik-labs.github.io/MOLIK_WINLIK/guide/online/): 3 cách chạy, quy trình kiểm chứng 7 bước, lỗi online thường gặp
+- [11 Mode theo nhu cầu](https://molik-labs.github.io/MOLIK_WINLIK/guide/modes/): bảng Mode + chọn theo tầng máy yếu/trung/mạnh
+- [Preset theo tình huống](https://molik-labs.github.io/MOLIK_WINLIK/guide/presets/): safe-daily, farm-safe-247, esports-fps, god-safe...
+- [Giao diện GUI / TUI / CLI](https://molik-labs.github.io/MOLIK_WINLIK/guide/interfaces/): phím tắt TUI, 4 tab GUI, Menu số
+- [Cleanup Center](https://molik-labs.github.io/MOLIK_WINLIK/guide/cleanup/): dọn cache/temp qua vùng cách ly, -RestoreCleanup, cleanmgr/DISM
+- [An toàn, Backup & Hoàn tác](https://molik-labs.github.io/MOLIK_WINLIK/guide/safety/): Restore Point, Registry/BCD, -UndoLast, DISM+SFC
+- [Khắc phục sự cố](https://molik-labs.github.io/MOLIK_WINLIK/guide/troubleshooting/): UAC, tiếng Việt, GUI, máy chậm, bản lỗi
+- [Hỏi đáp (FAQ)](https://molik-labs.github.io/MOLIK_WINLIK/guide/faq/)
+- [Tham chiếu lệnh CLI](https://molik-labs.github.io/MOLIK_WINLIK/guide/cli-reference/): toàn bộ lệnh MOLIK_WINLIK.bat
+- [Cho nhà phát triển](https://molik-labs.github.io/MOLIK_WINLIK/guide/developers/): kiến trúc, kênh online, audit, build Portable, docs Starlight
+- [ADR-001: Kiến trúc engine](https://molik-labs.github.io/MOLIK_WINLIK/adr-001-engine-language/): vì sao giữ PowerShell, Go/Rust chỉ cho helper
+
+## Nguyên tắc an toàn (tóm tắt cho agent)
+
+- Không áp tweak khi chưa có backup; tool tự tạo Restore Point + xuất Registry/BCD.
+- Mọi tweak đều có Restore; hoàn tác phiên bằng -UndoLast; về mặc định bằng -RestoreDefaults.
+- Cleanup không xóa hẳn (vùng cách ly + -RestoreCleanup). Kênh online luôn kiểm chứng SHA256 trước khi thay/chạy.
+- Bản Portable phân phối chứa 0 code tải mạng; chỉ win.ps1 / MOLIK_WINLIK-Online.bat / Optimizer/Core/OnlineUpdate.ps1 được phép chạm mạng.

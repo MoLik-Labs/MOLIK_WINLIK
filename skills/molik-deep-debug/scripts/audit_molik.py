@@ -226,7 +226,10 @@ def main() -> int:
         report(FAIL, "GitHub Pages root fallback looks stale/wrong (content markers missing)")
     else:
         dist_index = root / "docs" / "dist" / "index.html"
-        if dist_index.exists() and dist_index.read_bytes() != root_index.read_bytes():
+        def _norm_site(data):
+            s = re.sub(rb'datetime="[^"]*"', b'datetime="X"', data)
+            return re.sub(rb'(datetime="X">)[^<]*', rb'\1X', s)
+        if dist_index.exists() and _norm_site(dist_index.read_bytes()) != _norm_site(root_index.read_bytes()):
             report(FAIL, "Root Pages site is stale vs docs/dist - re-run docs/scripts/publish_root_site.py")
         else:
             report(PASS, "GitHub Pages root fallback published (legacy main/ serves Starlight; Actions workflow also ready)")
