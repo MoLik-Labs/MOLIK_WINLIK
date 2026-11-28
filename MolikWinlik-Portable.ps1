@@ -1,5 +1,5 @@
 ﻿<#
-	MOLIK WINLIK by @nggkhaiz v5.3.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
+	MOLIK WINLIK by @nggkhaiz v5.4.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
 	Chay: double-click MOLIK_WINLIK.bat (tu xin Admin), hoac powershell -ExecutionPolicy Bypass -File .\MolikWinlik-Portable.ps1
 	File nay duoc sinh tu dong boi Optimizer\Build-Portable.ps1 - dung sua tay, hay sua nguon trong Optimizer/ roi build lai.
 #>
@@ -49,6 +49,8 @@ param(
 	[switch]$PurgeRAM,
 	[switch]$Cleanup,
 	[switch]$DeepCleanup,
+	[switch]$RestoreCleanup,
+	[switch]$RepairWindows,
 	[switch]$Update,
 	[switch]$Repair,
 	[switch]$BoostEmulators,
@@ -84,8 +86,24 @@ param(
 )
 
 $ErrorActionPreference = "Continue"
+# On dinh (v5.4): loi khong mong doi khong duoc lam tool "chet cung" - ghi
+# log crash day du de gui ho tro, roi dung sach se thay vi day loi do.
+trap
+{
+	Write-Host ""
+	Write-Host "  [X] Tool gặp lỗi không mong đợi: $($_.Exception.Message)" -ForegroundColor Red
+	Write-Host "      Chạy MOLIK_WINLIK.bat -SelfTest để kiểm tra, hoặc gửi file log crash trong C:\MOLIK_WINLIK_Backups\Logs\ khi báo lỗi." -ForegroundColor Yellow
+	try
+	{
+		$crashDir = "$env:SystemDrive\MOLIK_WINLIK_Backups\Logs"
+		New-Item -Path $crashDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
+		("CRASH {0}`r`n{1}`r`n{2}" -f (Get-Date), $_.Exception.ToString(), $_.ScriptStackTrace) | Set-Content (Join-Path $crashDir ("crash_{0}.log" -f (Get-Date -Format "yyyyMMdd_HHmmss"))) -Encoding UTF8 -Force
+	}
+	catch {}
+	break
+}
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "5.3.0"
+$Global:MolikWinlikVersion = "5.4.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -115,6 +133,8 @@ if (-not $readOnlyRequest)
 			if ($PurgeRAM) { $argList += "-PurgeRAM" }
 			if ($Cleanup) { $argList += "-Cleanup" }
 			if ($DeepCleanup) { $argList += "-DeepCleanup" }
+			if ($RestoreCleanup) { $argList += "-RestoreCleanup" }
+			if ($RepairWindows) { $argList += "-RepairWindows" }
 			if ($Update) { $argList += "-Update" }
 			if ($Repair) { $argList += "-Repair" }
 			if ($Profile) { $argList += @("-Profile", "`"$Profile`"") }
@@ -883,16 +903,18 @@ function Unregister-SophiaAutoRamCleanerTask
 # ============================================================
 <#
 	.SYNOPSIS
-	MOLIK WINLIK - Cleanup Center (don cache/temp rac bang cong cu Windows)
+	MOLIK WINLIK - Cleanup & Repair Center (don rac + sua Windows an toan)
 
 	.DESCRIPTION
-	Dọn an toàn: Temp người dùng & Windows, cache thumbnail/icon, DirectX
-	shader cache, Windows Error Reporting, Delivery Optimization, Windows
-	Update download cache, Recycle Bin, DNS cache. Chế độ -Deep dùng thêm
-	công cụ có sẵn của Windows: cleanmgr /autoclean và DISM StartComponentCleanup.
-	Nguyên tắc an toàn: chỉ xóa nội dung bên trong thư mục đích (không xóa
-	thư mục gốc), file đang khóa bị bỏ qua, mỗi mục bọc try/catch riêng,
-	báo cáo MB đã giải phóng theo từng mục. -WhatIf chỉ in kế hoạch.
+	Nguyên tắc: XÓA GÌ CŨNG PHẢI HOÀN LẠI ĐƯỢC.
+	- Mặc định, Cleanup KHÔNG xóa hẳn: mọi thứ được chuyển vào vùng cách ly
+	  C:\MOLIK_WINLIK_Backups\Quarantine\Cleanup_<thời gian>\ kèm manifest.json
+	  (đường dẫn gốc). -RestoreCleanup (hoặc Restore-MolikLastCleanup) đưa
+	  mọi thứ về chỗ cũ. Vùng cách ly tự dọn sau 30 ngày (có thông báo).
+	- -Permanent mới xóa hẳn. Recycle Bin CHỈ dọn ở chế độ -Deep và có cảnh
+	  báo (vì thùng rác đã là lớp hoàn tác cuối của Windows).
+	- -Deep dùng công cụ Windows có sẵn: cleanmgr /autoclean + DISM cleanup.
+	- Invoke-MolikWindowsRepair: DISM RestoreHealth + SFC /scannow chính chủ.
 #>
 
 function Get-MolikFolderSizeMB
@@ -910,9 +932,9 @@ function Get-MolikFolderSizeMB
 
 function Clear-MolikFolderContents
 {
-	# Xoa noi dung (file/thu muc con) trong $Path, chi file sua truoc
-	# $OlderThanDays ngay (0 = tat ca). Tra ve so MB da xoa (uoc luong).
-	param([string]$Path, [int]$OlderThanDays = 1, [switch]$WhatIf)
+	# Xu ly noi dung trong $Path (chi muc sua truoc $OlderThanDays ngay):
+	# co $QuarantineRoot thi CHUYEN vao do + ghi manifest, khong thi xoa han.
+	param([string]$Path, [int]$OlderThanDays = 1, [string]$QuarantineRoot = "", [switch]$WhatIf)
 	if (-not (Test-Path $Path)) { return 0.0 }
 	$before = Get-MolikFolderSizeMB -Path $Path
 	if ($WhatIf) { return $before }
@@ -922,7 +944,20 @@ function Clear-MolikFolderContents
 		Get-ChildItem -Path $Path -Force -ErrorAction SilentlyContinue | ForEach-Object {
 			if ($OlderThanDays -le 0 -or $_.LastWriteTime -lt $cutoff)
 			{
-				Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+				if ($QuarantineRoot)
+				{
+					$dest = Join-Path $QuarantineRoot ([Guid]::NewGuid().ToString("N") + "_" + $_.Name)
+					try
+					{
+						Move-Item -LiteralPath $_.FullName -Destination $dest -Force -ErrorAction Stop
+						$script:MolikCleanupManifest += [PSCustomObject]@{ From = $_.FullName; To = $dest }
+					}
+					catch {}
+				}
+				else
+				{
+					Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+				}
 			}
 		}
 	}
@@ -934,44 +969,69 @@ function Clear-MolikFolderContents
 function Invoke-MolikCleanup
 {
 	[CmdletBinding()]
-	param([switch]$Deep, [switch]$WhatIf)
+	param([switch]$Deep, [switch]$Permanent, [switch]$WhatIf)
 
 	Write-Host ""
-	Write-Host "  MOLIK WINLIK — CLEANUP CENTER (dọn cache/temp an toàn)" -ForegroundColor White
-	if ($WhatIf) { Write-Host "  [WHATIF] Chỉ xem kế hoạch, không xóa gì." -ForegroundColor Yellow }
+	Write-Host "  MOLIK WINLIK — CLEANUP CENTER (dọn cache/temp, hoàn lại được)" -ForegroundColor White
+	$script:MolikCleanupManifest = @()
+	$script:cleanupTotal = 0.0
+
+	# Tu don vung cach ly qua 30 ngay (thong bao ro rang)
+	$quarantineBase = "$env:SystemDrive\MOLIK_WINLIK_Backups\Quarantine"
+	if ((Test-Path $quarantineBase) -and -not $WhatIf)
+	{
+		Get-ChildItem -Path $quarantineBase -Directory -ErrorAction SilentlyContinue |
+			Where-Object { $_.Name -like "Cleanup_*" -and $_.LastWriteTime -lt (Get-Date).AddDays(-30) } |
+			ForEach-Object { Write-Host "  [i] Xóa hẳn vùng cách ly cũ (>30 ngày): $($_.Name)" -ForegroundColor DarkGray; Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue }
+	}
+
+	$quarantineRoot = ""
+	if (-not $Permanent -and -not $WhatIf)
+	{
+		$quarantineRoot = Join-Path $quarantineBase ("Cleanup_" + (Get-Date -Format "yyyyMMdd_HHmmss"))
+		New-Item -Path $quarantineRoot -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
+		Write-Host "  Chế độ an toàn: mọi thứ được CHUYỂN vào vùng cách ly (hoàn lại bằng -RestoreCleanup), không xóa hẳn." -ForegroundColor Cyan
+	}
+	elseif ($Permanent) { Write-Host "  [!] Chế độ -Permanent: XÓA HẲN, không qua vùng cách ly." -ForegroundColor Yellow }
 
 	$results = @()
 	$addResult = { param($Name, $MB) $script:cleanupTotal += $MB; $results += [PSCustomObject]@{ Item = $Name; MB = $MB } }
-	$script:cleanupTotal = 0.0
 
 	$sections = @(
-		@{ Name = "Temp người dùng (%TEMP%)";        Path = $env:TEMP; Days = 1 }
-		@{ Name = "Temp Windows (C:\Windows\Temp)";  Path = "$env:SystemRoot\Temp"; Days = 1 }
-		@{ Name = "DirectX Shader Cache";            Path = "$env:LOCALAPPDATA\D3DSCache"; Days = 0 }
-		@{ Name = "Windows Error Reporting";         Path = "$env:LOCALAPPDATA\Microsoft\Windows\WER"; Days = 0 }
-		@{ Name = "Crash dumps người dùng";          Path = "$env:LOCALAPPDATA\CrashDumps"; Days = 0 }
+		@{ Name = "Temp người dùng (%TEMP%)";       Path = $env:TEMP; Days = 1 }
+		@{ Name = "Temp Windows (C:\Windows\Temp)"; Path = "$env:SystemRoot\Temp"; Days = 1 }
+		@{ Name = "DirectX Shader Cache";           Path = "$env:LOCALAPPDATA\D3DSCache"; Days = 0 }
+		@{ Name = "Windows Error Reporting";        Path = "$env:LOCALAPPDATA\Microsoft\Windows\WER"; Days = 0 }
+		@{ Name = "Crash dumps người dùng";         Path = "$env:LOCALAPPDATA\CrashDumps"; Days = 0 }
 	)
 	foreach ($s in $sections)
 	{
-		try { $freed = Clear-MolikFolderContents -Path $s.Path -OlderThanDays $s.Days -WhatIf:$WhatIf; & $addResult $s.Name $freed } catch { & $addResult $s.Name 0 }
+		try { & $addResult $s.Name (Clear-MolikFolderContents -Path $s.Path -OlderThanDays $s.Days -QuarantineRoot $quarantineRoot -WhatIf:$WhatIf) } catch { & $addResult $s.Name 0 }
 	}
 
-	# Thumbnail / icon cache (chi file cache, Explorer tu dung lai)
+	# Thumbnail / icon cache (Explorer tu dung lai)
 	try
 	{
 		$explorerCache = "$env:LOCALAPPDATA\Microsoft\Windows\Explorer"
-		$mb = 0.0
+		$mbT = 0.0
 		if ((Test-Path $explorerCache) -and -not $WhatIf)
 		{
 			$beforeT = Get-MolikFolderSizeMB -Path $explorerCache
-			Get-ChildItem -Path $explorerCache -Filter "*cache_*.db" -Force -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
-			$mb = [Math]::Round([Math]::Max(0, $beforeT - (Get-MolikFolderSizeMB -Path $explorerCache)), 1)
+			Get-ChildItem -Path $explorerCache -Filter "*cache_*.db" -Force -ErrorAction SilentlyContinue | ForEach-Object {
+				if ($quarantineRoot)
+				{
+					$dest = Join-Path $quarantineRoot ([Guid]::NewGuid().ToString("N") + "_" + $_.Name)
+					try { Move-Item -LiteralPath $_.FullName -Destination $dest -Force -ErrorAction Stop; $script:MolikCleanupManifest += [PSCustomObject]@{ From = $_.FullName; To = $dest } } catch {}
+				}
+				else { Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue }
+			}
+			$mbT = [Math]::Round([Math]::Max(0, $beforeT - (Get-MolikFolderSizeMB -Path $explorerCache)), 1)
 		}
-		& $addResult "Thumbnail/Icon cache" $mb
+		& $addResult "Thumbnail/Icon cache" $mbT
 	}
 	catch { & $addResult "Thumbnail/Icon cache" 0 }
 
-	# Windows Update download cache: dung dich vu -> xoa -> chay lai
+	# Windows Update cache: dung dich vu -> xu ly -> chay lai dich vu
 	try
 	{
 		$wuPath = "$env:SystemRoot\SoftwareDistribution\Download"
@@ -979,7 +1039,7 @@ function Invoke-MolikCleanup
 		if (-not $WhatIf)
 		{
 			Stop-Service -Name @("wuauserv", "bits") -Force -ErrorAction SilentlyContinue
-			$wuFreed = Clear-MolikFolderContents -Path $wuPath -OlderThanDays 0
+			$wuFreed = Clear-MolikFolderContents -Path $wuPath -OlderThanDays 0 -QuarantineRoot $quarantineRoot
 			Start-Service -Name @("bits", "wuauserv") -ErrorAction SilentlyContinue
 		}
 		else { $wuFreed = Get-MolikFolderSizeMB -Path $wuPath }
@@ -987,7 +1047,6 @@ function Invoke-MolikCleanup
 	}
 	catch { & $addResult "Windows Update cache" 0 }
 
-	# Delivery Optimization cache (cmdlet co san tren Windows 10/11 moi)
 	try
 	{
 		if (-not $WhatIf -and (Get-Command Delete-DeliveryOptimizationCache -ErrorAction SilentlyContinue))
@@ -998,32 +1057,100 @@ function Invoke-MolikCleanup
 	}
 	catch {}
 
-	# Recycle Bin + DNS cache: cong cu nen cua Windows, an toan tuyet doi
 	if (-not $WhatIf)
 	{
-		try { Clear-RecycleBin -Force -ErrorAction SilentlyContinue } catch {}
 		try { & "$env:SystemRoot\System32\ipconfig.exe" /flushdns 2>$null | Out-Null } catch {}
 	}
 
 	if ($Deep -and -not $WhatIf)
 	{
-		Write-Host "  [Deep] Đang chạy Disk Cleanup của Windows (cleanmgr /autoclean)..." -ForegroundColor Cyan
+		Write-Host "  [Deep] Disk Cleanup của Windows (cleanmgr /autoclean)..." -ForegroundColor Cyan
 		try { Start-Process -FilePath "$env:SystemRoot\System32\cleanmgr.exe" -ArgumentList "/autoclean" -Wait -ErrorAction SilentlyContinue } catch {}
+		Write-Host "  [Deep] Dọn Recycle Bin (VĨNH VIỄN — thùng rác là lớp hoàn tác cuối, chỉ dọn khi bạn chọn Deep)." -ForegroundColor Yellow
+		try { Clear-RecycleBin -Force -ErrorAction SilentlyContinue } catch {}
 		$isAdmin = $false
 		try { $isAdmin = (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) } catch {}
 		if ($isAdmin)
 		{
-			Write-Host "  [Deep] DISM StartComponentCleanup (dọn kho component, hơi lâu)..." -ForegroundColor Cyan
+			Write-Host "  [Deep] DISM StartComponentCleanup (hơi lâu)..." -ForegroundColor Cyan
 			try { Start-Process -FilePath "$env:SystemRoot\System32\Dism.exe" -ArgumentList "/Online", "/Cleanup-Image", "/StartComponentCleanup" -Wait -NoNewWindow -ErrorAction SilentlyContinue } catch {}
 		}
 		else { Write-Host "  [Deep] Bỏ qua DISM (cần Admin)." -ForegroundColor Yellow }
 	}
 
+	# Ghi manifest de hoan tac duoc
+	if ($quarantineRoot -and $script:MolikCleanupManifest.Count -gt 0)
+	{
+		try { $script:MolikCleanupManifest | ConvertTo-Json | Set-Content (Join-Path $quarantineRoot "manifest.json") -Encoding UTF8 -Force } catch {}
+		Write-Host "  Vùng cách ly: $quarantineRoot ($($script:MolikCleanupManifest.Count) mục) — hoàn lại: MOLIK_WINLIK.bat -RestoreCleanup" -ForegroundColor Cyan
+	}
+	elseif ($quarantineRoot) { Remove-Item $quarantineRoot -Force -ErrorAction SilentlyContinue }
+
 	Write-Host ""
 	$results | ForEach-Object { Write-Host ("    {0,-38} {1,8} MB" -f $_.Item, $_.MB) -ForegroundColor Gray }
-	Write-Host ("  Tổng giải phóng (ước tính): {0} MB" -f $script:cleanupTotal) -ForegroundColor Green
-	Write-Host "  Chỉ cache/temp đã được dọn — không đụng Documents/Downloads/dữ liệu cá nhân." -ForegroundColor DarkGray
-	return [PSCustomObject]@{ TotalFreedMB = $script:cleanupTotal; Items = $results; Deep = [bool]$Deep }
+	Write-Host ("  Tổng đã dọn khỏi vị trí gốc: {0} MB" -f $script:cleanupTotal) -ForegroundColor Green
+	Write-Host "  Chỉ cache/temp — không đụng Documents/Downloads/dữ liệu cá nhân." -ForegroundColor DarkGray
+	return [PSCustomObject]@{ TotalFreedMB = $script:cleanupTotal; Items = $results; Deep = [bool]$Deep; Quarantine = $quarantineRoot }
+}
+
+function Restore-MolikLastCleanup
+{
+	# Hoan tac Cleanup gan nhat: doc manifest vung cach ly, dua tung muc
+	# ve dung duong dan goc (muc nao da co file moi thi bo qua, khong de).
+	[CmdletBinding()]
+	param([switch]$Force)
+
+	$quarantineBase = "$env:SystemDrive\MOLIK_WINLIK_Backups\Quarantine"
+	$latest = Get-ChildItem -Path $quarantineBase -Directory -ErrorAction SilentlyContinue |
+		Where-Object { $_.Name -like "Cleanup_*" } | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+	if (-not $latest) { Write-Host "  [!] Không có vùng cách ly Cleanup nào để hoàn tác." -ForegroundColor Yellow; return $false }
+	$manifestFile = Join-Path $latest.FullName "manifest.json"
+	if (-not (Test-Path $manifestFile)) { Write-Host "  [!] Vùng cách ly $($latest.Name) thiếu manifest.json — không hoàn tác tự động được." -ForegroundColor Red; return $false }
+	$entries = @(Get-Content $manifestFile -Raw | ConvertFrom-Json)
+	Write-Host "  Hoàn tác Cleanup $($latest.Name): $($entries.Count) mục." -ForegroundColor Cyan
+	if (-not $Force)
+	{
+		$c = Read-Host "  Đưa mọi thứ về vị trí gốc? (Y/N)"
+		if ($c -notmatch '^[Yy]') { Write-Host "  Đã hủy."; return $false }
+	}
+	$done = 0; $skipped = 0
+	foreach ($e in $entries)
+	{
+		try
+		{
+			if (-not (Test-Path $e.To)) { $skipped++; continue }
+			if (Test-Path $e.From) { $skipped++; continue }
+			$parent = Split-Path $e.From -Parent
+			if ($parent -and -not (Test-Path $parent)) { New-Item -Path $parent -ItemType Directory -Force | Out-Null }
+			Move-Item -LiteralPath $e.To -Destination $e.From -Force -ErrorAction Stop
+			$done++
+		}
+		catch { $skipped++ }
+	}
+	try { Rename-Item -Path $latest.FullName -NewName ("Restored_" + $latest.Name) -ErrorAction SilentlyContinue } catch {}
+	Write-Host "  Hoàn tác xong: $done mục về chỗ cũ, $skipped mục bỏ qua (đã có file mới hoặc thiếu file)." -ForegroundColor Green
+	return $true
+}
+
+function Invoke-MolikWindowsRepair
+{
+	# Sua chua he thong bang cong cu chinh chu cua Windows (can Admin):
+	# DISM RestoreHealth (sua kho component tu Windows Update/local) -> SFC.
+	[CmdletBinding()]
+	param()
+
+	Write-Host ""
+	Write-Host "  MOLIK WINLIK — WINDOWS REPAIR (DISM + SFC chính chủ)" -ForegroundColor White
+	$isAdmin = $false
+	try { $isAdmin = (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) } catch {}
+	if (-not $isAdmin) { Write-Host "  [X] Cần quyền Administrator — chạy MOLIK_WINLIK.bat (tự xin Admin)." -ForegroundColor Red; return $false }
+
+	Write-Host "  [1/2] DISM /Online /Cleanup-Image /RestoreHealth (vài phút)..." -ForegroundColor Cyan
+	try { Start-Process -FilePath "$env:SystemRoot\System32\Dism.exe" -ArgumentList "/Online", "/Cleanup-Image", "/RestoreHealth" -Wait -NoNewWindow -ErrorAction Stop } catch { Write-Host "  [!] DISM lỗi: $($_.Exception.Message)" -ForegroundColor Yellow }
+	Write-Host "  [2/2] sfc /scannow (quét & sửa file hệ thống)..." -ForegroundColor Cyan
+	try { Start-Process -FilePath "$env:SystemRoot\System32\sfc.exe" -ArgumentList "/scannow" -Wait -NoNewWindow -ErrorAction Stop } catch { Write-Host "  [!] SFC lỗi: $($_.Exception.Message)" -ForegroundColor Yellow }
+	Write-Host "  [✓] Đã chạy xong DISM + SFC. Khởi động lại máy rồi chạy -Doctor để kiểm tra lại." -ForegroundColor Green
+	return $true
 }
 
 
@@ -2051,6 +2178,12 @@ function Get-MolikPresets
 			ExtraIds = @("EXT49", "EXT56", "EXT57", "EXT72", "PRI11"); ExcludeIds = @(); ExcludeRisks = @()
 		},
 		[PSCustomObject]@{
+			Name = "safe-daily"; Icon = "✅"; Mode = "BatterySaver"
+			Title = "AN TOÀN HẰNG NGÀY (chỉ tweak Safe)"
+			Description = "Chỉ các tweak mức Safe của BatterySaver/Laptop — gói 'cài cho máy người thân': gọn nhẹ, mát, ổn định, rủi ro gần như bằng không, hoàn tác 1 lệnh."
+			ExtraIds = @(); ExcludeIds = @(); ExcludeRisks = @("Moderate", "Extreme")
+		},
+		[PSCustomObject]@{
 			Name = "god-safe"; Icon = "👑"; Mode = "GodMode"
 			Title = "GOD SAFE (toàn bộ tweak an toàn toàn catalog)"
 			Description = "Mọi tweak trong catalog trừ nhóm Extreme — gói 'quét sạch an toàn' cho người muốn tối ưu tối đa mà không đánh đổi bảo mật/ổn định kernel."
@@ -2135,7 +2268,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.3.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.4.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -2272,6 +2405,15 @@ function Show-MolikSystemDoctor
 	if (Test-Path $sessionMarkerPath)
 	{
 		Write-Host "  [!] Một phiên áp dụng trước có dấu hiệu bị ngắt giữa chừng (mất điện/tắt máy giữa lúc áp). Xem thư mục Logs và cân nhắc chạy -UndoLast để hoàn tác phiên gần nhất." -ForegroundColor Red
+	}
+	$lastResultPath = "$env:SystemDrive\MOLIK_WINLIK_Backups\Logs\last_session_result.json"
+	if (Test-Path $lastResultPath)
+	{
+		try
+		{
+			$lr = Get-Content $lastResultPath -Raw | ConvertFrom-Json
+			Write-Host ("  Phiên áp gần nhất ({0}): {1} OK / {2} FAIL ({3} verified)." -f $lr.FinishedAt, $lr.OK, $lr.Fail, $lr.Verified) -ForegroundColor Gray
+		} catch {}
 	}
 	DoctorLine ($Snapshot.VTxEnabled) "VT-x/AMD-V đã bật trong BIOS (giả lập chạy được full tốc)." "VT-x CHƯA bật trong BIOS — giả lập sẽ rất chậm dù đã tweak Windows."
 	DoctorLine (-not $Snapshot.VBSRunning -and -not $Snapshot.HVCIEnabled) "VBS/HVCI đang tắt — VT-x không bị tranh (tốt cho farm/giả lập)." "VBS/HVCI đang BẬT: tranh VT-x với giả lập (dùng EMU01/EMU04 nếu là máy farm chuyên dụng)."
@@ -3248,11 +3390,11 @@ function Test-SophiaOptimizerHealth
 
 	# 8) Tinh nang v3.1: Doctor / Undo / Backup list
 	$missingFn = @()
-	foreach ($fn in @("Show-MolikSystemDoctor", "Restore-MolikLastSession", "Get-MolikBackupFolders", "Show-MolikBackupList"))
+	foreach ($fn in @("Show-MolikSystemDoctor", "Restore-MolikLastSession", "Get-MolikBackupFolders", "Show-MolikBackupList", "Invoke-MolikCleanup", "Restore-MolikLastCleanup", "Invoke-MolikWindowsRepair"))
 	{
 		if (-not (Get-Command $fn -ErrorAction SilentlyContinue)) { $missingFn += $fn }
 	}
-	if ($missingFn.Count -eq 0) { Report "PASS" "v3.1 core: Doctor + UndoLast + Backup list đều sẵn sàng" }
+	if ($missingFn.Count -eq 0) { Report "PASS" "Core an toàn: Doctor + UndoLast + Backup + Cleanup/RestoreCleanup + WindowsRepair đều sẵn sàng" }
 	else { Report "FAIL" "Thiếu hàm v3.1: $($missingFn -join ', ')" }
 	# Luu y: SelfTest la CHI DOC - khong bao gio goi Undo/Restore that o day,
 	# chi kiem tra ham ton tai. Logic parse log duoc bao phu boi kiem tra tinh.
@@ -4397,6 +4539,13 @@ function Invoke-SophiaSelectedTweaks
 	New-Item -Path $logDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
 	$logFile = Join-Path $logDir ("MOLIK_{0}.log" -f (Get-Date -Format "yyyyMMdd_HHmmss"))
 
+	# Preflight on dinh (v5.4): canh bao som truoc khi cham vao he thong
+	if ($Snapshot)
+	{
+		if ($Snapshot.PendingReboot) { Write-Host "  [!] Máy đang CHỜ RESTART (update/file đang dở) — nên restart trước rồi mới áp tiếp để tránh trạng thái nửa vời." -ForegroundColor Yellow }
+		if ($Snapshot.SystemDriveFreeGB -gt 0 -and $Snapshot.SystemDriveFreeGB -lt 10) { Write-Host "  [!] Ổ hệ thống chỉ còn $($Snapshot.SystemDriveFreeGB)GB trống — dọn rác trước (phím C / -Cleanup) để backup & pagefile không lỗi." -ForegroundColor Yellow }
+	}
+
 	if (-not $SkipBackup)
 	{
 		if (Get-Command New-SophiaSystemBackup -ErrorAction SilentlyContinue)
@@ -4454,6 +4603,7 @@ function Invoke-SophiaSelectedTweaks
 	}
 	Write-Host ""
 	Write-Host "  Hoàn tất: $ok OK ($verifiedCount verified, $unverifiedCount unverified) / $fail FAIL — Log: $logFile" -ForegroundColor Cyan
+	try { (@{ FinishedAt = (Get-Date -Format "yyyy-MM-dd HH:mm:ss"); OK = $ok; Fail = $fail; Verified = $verifiedCount; LogFile = $logFile } | ConvertTo-Json) | Set-Content (Join-Path $logDir "last_session_result.json") -Encoding UTF8 -Force } catch {}
 	if ($fail -gt 0) { Write-Host "  [i] Có $fail tweak FAIL — xem log ở trên; chạy -UndoLast (hoặc phím U) để hoàn tác cả phiên nếu cần." -ForegroundColor DarkGray }
 	try { Remove-Item $sessionMarker -Force -ErrorAction SilentlyContinue } catch {}
 	Write-Host "  [!] Nhiều tweak (HAGS, VBS, BCD, Pagefile) cần RESTART để có hiệu lực." -ForegroundColor Yellow
@@ -4539,7 +4689,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.3.0"
+	return "5.4.0"
 }
 
 function Format-MolikTruncate
@@ -5263,6 +5413,29 @@ function Show-MolikWinlikGui
 			& $invokeGuiApply $ids "Áp dụng"
 		})
 
+		$btnScan = New-Object System.Windows.Forms.Button
+		$btnScan.Text = "Quét trạng thái"
+		$btnScan.Location = New-Object System.Drawing.Point(778, 7)
+		$btnScan.Width = 110
+		$topPanel.Controls.Add($btnScan)
+		$btnScan.Add_Click({
+			try
+			{
+				$map = Get-MolikAppliedStatus -Catalog $Catalog
+				$checkedNow = @{}
+				for ($i = 0; $i -lt $tweakItems.Count; $i++) { $checkedNow[$tweakItems[$i].Id] = $tweakList.GetItemChecked($i) }
+				for ($i = 0; $i -lt $tweakItems.Count; $i++)
+				{
+					$t = $tweakItems[$i]
+					$st = if ($map[$t.Id]) { "ĐÃ ÁP" } else { "chưa" }
+					$tweakList.Items[$i] = ("[{0}] [{1}] [{2}] {3} - {4}" -f $t.Id, $st, $t.Risk, $t.Name, (Format-MolikCategoryName $t.Category))
+					$tweakList.SetItemChecked($i, [bool]$checkedNow[$t.Id])
+				}
+				& $appendLog "Đã quét trạng thái toàn catalog (cột [ĐÃ ÁP]/[chưa])."
+			}
+			catch { & $appendLog "LỖI quét trạng thái: $($_.Exception.Message)" }
+		})
+
 		$btnRestore = New-Object System.Windows.Forms.Button
 		$btnRestore.Text = "Khôi phục đã tick"
 		$btnRestore.Location = New-Object System.Drawing.Point(650, 7)
@@ -5550,6 +5723,16 @@ if ($Benchmark)
 if ($CompareBenchmarks)
 {
 	Compare-SophiaBenchmarks
+	return
+}
+if ($RestoreCleanup)
+{
+	Restore-MolikLastCleanup -Force:$Yes | Out-Null
+	return
+}
+if ($RepairWindows)
+{
+	Invoke-MolikWindowsRepair | Out-Null
 	return
 }
 if ($Cleanup -or $DeepCleanup)

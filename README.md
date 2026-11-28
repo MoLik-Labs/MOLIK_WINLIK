@@ -93,6 +93,7 @@ Mọi đường online đều **đối chiếu SHA256 với file `.sha256` chín
 - **Tự backup trước khi áp**: System Restore Point + xuất registry/BCD vào `C:\MOLIK_WINLIK_Backups\`.
 - **Mọi tweak đều có Restore** trả về đúng trạng thái gốc; áp xong tool **tự kiểm chứng** trạng thái thật (`verified`/`unverified` trong log).
 - `-UndoLast` hoàn tác cả phiên gần nhất; phiên bị ngắt giữa chừng (mất điện...) được Doctor cảnh báo ở lần mở sau.
+- **Cleanup không xóa hẳn**: mặc định chuyển vào vùng cách ly kèm manifest — `-RestoreCleanup` hoàn lại toàn bộ; `-RepairWindows` sửa Windows bằng DISM + SFC chính chủ khi máy lỗi.
 - Tweak rủi ro **Extreme** phải xác nhận riêng và được Plan Engine xếp áp cuối cùng, ngay trước khi restart.
 - **Minh bạch**: toàn bộ hành vi nằm trong file `.ps1` đọc được — không binary mờ, không tải code khi chạy.
 

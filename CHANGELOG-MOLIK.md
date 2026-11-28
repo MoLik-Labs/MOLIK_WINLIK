@@ -3,6 +3,22 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.4.0 — Ổn định & an toàn toàn diện
+
+- **Xóa gì cũng hoàn lại được**: Cleanup mặc định CHUYỂN vào vùng cách ly
+  `Quarantine\Cleanup_<time>` + manifest thay vì xóa hẳn —
+  `-RestoreCleanup` đưa mọi thứ về đúng chỗ cũ; vùng cách ly >30 ngày mới
+  tự xóa (có thông báo). Recycle Bin chỉ dọn ở -Deep kèm cảnh báo.
+- **Windows Repair**: `-RepairWindows` chạy DISM RestoreHealth + SFC
+  chính chủ của Windows khi máy có dấu hiệu lỗi hệ thống.
+- **Ổn định khi áp**: Preflight cảnh báo chờ-restart & ổ gần đầy trước
+  khi chạm hệ thống; kết quả phiên lưu `last_session_result.json` để
+  Doctor hiển thị; launcher có crash-trap ghi log `crash_*.log` thay vì
+  chết cứng khó hiểu.
+- **Dễ dùng như winutil**: GUI thêm nút Quét trạng thái ([ĐÃ ÁP]/[chưa]
+  ngay trong danh sách); Preset mới `safe-daily` (chỉ tweak Safe) cho
+  máy người thân.
+
 ## v5.3.0 — Online/Update-Repair, Cleanup Center, tầng máy & Web docs
 
 - **Kênh online tùy chọn** (core vẫn offline 100%): `win.ps1`,

@@ -43,7 +43,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.3.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.4.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -180,6 +180,15 @@ function Show-MolikSystemDoctor
 	if (Test-Path $sessionMarkerPath)
 	{
 		Write-Host "  [!] Một phiên áp dụng trước có dấu hiệu bị ngắt giữa chừng (mất điện/tắt máy giữa lúc áp). Xem thư mục Logs và cân nhắc chạy -UndoLast để hoàn tác phiên gần nhất." -ForegroundColor Red
+	}
+	$lastResultPath = "$env:SystemDrive\MOLIK_WINLIK_Backups\Logs\last_session_result.json"
+	if (Test-Path $lastResultPath)
+	{
+		try
+		{
+			$lr = Get-Content $lastResultPath -Raw | ConvertFrom-Json
+			Write-Host ("  Phiên áp gần nhất ({0}): {1} OK / {2} FAIL ({3} verified)." -f $lr.FinishedAt, $lr.OK, $lr.Fail, $lr.Verified) -ForegroundColor Gray
+		} catch {}
 	}
 	DoctorLine ($Snapshot.VTxEnabled) "VT-x/AMD-V đã bật trong BIOS (giả lập chạy được full tốc)." "VT-x CHƯA bật trong BIOS — giả lập sẽ rất chậm dù đã tweak Windows."
 	DoctorLine (-not $Snapshot.VBSRunning -and -not $Snapshot.HVCIEnabled) "VBS/HVCI đang tắt — VT-x không bị tranh (tốt cho farm/giả lập)." "VBS/HVCI đang BẬT: tranh VT-x với giả lập (dùng EMU01/EMU04 nếu là máy farm chuyên dụng)."

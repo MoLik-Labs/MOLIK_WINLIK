@@ -11,6 +11,17 @@
 - Mỗi tweak được **kiểm chứng lại trạng thái thật** (`verified` / `unverified` trong log tại `C:\MOLIK_WINLIK_Backups\Logs\`).
 - Phiên bị ngắt giữa chừng (mất điện, treo máy) để lại marker — lần mở sau **Doctor sẽ cảnh báo** và hướng dẫn hoàn tác.
 
+## Sửa chữa Windows khi máy lỗi
+
+```powershell
+MOLIK_WINLIK.bat -RepairWindows   # DISM RestoreHealth + SFC /scannow
+```
+
+Đây là công cụ chính chủ của Microsoft — nên chạy khi máy có dấu hiệu lỗi
+file hệ thống, update lỗi lặp lại, hoặc sau khi gỡ phần mềm làm hỏng Windows.
+Tool cũng tự cảnh báo **chờ restart** và **ổ gần đầy** trước mỗi phiên áp
+(preflight), và ghi kết quả phiên gần nhất để `-Doctor` hiển thị.
+
 ## Hoàn tác
 
 | Cách | Lệnh |

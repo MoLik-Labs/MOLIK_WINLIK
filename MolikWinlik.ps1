@@ -44,6 +44,8 @@ param(
 	[switch]$PurgeRAM,
 	[switch]$Cleanup,
 	[switch]$DeepCleanup,
+	[switch]$RestoreCleanup,
+	[switch]$RepairWindows,
 	[switch]$Update,
 	[switch]$Repair,
 	[switch]$BoostEmulators,
@@ -79,8 +81,24 @@ param(
 )
 
 $ErrorActionPreference = "Continue"
+# On dinh (v5.4): loi khong mong doi khong duoc lam tool "chet cung" - ghi
+# log crash day du de gui ho tro, roi dung sach se thay vi day loi do.
+trap
+{
+	Write-Host ""
+	Write-Host "  [X] Tool gặp lỗi không mong đợi: $($_.Exception.Message)" -ForegroundColor Red
+	Write-Host "      Chạy MOLIK_WINLIK.bat -SelfTest để kiểm tra, hoặc gửi file log crash trong C:\MOLIK_WINLIK_Backups\Logs\ khi báo lỗi." -ForegroundColor Yellow
+	try
+	{
+		$crashDir = "$env:SystemDrive\MOLIK_WINLIK_Backups\Logs"
+		New-Item -Path $crashDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
+		("CRASH {0}`r`n{1}`r`n{2}" -f (Get-Date), $_.Exception.ToString(), $_.ScriptStackTrace) | Set-Content (Join-Path $crashDir ("crash_{0}.log" -f (Get-Date -Format "yyyyMMdd_HHmmss"))) -Encoding UTF8 -Force
+	}
+	catch {}
+	break
+}
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "5.3.0"
+$Global:MolikWinlikVersion = "5.4.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
@@ -110,6 +128,8 @@ if (-not $readOnlyRequest)
 			if ($PurgeRAM) { $argList += "-PurgeRAM" }
 			if ($Cleanup) { $argList += "-Cleanup" }
 			if ($DeepCleanup) { $argList += "-DeepCleanup" }
+			if ($RestoreCleanup) { $argList += "-RestoreCleanup" }
+			if ($RepairWindows) { $argList += "-RepairWindows" }
 			if ($Update) { $argList += "-Update" }
 			if ($Repair) { $argList += "-Repair" }
 			if ($Profile) { $argList += @("-Profile", "`"$Profile`"") }
@@ -382,6 +402,16 @@ if ($Benchmark)
 if ($CompareBenchmarks)
 {
 	Compare-SophiaBenchmarks
+	return
+}
+if ($RestoreCleanup)
+{
+	Restore-MolikLastCleanup -Force:$Yes | Out-Null
+	return
+}
+if ($RepairWindows)
+{
+	Invoke-MolikWindowsRepair | Out-Null
 	return
 }
 if ($Cleanup -or $DeepCleanup)
