@@ -156,6 +156,29 @@ function Show-MolikWinlikGui
 			& $invokeGuiApply $ids "Áp dụng"
 		})
 
+		$btnScan = New-Object System.Windows.Forms.Button
+		$btnScan.Text = "Quét trạng thái"
+		$btnScan.Location = New-Object System.Drawing.Point(778, 7)
+		$btnScan.Width = 110
+		$topPanel.Controls.Add($btnScan)
+		$btnScan.Add_Click({
+			try
+			{
+				$map = Get-MolikAppliedStatus -Catalog $Catalog
+				$checkedNow = @{}
+				for ($i = 0; $i -lt $tweakItems.Count; $i++) { $checkedNow[$tweakItems[$i].Id] = $tweakList.GetItemChecked($i) }
+				for ($i = 0; $i -lt $tweakItems.Count; $i++)
+				{
+					$t = $tweakItems[$i]
+					$st = if ($map[$t.Id]) { "ĐÃ ÁP" } else { "chưa" }
+					$tweakList.Items[$i] = ("[{0}] [{1}] [{2}] {3} - {4}" -f $t.Id, $st, $t.Risk, $t.Name, (Format-MolikCategoryName $t.Category))
+					$tweakList.SetItemChecked($i, [bool]$checkedNow[$t.Id])
+				}
+				& $appendLog "Đã quét trạng thái toàn catalog (cột [ĐÃ ÁP]/[chưa])."
+			}
+			catch { & $appendLog "LỖI quét trạng thái: $($_.Exception.Message)" }
+		})
+
 		$btnRestore = New-Object System.Windows.Forms.Button
 		$btnRestore.Text = "Khôi phục đã tick"
 		$btnRestore.Location = New-Object System.Drawing.Point(650, 7)

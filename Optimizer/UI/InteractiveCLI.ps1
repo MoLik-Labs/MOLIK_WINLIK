@@ -86,6 +86,13 @@ function Invoke-SophiaSelectedTweaks
 	New-Item -Path $logDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
 	$logFile = Join-Path $logDir ("MOLIK_{0}.log" -f (Get-Date -Format "yyyyMMdd_HHmmss"))
 
+	# Preflight on dinh (v5.4): canh bao som truoc khi cham vao he thong
+	if ($Snapshot)
+	{
+		if ($Snapshot.PendingReboot) { Write-Host "  [!] Máy đang CHỜ RESTART (update/file đang dở) — nên restart trước rồi mới áp tiếp để tránh trạng thái nửa vời." -ForegroundColor Yellow }
+		if ($Snapshot.SystemDriveFreeGB -gt 0 -and $Snapshot.SystemDriveFreeGB -lt 10) { Write-Host "  [!] Ổ hệ thống chỉ còn $($Snapshot.SystemDriveFreeGB)GB trống — dọn rác trước (phím C / -Cleanup) để backup & pagefile không lỗi." -ForegroundColor Yellow }
+	}
+
 	if (-not $SkipBackup)
 	{
 		if (Get-Command New-SophiaSystemBackup -ErrorAction SilentlyContinue)
@@ -143,6 +150,7 @@ function Invoke-SophiaSelectedTweaks
 	}
 	Write-Host ""
 	Write-Host "  Hoàn tất: $ok OK ($verifiedCount verified, $unverifiedCount unverified) / $fail FAIL — Log: $logFile" -ForegroundColor Cyan
+	try { (@{ FinishedAt = (Get-Date -Format "yyyy-MM-dd HH:mm:ss"); OK = $ok; Fail = $fail; Verified = $verifiedCount; LogFile = $logFile } | ConvertTo-Json) | Set-Content (Join-Path $logDir "last_session_result.json") -Encoding UTF8 -Force } catch {}
 	if ($fail -gt 0) { Write-Host "  [i] Có $fail tweak FAIL — xem log ở trên; chạy -UndoLast (hoặc phím U) để hoàn tác cả phiên nếu cần." -ForegroundColor DarkGray }
 	try { Remove-Item $sessionMarker -Force -ErrorAction SilentlyContinue } catch {}
 	Write-Host "  [!] Nhiều tweak (HAGS, VBS, BCD, Pagefile) cần RESTART để có hiệu lực." -ForegroundColor Yellow
@@ -228,7 +236,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.3.0"
+	return "5.4.0"
 }
 
 function Format-MolikTruncate

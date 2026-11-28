@@ -259,11 +259,11 @@ function Test-SophiaOptimizerHealth
 
 	# 8) Tinh nang v3.1: Doctor / Undo / Backup list
 	$missingFn = @()
-	foreach ($fn in @("Show-MolikSystemDoctor", "Restore-MolikLastSession", "Get-MolikBackupFolders", "Show-MolikBackupList"))
+	foreach ($fn in @("Show-MolikSystemDoctor", "Restore-MolikLastSession", "Get-MolikBackupFolders", "Show-MolikBackupList", "Invoke-MolikCleanup", "Restore-MolikLastCleanup", "Invoke-MolikWindowsRepair"))
 	{
 		if (-not (Get-Command $fn -ErrorAction SilentlyContinue)) { $missingFn += $fn }
 	}
-	if ($missingFn.Count -eq 0) { Report "PASS" "v3.1 core: Doctor + UndoLast + Backup list đều sẵn sàng" }
+	if ($missingFn.Count -eq 0) { Report "PASS" "Core an toàn: Doctor + UndoLast + Backup + Cleanup/RestoreCleanup + WindowsRepair đều sẵn sàng" }
 	else { Report "FAIL" "Thiếu hàm v3.1: $($missingFn -join ', ')" }
 	# Luu y: SelfTest la CHI DOC - khong bao gio goi Undo/Restore that o day,
 	# chi kiem tra ham ton tai. Logic parse log duoc bao phu boi kiem tra tinh.

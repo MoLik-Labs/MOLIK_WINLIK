@@ -52,6 +52,12 @@ function Get-MolikPresets
 			ExtraIds = @("EXT49", "EXT56", "EXT57", "EXT72", "PRI11"); ExcludeIds = @(); ExcludeRisks = @()
 		},
 		[PSCustomObject]@{
+			Name = "safe-daily"; Icon = "✅"; Mode = "BatterySaver"
+			Title = "AN TOÀN HẰNG NGÀY (chỉ tweak Safe)"
+			Description = "Chỉ các tweak mức Safe của BatterySaver/Laptop — gói 'cài cho máy người thân': gọn nhẹ, mát, ổn định, rủi ro gần như bằng không, hoàn tác 1 lệnh."
+			ExtraIds = @(); ExcludeIds = @(); ExcludeRisks = @("Moderate", "Extreme")
+		},
+		[PSCustomObject]@{
 			Name = "god-safe"; Icon = "👑"; Mode = "GodMode"
 			Title = "GOD SAFE (toàn bộ tweak an toàn toàn catalog)"
 			Description = "Mọi tweak trong catalog trừ nhóm Extreme — gói 'quét sạch an toàn' cho người muốn tối ưu tối đa mà không đánh đổi bảo mật/ổn định kernel."

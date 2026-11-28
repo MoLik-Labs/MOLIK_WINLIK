@@ -16,6 +16,21 @@ Cũng có trong TUI (phím `C`), Menu (phím `Z`) và GUI (tab System).
 - Delivery Optimization cache, Recycle Bin, DNS cache
 - Chế độ sâu: **Disk Cleanup** (`cleanmgr /autoclean`) và **DISM** `/StartComponentCleanup` — công cụ có sẵn của Windows
 
+## Hoàn lại sau khi dọn (vùng cách ly)
+
+Mặc định Cleanup **không xóa hẳn**: mọi thứ được chuyển vào
+`C:\MOLIK_WINLIK_Backups\Quarantine\Cleanup_<thời gian>` kèm
+`manifest.json` ghi đường dẫn gốc.
+
+```powershell
+MOLIK_WINLIK.bat -RestoreCleanup   # đưa mọi thứ về chỗ cũ
+```
+
+Vùng cách ly quá 30 ngày mới tự xóa (có thông báo trước trong log).
+Muốn xóa hẳn ngay từ đầu: chạy `Invoke-MolikCleanup -Permanent` trong
+PowerShell. Recycle Bin chỉ được dọn ở chế độ Deep và luôn có cảnh báo,
+vì thùng rác chính là lớp hoàn tác cuối của Windows.
+
 ## Cam kết an toàn
 
 - Chỉ xóa **nội dung bên trong** các thư mục cache/temp đích — không xóa thư mục gốc, không đụng Documents/Downloads/dữ liệu cá nhân.
