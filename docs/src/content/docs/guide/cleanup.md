@@ -1,4 +1,7 @@
-# Cleanup Center — dọn cache & temp rác
+---
+title: "Cleanup Center — dọn cache & temp rác"
+description: "Dọn cache/temp bằng cơ chế an toàn của MOLIK WINLIK: vùng cách ly hoàn lại được, cleanmgr & DISM chính chủ Windows."
+---
 
 ```powershell
 MOLIK_WINLIK.bat -Cleanup       # dọn thường

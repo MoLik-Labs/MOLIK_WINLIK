@@ -1,0 +1,102 @@
+---
+// Khối chọn cách cài đặt: tab Online / Offline / Cập nhật kèm nút Copy lệnh.
+// Dùng ở trang chủ (index.mdx). Không cần JS framework — script nhỏ cuối file.
+const tabs = [
+  {
+    id: 'online',
+    label: '🌐 Online — nhanh nhất',
+    title: 'Một dòng lệnh: tải bản mới nhất, kiểm chứng SHA256 rồi chạy',
+    code: 'irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex',
+    note: 'Cần Internet. win.ps1 chỉ tải khi hash khác bản cache, luôn kiểm chứng SHA256 + cú pháp trước khi chạy file local.',
+  },
+  {
+    id: 'offline',
+    label: '📦 Offline — chuẩn, khuyến nghị',
+    title: 'Tải ZIP một lần, dùng mãi không cần mạng',
+    code: 'MOLIK_WINLIK.bat            # double-click, tự xin quyền Admin\nMOLIK_WINLIK.bat -Gui       # giao diện cửa sổ kiểu winutil',
+    note: 'Không tải code khi chạy — toàn bộ hành vi nằm trong file .ps1 đọc được trước khi cấp quyền Admin.',
+  },
+  {
+    id: 'update',
+    label: '🔄 Đã cài — cập nhật / sửa bản lỗi',
+    title: 'Kiểm tra, cập nhật, hoặc thay bản sạch khi bản đang dùng bị lỗi',
+    code: 'MOLIK_WINLIK.bat -CheckUpdate   # chỉ kiểm tra, không thay gì\nMOLIK_WINLIK.bat -Update        # cập nhật khi có bản mới\nMOLIK_WINLIK.bat -Repair        # ép thay bản sạch (kèm backup .bak)',
+    note: 'Mọi lần thay đều: kiểm chứng SHA256 → kiểm tra cú pháp → sao lưu bản cũ .bak-<thời gian> → mới thay.',
+  },
+];
+---
+
+<div class="install-box not-content">
+  <div class="install-tabs" role="tablist" aria-label="Cách cài đặt MOLIK WINLIK">
+    {
+      tabs.map((t, i) => (
+        <button
+          type="button"
+          role="tab"
+          data-tab={t.id}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          class={i === 0 ? 'active' : ''}
+        >
+          {t.label}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    tabs.map((t, i) => (
+      <div class="install-panel" data-panel={t.id} hidden={i !== 0}>
+        <p class="install-title">{t.title}</p>
+        <div class="install-code">
+          <pre><code>{t.code}</code></pre>
+          <button type="button" class="install-copy" data-code={t.code}>
+            Copy
+          </button>
+        </div>
+        <p class="install-note">{t.note}</p>
+      </div>
+    ))
+  }
+
+  <p class="install-more">
+    Chi tiết từng bước: <a href="./guide/online/">Bản Online</a> ·{' '}
+    <a href="./guide/download/">Tải xuống</a> ·{' '}
+    <a href="./guide/safety/">An toàn &amp; hoàn tác</a>
+  </p>
+</div>
+
+<script>
+  document.querySelectorAll('.install-box').forEach((box) => {
+    const buttons = box.querySelectorAll('[data-tab]');
+    const panels = box.querySelectorAll('[data-panel]');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        buttons.forEach((b) => {
+          b.classList.toggle('active', b === btn);
+          b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+        });
+        panels.forEach((p) => {
+          p.hidden = p.getAttribute('data-panel') !== btn.getAttribute('data-tab');
+        });
+      });
+    });
+    box.querySelectorAll('.install-copy').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const code = btn.getAttribute('data-code') || '';
+        try {
+          await navigator.clipboard.writeText(code);
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = code;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        const old = btn.textContent;
+        btn.textContent = '✓ Đã copy';
+        setTimeout(() => (btn.textContent = old), 1600);
+      });
+    });
+  });
+</script>

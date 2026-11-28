@@ -1,8 +1,11 @@
-# 🌐 Bản Online — chạy ngay, cập nhật & sửa bản lỗi an toàn
+---
+title: "🌐 Bản Online — chạy ngay, cập nhật & sửa bản lỗi"
+description: "Kênh online tùy chọn của MOLIK WINLIK: 3 cách chạy, quy trình kiểm chứng SHA256 7 bước, -CheckUpdate/-Update/-Repair và xử lý lỗi online."
+---
 
 Bản chuẩn của MOLIK WINLIK vẫn là **offline** (tải ZIP một lần, chạy mãi). **Kênh online là tùy chọn** phục vụ ba việc: chạy ngay không cần tải ZIP, kiểm tra/cập nhật bản mới, và **thay lại bản sạch khi bản đang dùng bị lỗi** — mọi bước đều có kiểm chứng SHA256.
 
-::: tip Tóm tắt 10 giây
+:::tip Tóm tắt 10 giây
 ```powershell
 irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex
 ```
@@ -31,8 +34,8 @@ Cả ba cách đều dùng chung một quy trình kiểm chứng bên dưới �
 6. **Sao lưu rồi mới thay** — bản cache cũ thành `*.bak-<thời gian>` trước khi ghi bản mới.
 7. **Chạy file local** — tự xin quyền Administrator và chạy file đã kiểm chứng, chuyển tiếp mọi tham số bạn truyền (ví dụ `-Gui`, `-Mode ...`).
 
-::: warning Antivirus soi kênh online là bình thường
-Mọi trình cập nhật tải file thực thi đều có thể bị antivirus để ý hơn bản offline. Nếu cần chắc chắn tuyệt đối, dùng [bản offline](/guide/download) — tải ZIP từ GitHub, giải nén, đọc code nếu muốn, rồi double-click `MOLIK_WINLIK.bat`.
+:::caution Antivirus soi kênh online là bình thường
+Mọi trình cập nhật tải file thực thi đều có thể bị antivirus để ý hơn bản offline. Nếu cần chắc chắn tuyệt đối, dùng [bản offline](../download) — tải ZIP từ GitHub, giải nén, đọc code nếu muốn, rồi double-click `MOLIK_WINLIK.bat`.
 :::
 
 ## Cập nhật và sửa bản lỗi
@@ -53,7 +56,7 @@ Quy trình `-Update` / `-Repair`:
 4. Sao lưu bản hiện tại thành `MolikWinlik-Portable.ps1.bak-<thời gian>`.
 5. Thay thế an toàn: nếu bản Portable **đang chạy**, một tiến trình phụ sẽ thay file sau khi bạn đóng cửa sổ — không bao giờ ghi đè file đang chạy.
 
-::: info Đang chạy bằng bản Portable lẻ (chỉ 2 file .bat + .ps1)?
+:::note Đang chạy bằng bản Portable lẻ (chỉ 2 file .bat + .ps1)?
 Bản Portable lẻ cố ý **không chứa code tải** (offline tuyệt đối). Khi đó `-Update` sẽ hướng dẫn hai cách: chạy `MOLIK_WINLIK-Online.bat`, hoặc tải ZIP mới từ GitHub giải nén đè — backup của bạn ở `C:\MOLIK_WINLIK_Backups\` không bị đụng vào.
 :::
 
@@ -76,7 +79,7 @@ MOLIK_WINLIK-Online.bat -Doctor
 | Hiện tượng | Nguyên nhân & cách xử lý |
 |---|---|
 | `SHA256 KHÔNG KHỚP` | File tải bị lỗi/hỏng giữa đường hoặc nguồn không đúng. Tool đã tự hủy — kiểm tra mạng rồi chạy lại; nếu lặp lại, dùng bản offline |
-| Tải lỗi sau 3 lần thử | Mạng/proxy chặn `raw.githubusercontent.com`. Dùng [bản offline](/guide/download) hoặc đổi mạng |
+| Tải lỗi sau 3 lần thử | Mạng/proxy chặn `raw.githubusercontent.com`. Dùng [bản offline](../download) hoặc đổi mạng |
 | Antivirus chặn file tải | Hành vi tải chương trình bị soi là bình thường. Ưu tiên bản offline từ ZIP GitHub chính thức |
 | Mở online nhưng ra bản cũ | Cache còn khớp hash cũ của repo tại thời điểm kiểm tra — chạy lại với `-Force` (`win.ps1`) hoặc `MOLIK_WINLIK.bat -Repair` |
 
@@ -86,8 +89,8 @@ MOLIK_WINLIK-Online.bat -Doctor
 |---|---|---|
 | Cần Internet | Có (lúc tải/cập nhật) | Không |
 | Luôn mới nhất | ✔ Tự lấy bản mới | Cập nhật tay bằng ZIP hoặc `-Update` |
-| Kiểm chứng toàn vẹn | SHA256 + parse-check tự động | Bạn tự đối chiếu `.sha256` nếu muốn ([hướng dẫn](/guide/download#kiem-chung-sha256-thu-cong)) |
+| Kiểm chứng toàn vẹn | SHA256 + parse-check tự động | Bạn tự đối chiếu `.sha256` nếu muốn ([hướng dẫn](../download#kiem-chung-sha256-thu-cong)) |
 | Antivirus thân thiện | Trung bình | Cao nhất |
 | Khuyên dùng cho | Thử nhanh, sửa bản lỗi, cập nhật | Dùng lâu dài, máy farm, triển khai nhiều máy |
 
-Tiếp theo: [Cài đặt & chạy lần đầu](/guide/getting-started) hoặc [An toàn, Backup & Hoàn tác](/guide/safety).
+Tiếp theo: [Cài đặt & chạy lần đầu](../getting-started) hoặc [An toàn, Backup & Hoàn tác](../safety).

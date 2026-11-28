@@ -1,4 +1,7 @@
-# Tham chiếu lệnh CLI
+---
+title: "Tham chiếu lệnh CLI"
+description: "Toàn bộ lệnh MOLIK_WINLIK.bat: giao diện, áp dụng, dọn dẹp, hoàn tác, chẩn đoán và kênh online."
+---
 
 Mọi lệnh đều gọi qua `MOLIK_WINLIK.bat ...` (tự xin quyền Admin khi cần). Lệnh chỉ đọc **không** bật hộp UAC.
 
@@ -15,9 +18,9 @@ Mọi lệnh đều gọi qua `MOLIK_WINLIK.bat ...` (tự xin quyền Admin khi
 
 | Lệnh | Tác dụng |
 |---|---|
-| `-Mode <Khóa> -Plan` | Xem kế hoạch của Mode (chưa áp) — khóa xem ở [11 Mode](/guide/modes) |
+| `-Mode <Khóa> -Plan` | Xem kế hoạch của Mode (chưa áp) — khóa xem ở [11 Mode](../modes) |
 | `-Mode <Khóa> -Apply -Yes` | Áp cả Mode |
-| `-Preset <tên> -Plan` / `-Apply -Yes` | Áp [Preset](/guide/presets) theo tình huống |
+| `-Preset <tên> -Plan` / `-Apply -Yes` | Áp [Preset](../presets) theo tình huống |
 | `-ApplyIds GAM01,GPU01 -Yes` | Áp từng tweak theo ID |
 | `-Smart -Plan` | Smart Advisor đọc phần cứng, khuyên Mode kèm lý do (chưa áp) |
 | `-ListModes` / `-ListPresets` / `-ListTweaks -Search "timer"` | Tra cứu Mode / Preset / catalog |
@@ -29,7 +32,7 @@ Mọi lệnh đều gọi qua `MOLIK_WINLIK.bat ...` (tự xin quyền Admin khi
 
 | Lệnh | Tác dụng |
 |---|---|
-| `-Cleanup` | [Cleanup Center](/guide/cleanup): dọn cache/temp qua vùng cách ly (hoàn lại được) |
+| `-Cleanup` | [Cleanup Center](../cleanup): dọn cache/temp qua vùng cách ly (hoàn lại được) |
 | `-DeepCleanup` | Dọn sâu bằng cleanmgr + DISM của Windows |
 | `-RestoreCleanup` | Hoàn lại toàn bộ lần Cleanup gần nhất về chỗ cũ |
 | `-RepairWindows` | Sửa Windows bằng DISM RestoreHealth + SFC chính chủ |
@@ -51,6 +54,6 @@ Mọi lệnh đều gọi qua `MOLIK_WINLIK.bat ...` (tự xin quyền Admin khi
 
 | Lệnh | Tác dụng |
 |---|---|
-| `-CheckUpdate` | Kiểm tra có bản mới không (không thay gì) — chi tiết [Bản Online](/guide/online) |
+| `-CheckUpdate` | Kiểm tra có bản mới không (không thay gì) — chi tiết [Bản Online](../online) |
 | `-Update` | Cập nhật khi có bản mới (kiểm chứng SHA256, backup .bak) |
 | `-Repair` | Ép thay bản sạch kể cả cùng phiên bản |

@@ -88,7 +88,7 @@ MOLIK_WINLIK.bat -Repair        # ép thay lại bản sạch kể cả khi cùn
 
 Mọi đường online đều theo cùng quy trình: **đối chiếu SHA256 với file `.sha256` chính thức → kiểm tra cú pháp → sao lưu `.bak` → mới thay/chạy** — lệch hash là hủy ngay và giữ nguyên bản hiện tại. `win.ps1` còn dùng lại bản cache đã kiểm chứng cho những lần mở sau (khởi động nhanh), tải tối đa 3 lần thử. Cũng có `MOLIK_WINLIK-Online.bat` để double-click và chuyển tham số (ví dụ `-Gui`).
 
-📚 **Tài liệu đầy đủ (web)**: https://molik-labs.github.io/MOLIK_WINLIK/ — hướng dẫn từng bước, bảng 11 Mode/8 Preset, tham chiếu CLI, FAQ (nguồn trong `docs/`, VitePress).
+📚 **Tài liệu đầy đủ (web)**: https://molik-labs.github.io/MOLIK_WINLIK/ — hướng dẫn từng bước, bảng 11 Mode/8 Preset, tham chiếu CLI, FAQ (nguồn trong `docs/`, Astro Starlight).
 
 ## An toàn & khôi phục
 

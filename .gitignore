@@ -1,4 +1,4 @@
 # Exclude user-created configurations
 node_modules/
-docs/.vitepress/dist/
-docs/.vitepress/cache/
+docs/dist/
+docs/.astro/

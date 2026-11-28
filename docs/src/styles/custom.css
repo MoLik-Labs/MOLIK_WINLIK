@@ -1,0 +1,153 @@
+/*
+  MOLIK WINLIK docs theme (Starlight)
+  - Light: "Forest" — xanh rừng trên nền giấy ấm
+  - Dark:  "Catppuccin Mocha" — bảng màu Mocha chính thức
+  Người đọc đổi bằng nút sáng/tối có sẵn của Starlight trên thanh điều hướng.
+*/
+
+/* ---------- Forest (light) ---------- */
+:root {
+  --sl-color-accent-low: #d9ecdf;
+  --sl-color-accent: #22713c;
+  --sl-color-accent-high: #14532a;
+  --sl-font: "Segoe UI", system-ui, -apple-system, "Noto Sans", Roboto, sans-serif;
+}
+
+/* ---------- Catppuccin Mocha (dark) ---------- */
+:root[data-theme="dark"] {
+  --sl-color-accent-low: #2b2138;
+  --sl-color-accent: #cba6f7;
+  --sl-color-accent-high: #e9dffc;
+  --sl-color-bg: #1e1e2e;
+  --sl-color-bg-nav: #181825;
+  --sl-color-bg-sidebar: #181825;
+  --sl-color-bg-inline-code: #313244;
+  --sl-color-hairline: #313244;
+  --sl-color-hairline-light: #313244;
+  --sl-color-hairline-shade: #11111b;
+}
+
+/* ---------- Hero trang chủ ---------- */
+.hero h1 {
+  background: linear-gradient(100deg, #22713c 15%, #43ad66 55%, #b3930a 105%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+:root[data-theme="dark"] .hero h1 {
+  background: linear-gradient(100deg, #a6e3a1 5%, #cba6f7 55%, #89b4fa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.hero .hero-html img,
+.hero img {
+  filter: drop-shadow(0 18px 42px rgba(15, 25, 15, 0.35));
+  border-radius: 14px;
+}
+
+/* ---------- Khối số liệu (trang chủ) ---------- */
+.molik-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 1.75rem 0 0.5rem;
+}
+.molik-stat {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 14px;
+  padding: 1rem 0.75rem;
+  text-align: center;
+  background: var(--sl-color-bg-nav);
+}
+.molik-stat b {
+  display: block;
+  font-size: 1.9rem;
+  line-height: 1.1;
+  color: var(--sl-color-accent);
+}
+.molik-stat span {
+  font-size: 0.82rem;
+  color: var(--sl-color-gray-3);
+}
+
+/* ---------- InstallBox (component chọn cách cài) ---------- */
+.install-box {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 16px;
+  background: var(--sl-color-bg-nav);
+  padding: 1.1rem;
+  margin: 1.5rem 0;
+}
+.install-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+.install-tabs button {
+  border: 1px solid var(--sl-color-hairline);
+  background: var(--sl-color-bg);
+  color: var(--sl-color-gray-2);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.install-tabs button:hover {
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-white);
+}
+:root[data-theme="dark"] .install-tabs button:hover {
+  color: var(--sl-color-text);
+}
+.install-tabs button.active {
+  background: var(--sl-color-accent);
+  border-color: var(--sl-color-accent);
+  color: #ffffff;
+}
+:root[data-theme="dark"] .install-tabs button.active {
+  color: #1e1e2e;
+}
+.install-title {
+  font-weight: 600;
+  margin: 0.25rem 0 0.6rem;
+}
+.install-code {
+  position: relative;
+}
+.install-code pre {
+  background: #181825;
+  color: #cdd6f4;
+  border-radius: 12px;
+  padding: 1rem 5.5rem 1rem 1rem;
+  overflow-x: auto;
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+.install-copy {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  border: 1px solid #45475a;
+  background: #313244;
+  color: #cdd6f4;
+  border-radius: 8px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.install-copy:hover {
+  border-color: #cba6f7;
+}
+.install-note {
+  color: var(--sl-color-gray-3);
+  font-size: 0.9rem;
+  margin: 0.6rem 0 0;
+}
+.install-more {
+  font-size: 0.9rem;
+  margin: 0.9rem 0 0;
+}

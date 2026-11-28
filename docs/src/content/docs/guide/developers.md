@@ -1,8 +1,11 @@
-# Cho nhà phát triển
+---
+title: "Cho nhà phát triển"
+description: "Kiến trúc engine PowerShell, quy tắc kênh online, audit tĩnh, build Portable và phát triển trang tài liệu Starlight này."
+---
 
 ## Kiến trúc
 
-- **Engine**: PowerShell 5.1+ (quyết định tại [ADR-001](/ADR-001-engine-language)) — `MolikWinlik.ps1` là launcher, 18 module engine trong `Optimizer/` được inline thành bản 1-file `MolikWinlik-Portable.ps1` bằng `Optimizer/Build-Portable.ps1`. Không sửa tay file Portable.
+- **Engine**: PowerShell 5.1+ (quyết định tại [ADR-001](../adr-001-engine-language)) — `MolikWinlik.ps1` là launcher, 18 module engine trong `Optimizer/` được inline thành bản 1-file `MolikWinlik-Portable.ps1` bằng `Optimizer/Build-Portable.ps1`. Không sửa tay file Portable.
 - **Dữ liệu**: catalog 172 tweak native (`Optimizer/Catalog/`) + 28 tweak vendor từ [winutil](https://github.com/ChrisTitusTech/winutil) (MIT, `Optimizer/Data/`).
 - `src/` là module Sophia upstream — **giữ nguyên 100%**, chỉ nạp khi có `-LoadNativeSophia`.
 
@@ -27,12 +30,17 @@ python3 skills/molik-deep-debug/scripts/audit_molik.py --root .
 
 ## Web tài liệu này
 
-VitePress trong `docs/`, deploy bằng GitHub Pages qua `.github/workflows/pages.yml`:
+Trang docs dùng **Astro Starlight** trong `docs/`, deploy bằng GitHub Pages qua `.github/workflows/pages.yml`:
 
 ```bash
+cd docs
 npm install
-npm run docs:dev      # chạy thử local
-npm run docs:build    # kiểm tra build
+npm run dev      # chạy thử local (mặc định http://localhost:4321/MOLIK_WINLIK/)
+npm run build    # kiểm tra build ra docs/dist
 ```
 
-Theme: **sáng = Forest, tối = Catppuccin Mocha** (đổi bằng nút appearance trên thanh nav) — chỉnh tại `docs/.vitepress/theme/custom.css`. Để bật Pages: repo **Settings → Pages → Source: GitHub Actions** (làm 1 lần).
+- Nội dung: `docs/src/content/docs/` (Markdown/MDX, bắt buộc frontmatter `title` + `description`); trang chủ là `index.mdx` dạng splash.
+- Điều hướng: sidebar khai báo bằng `slug` trong `docs/astro.config.mjs`; link nội bộ trong bài dùng đường dẫn tương đối (`../online`, `./guide/online/`) để tự khớp `base`.
+- Theme: **sáng = Forest, tối = Catppuccin Mocha** — chỉnh tại `docs/src/styles/custom.css` qua biến `--sl-color-*` của Starlight.
+- Tìm kiếm Pagefind và sitemap do Starlight tự sinh khi build.
+- Bật Pages (1 lần): repo **Settings → Pages → Source: GitHub Actions**.
