@@ -217,6 +217,20 @@ def main() -> int:
     else:
         report(PASS, f"Engine loader parity: {len(l_list)} files identical in launcher + builder")
 
+    # -- GitHub Pages root fallback (legacy mode serves repo root) ---------------
+    root_index = root / "index.html"
+    root_online = root / "guide" / "online" / "index.html"
+    if not root_index.exists() or not (root / ".nojekyll").exists() or not root_online.exists():
+        report(FAIL, "GitHub Pages root fallback missing (index.html/.nojekyll/guide/online) - run docs build + docs/scripts/publish_root_site.py")
+    elif "MOLIK WINLIK" not in read_text(root_index) or "CheckUpdate" not in read_text(root_online):
+        report(FAIL, "GitHub Pages root fallback looks stale/wrong (content markers missing)")
+    else:
+        dist_index = root / "docs" / "dist" / "index.html"
+        if dist_index.exists() and dist_index.read_bytes() != root_index.read_bytes():
+            report(FAIL, "Root Pages site is stale vs docs/dist - re-run docs/scripts/publish_root_site.py")
+        else:
+            report(PASS, "GitHub Pages root fallback published (legacy main/ serves Starlight; Actions workflow also ready)")
+
     # -- skills pack sanity ---------------------------------------------------------
     skill_files = sorted((root / "skills").rglob("SKILL.md"))
     bad_skills = []

@@ -236,7 +236,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.7.0"
+	return "5.8.0"
 }
 
 function Format-MolikTruncate

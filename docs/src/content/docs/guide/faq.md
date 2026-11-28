@@ -19,7 +19,7 @@ Restart máy một lần (nhiều tweak chỉ có hiệu lực sau restart). V�
 Có — trước mỗi phiên áp: System Restore Point + xuất Registry/BCD vào `C:\MOLIK_WINLIK_Backups\`. Cleanup cũng không xóa hẳn mà chuyển vào vùng cách ly để `-RestoreCleanup` hoàn lại được.
 
 ## Máy yếu nên chọn gì?
-Preset `safe-daily` hoặc Mode `LowSpec`/`BatterySaver`. Chạy `MOLIK_WINLIK.bat -Smart -Plan` để tool tự đọc tầng máy (Low/Medium/High) và khuyên kèm lý do — xem [bảng Mode theo tầng máy](../modes#chon-mode-theo-tang-may-yeu-trung-binh-manh).
+Preset `safe-daily` hoặc Mode `LowSpec`/`BatterySaver`. Chạy `MOLIK_WINLIK.bat -Smart -Plan` để tool tự đọc tầng máy (Low/Medium/High) và khuyên kèm lý do — xem [bảng Mode theo tầng máy](../modes#chọn-mode-theo-tầng-máy-yếu-trung-bình-mạnh).
 
 ## Khác gì winutil của Chris Titus Tech?
 Cùng triết lý tick-chọn dễ dùng, nhưng MOLIK WINLIK đi sâu hơn cho Windows gaming/farm: catalog 200 tweak (gồm cả BCD/kernel/timer), 11 Mode + 8 Preset, Plan Engine, Smart Advisor theo phần cứng, benchmark trước–sau và hệ backup/hoàn tác nhiều lớp. 28 tweak + 239 app được vendor từ winutil (MIT, ghi credit rõ ràng).

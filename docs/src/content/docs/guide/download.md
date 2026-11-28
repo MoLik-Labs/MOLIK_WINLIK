@@ -39,7 +39,7 @@ Hai dãy hex phải giống hệt nhau. Kênh [online](../online) làm bước n
 
 ## Cập nhật bản offline
 
-- Cách tự động: `MOLIK_WINLIK.bat -CheckUpdate` rồi `-Update` (xem [Bản Online](../online#cap-nhat-va-sua-ban-loi)).
+- Cách tự động: `MOLIK_WINLIK.bat -CheckUpdate` rồi `-Update` (xem [Bản Online](../online#cập-nhật-và-sửa-bản-lỗi)).
 - Cách thủ công: tải ZIP mới, giải nén đè lên thư mục cũ. Dữ liệu của bạn nằm ở `C:\MOLIK_WINLIK_Backups\` (backup, profile, log, báo cáo) — không nằm trong thư mục tool nên không mất.
 
 ## Gỡ cài đặt
