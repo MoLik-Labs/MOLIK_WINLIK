@@ -1,4 +1,7 @@
-# ADR-001: Giữ PowerShell làm engine — không viết lại toàn bộ bằng Rust/Go
+---
+title: "ADR-001: Kiến trúc engine"
+description: "Quyết định giữ PowerShell làm engine chính của MOLIK WINLIK; Go/Rust chỉ cho helper phụ trợ kèm benchmark."
+---
 
 - Trạng thái: **Đã chốt** (đợt v5.0.0)
 - Bối cảnh: Có đề xuất viết lại toàn bộ MOLIK WINLIK bằng Rust hoặc Go để

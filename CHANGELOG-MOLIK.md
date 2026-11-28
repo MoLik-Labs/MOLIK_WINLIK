@@ -3,6 +3,18 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.6.0 — Web docs chuyển sang Astro Starlight
+
+- **Chuyển nền tảng docs từ VitePress sang Astro Starlight** (framework
+  docs chuyên nghiệp của hệ Astro): tìm kiếm Pagefind tích hợp sẵn,
+  sidebar/mục lục chuẩn, hiệu năng build nhanh, sẵn sàng mở rộng i18n.
+- Toàn bộ 13 trang hướng dẫn + ADR được migrate với frontmatter
+  title/description chuẩn SEO; trang chủ dạng splash với hero, khối số
+  liệu, component chọn cách cài (tab Online/Offline/Cập nhật, nút Copy)
+  và lưới tính năng CardGrid của Starlight.
+- Theme giữ bản sắc: **sáng = Forest, tối = Catppuccin Mocha** qua biến
+  `--sl-color-*`; workflow Pages build từ `docs/` (Astro) ra `docs/dist`.
+
 ## v5.5.0 — Bản Online hoàn thiện & Web docs chuyên nghiệp
 
 - **Online v2** (`win.ps1`): đọc `.sha256` trước và dùng lại cache đã

@@ -1,4 +1,7 @@
-# An toàn, Backup & Hoàn tác
+---
+title: "An toàn, Backup & Hoàn tác"
+description: "Backup Restore Point + Registry/BCD, kiểm chứng sau khi áp, UndoLast/RestoreDefaults và sửa Windows bằng DISM + SFC."
+---
 
 ## Trước khi áp
 

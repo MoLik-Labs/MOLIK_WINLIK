@@ -1,4 +1,7 @@
-# 11 Mode theo nhu cầu
+---
+title: "11 Mode theo nhu cầu"
+description: "Bảng 11 Mode tối ưu của MOLIK WINLIK và cách chọn theo tầng máy yếu / trung bình / mạnh."
+---
 
 Chọn Mode bằng phím `1`–`9` / `M` trong TUI, dropdown trong GUI, hoặc `-Mode <khóa>` trên CLI.
 
@@ -16,7 +19,7 @@ Chọn Mode bằng phím `1`–`9` / `M` trong TUI, dropdown trong GUI, hoặc `
 | 🔋 Battery / Laptop (`BatterySaver`) | 63 | Chỉ tweak Safe — mát máy, tiết kiệm pin |
 | 👑 God Mode (`GodMode`) | 200 | Toàn bộ catalog kể cả Extreme |
 
-## Máy yếu / trung bình / mạnh
+## Chọn Mode theo tầng máy yếu, trung bình, mạnh
 
 Tool tự phân tầng phần cứng (**Low / Medium / High**) từ RAM, số luồng CPU, loại ổ đĩa và GPU:
 
@@ -28,4 +31,4 @@ Chạy `MOLIK_WINLIK.bat -Doctor` để xem tầng máy của bạn, hoặc `-Sm
 
 ## Mode "ảo" là gì?
 
-5 Mode cuối (PrivacyMax → BatterySaver) được hợp tự động từ Mode nền + nhóm tweak + trần rủi ro, nên số lượng luôn khớp catalog thật và không bao giờ chứa tweak Extreme ngoài ý muốn. Ngoài Mode còn có **8 Preset** tình huống tinh hơn cho từng hoàn cảnh cụ thể — xem [trang Preset](/guide/presets) (máy người thân nên bắt đầu bằng `safe-daily`).
+5 Mode cuối (PrivacyMax → BatterySaver) được hợp tự động từ Mode nền + nhóm tweak + trần rủi ro, nên số lượng luôn khớp catalog thật và không bao giờ chứa tweak Extreme ngoài ý muốn. Ngoài Mode còn có **8 Preset** tình huống tinh hơn cho từng hoàn cảnh cụ thể — xem [trang Preset](../presets) (máy người thân nên bắt đầu bằng `safe-daily`).

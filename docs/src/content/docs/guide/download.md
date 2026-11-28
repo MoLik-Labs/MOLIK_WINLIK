@@ -1,4 +1,7 @@
-# Tải xuống & các bản phân phối
+---
+title: "Tải xuống & các bản phân phối"
+description: "Giải thích từng file trong bản tải, yêu cầu hệ thống, cách kiểm chứng SHA256 thủ công và gỡ cài đặt sạch."
+---
 
 ## Bạn nhận được gì từ GitHub?
 
@@ -12,7 +15,7 @@ Vào repo [MoLik-Labs/MOLIK_WINLIK](https://github.com/MoLik-Labs/MOLIK_WINLIK) 
 | `MOLIK_WINLIK-Online.bat` | Launcher bản online (tải bản mới nhất có kiểm chứng rồi chạy) |
 | `win.ps1` | Script bootstrap của kênh online (nhỏ, đọc được toàn bộ) |
 | `MolikWinlik.ps1` + `Optimizer/` | Bản nguồn đầy đủ cho nhà phát triển / chạy `-Update`, `-SelfTest` sâu |
-| `docs/` | Chính trang tài liệu bạn đang đọc (VitePress) |
+| `docs/` | Chính trang tài liệu bạn đang đọc (Astro Starlight) |
 
 Chỉ cần giữ `MOLIK_WINLIK.bat` + `MolikWinlik-Portable.ps1` cùng thư mục là mang sang máy khác (kể cả USB) chạy tiếp được.
 
@@ -32,11 +35,11 @@ Get-FileHash .\MolikWinlik-Portable.ps1 -Algorithm SHA256
 Get-Content .\MolikWinlik-Portable.ps1.sha256
 ```
 
-Hai dãy hex phải giống hệt nhau. Kênh [online](/guide/online) làm bước này tự động mỗi lần tải.
+Hai dãy hex phải giống hệt nhau. Kênh [online](../online) làm bước này tự động mỗi lần tải.
 
 ## Cập nhật bản offline
 
-- Cách tự động: `MOLIK_WINLIK.bat -CheckUpdate` rồi `-Update` (xem [Bản Online](/guide/online#cap-nhat-va-sua-ban-loi)).
+- Cách tự động: `MOLIK_WINLIK.bat -CheckUpdate` rồi `-Update` (xem [Bản Online](../online#cap-nhat-va-sua-ban-loi)).
 - Cách thủ công: tải ZIP mới, giải nén đè lên thư mục cũ. Dữ liệu của bạn nằm ở `C:\MOLIK_WINLIK_Backups\` (backup, profile, log, báo cáo) — không nằm trong thư mục tool nên không mất.
 
 ## Gỡ cài đặt

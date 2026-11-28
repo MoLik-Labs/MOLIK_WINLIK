@@ -1,4 +1,7 @@
-# Giao diện: GUI / TUI / CLI
+---
+title: "Giao diện: GUI / TUI / CLI"
+description: "GUI cửa sổ kiểu winutil, TUI tick-chọn bằng bàn phím, Menu số và headless CLI — chọn giao diện hợp với bạn."
+---
 
 ## GUI cửa sổ (kiểu winutil)
 
