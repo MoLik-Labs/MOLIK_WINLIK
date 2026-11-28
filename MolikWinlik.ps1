@@ -99,7 +99,7 @@ trap
 	break
 }
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "5.6.0"
+$Global:MolikWinlikVersion = "5.7.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:

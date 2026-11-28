@@ -3,6 +3,18 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.7.0 — Starlight tối ưu trải nghiệm đọc & sẵn sàng host GitHub Pages
+
+- Trang **Bản Online** và **Cài đặt lần đầu** chuyển sang MDX dùng
+  component native của Starlight: `Tabs` (3 cách chạy online, đồng bộ
+  lựa chọn giữa các khối), `Steps` (quy trình kiểm chứng 7 bước, 3 bước
+  cài offline) — đọc nhanh, ít cuộn, đúng chuẩn docs hiện đại.
+- Sidebar thêm huy hiệu "Mới" cho trang Online; khối code dùng theme
+  **Catppuccin Latte/Mocha** đồng bộ với theme sáng/tối của site.
+- Ghi rõ trong tài liệu dev: pipeline GitHub Pages (workflow đã chạy
+  xanh) chỉ còn chờ bật **Settings → Pages → Source: GitHub Actions**
+  một lần; nếu để legacy, web sẽ hiện README thay vì docs Starlight.
+
 ## v5.6.0 — Web docs chuyển sang Astro Starlight
 
 - **Chuyển nền tảng docs từ VitePress sang Astro Starlight** (framework

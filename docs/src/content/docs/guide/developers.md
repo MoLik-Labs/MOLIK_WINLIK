@@ -43,4 +43,6 @@ npm run build    # kiểm tra build ra docs/dist
 - Điều hướng: sidebar khai báo bằng `slug` trong `docs/astro.config.mjs`; link nội bộ trong bài dùng đường dẫn tương đối (`../online`, `./guide/online/`) để tự khớp `base`.
 - Theme: **sáng = Forest, tối = Catppuccin Mocha** — chỉnh tại `docs/src/styles/custom.css` qua biến `--sl-color-*` của Starlight.
 - Tìm kiếm Pagefind và sitemap do Starlight tự sinh khi build.
+- Trang tương tác dùng component native của Starlight (`Tabs`, `Steps`, `CardGrid` trong file `.mdx`) — ưu tiên chúng thay vì tự chế HTML/CSS.
+- Hosting: GitHub Pages phải đặt **Settings → Pages → Source: GitHub Actions** thì workflow mới deploy được bản Starlight; nếu để legacy (branch `/`) web sẽ hiện README thay vì docs.
 - Bật Pages (1 lần): repo **Settings → Pages → Source: GitHub Actions**.

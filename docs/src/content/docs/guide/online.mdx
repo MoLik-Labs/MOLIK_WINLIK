@@ -3,9 +3,11 @@ title: "🌐 Bản Online — chạy ngay, cập nhật & sửa bản lỗi"
 description: "Kênh online tùy chọn của MOLIK WINLIK: 3 cách chạy, quy trình kiểm chứng SHA256 7 bước, -CheckUpdate/-Update/-Repair và xử lý lỗi online."
 ---
 
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+
 Bản chuẩn của MOLIK WINLIK vẫn là **offline** (tải ZIP một lần, chạy mãi). **Kênh online là tùy chọn** phục vụ ba việc: chạy ngay không cần tải ZIP, kiểm tra/cập nhật bản mới, và **thay lại bản sạch khi bản đang dùng bị lỗi** — mọi bước đều có kiểm chứng SHA256.
 
-:::tip Tóm tắt 10 giây
+:::tip[Tóm tắt 10 giây]
 ```powershell
 irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex
 ```
@@ -14,18 +16,39 @@ Lệnh này **không chạy code lạ trực tiếp**: `win.ps1` tải bản Por
 
 ## Ba cách dùng bản online
 
-| Cách | Lệnh / thao tác | Hợp khi |
-|---|---|---|
-| **A. Một dòng lệnh** | `irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 \| iex` | Muốn chạy ngay trên máy bất kỳ có Internet |
-| **B. File Online.bat** | Double-click `MOLIK_WINLIK-Online.bat` (có trong repo) | Thích double-click, muốn chuyển tham số như `-Gui` |
-| **C. Tải win.ps1 về chạy** | `powershell -ExecutionPolicy Bypass -File .\win.ps1 -Gui` | Muốn đọc script bootstrap trước khi chạy, hoặc chuyển tham số đầy đủ |
+Cả ba cách đều dùng chung một quy trình kiểm chứng bên dưới — khác nhau chỉ ở cách khởi động:
 
-Cả ba cách đều dùng chung một quy trình kiểm chứng bên dưới — khác nhau chỉ ở cách khởi động.
+<Tabs syncKey="online-way">
+  <TabItem label="A · Một dòng lệnh" icon="rocket">
+    Muốn chạy ngay trên máy bất kỳ có Internet — mở PowerShell và dán:
+
+    ```powershell
+    irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex
+    ```
+  </TabItem>
+  <TabItem label="B · File Online.bat" icon="laptop">
+    Thích double-click và muốn chuyển tham số như `-Gui`? Dùng file có sẵn trong repo:
+
+    ```powershell
+    MOLIK_WINLIK-Online.bat -Gui
+    MOLIK_WINLIK-Online.bat -Doctor
+    ```
+  </TabItem>
+  <TabItem label="C · Tải win.ps1 về chạy" icon="open-book">
+    Muốn đọc script bootstrap trước khi chạy, hoặc chuyển tham số đầy đủ — tải `win.ps1` từ repo rồi:
+
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File .\win.ps1 -Gui
+    powershell -ExecutionPolicy Bypass -File .\win.ps1 -Mode HardcoreGaming -Apply -Yes
+    ```
+  </TabItem>
+</Tabs>
 
 ## Quy trình kiểm chứng — vì sao an toàn?
 
 `win.ps1` (kích thước nhỏ, đọc được toàn bộ trên GitHub) thực hiện đúng thứ tự:
 
+<Steps>
 1. **Lấy dấu vân tay trước** — tải file `MolikWinlik-Portable.ps1.sha256` (vài chục byte) từ repo chính thức `MoLik-Labs/MOLIK_WINLIK`.
 2. **Dùng lại cache nếu còn mới** — nếu bản đã tải ở `%LOCALAPPDATA%\MOLIK_WINLIK\` khớp SHA256 thì dùng luôn, không tải lại ~390 KB (mở nhanh những lần sau). `-Force` để ép tải lại.
 3. **Tải có thử lại** — tải Portable tối đa 3 lần (mạng chập chờn không làm hỏng phiên), timeout rõ ràng.
@@ -33,8 +56,9 @@ Cả ba cách đều dùng chung một quy trình kiểm chứng bên dưới �
 5. **Kiểm tra cú pháp & định dạng** — file phải parse sạch bằng parser PowerShell, dung lượng hợp lý và có version marker của MOLIK WINLIK.
 6. **Sao lưu rồi mới thay** — bản cache cũ thành `*.bak-<thời gian>` trước khi ghi bản mới.
 7. **Chạy file local** — tự xin quyền Administrator và chạy file đã kiểm chứng, chuyển tiếp mọi tham số bạn truyền (ví dụ `-Gui`, `-Mode ...`).
+</Steps>
 
-:::caution Antivirus soi kênh online là bình thường
+:::caution[Antivirus soi kênh online là bình thường]
 Mọi trình cập nhật tải file thực thi đều có thể bị antivirus để ý hơn bản offline. Nếu cần chắc chắn tuyệt đối, dùng [bản offline](../download) — tải ZIP từ GitHub, giải nén, đọc code nếu muốn, rồi double-click `MOLIK_WINLIK.bat`.
 :::
 
@@ -50,29 +74,36 @@ MOLIK_WINLIK.bat -Repair        # ép thay bản sạch kể cả cùng phiên b
 
 Quy trình `-Update` / `-Repair`:
 
+<Steps>
 1. Tải bản mới + `.sha256` từ repo chính thức (tối đa 3 lần thử mỗi file).
 2. **SHA256 lệch → hủy**, giữ nguyên bản hiện tại.
 3. Kiểm tra cú pháp PowerShell của bản mới — lỗi parse thì hủy.
 4. Sao lưu bản hiện tại thành `MolikWinlik-Portable.ps1.bak-<thời gian>`.
 5. Thay thế an toàn: nếu bản Portable **đang chạy**, một tiến trình phụ sẽ thay file sau khi bạn đóng cửa sổ — không bao giờ ghi đè file đang chạy.
+</Steps>
 
-:::note Đang chạy bằng bản Portable lẻ (chỉ 2 file .bat + .ps1)?
+:::note[Đang chạy bằng bản Portable lẻ (chỉ 2 file .bat + .ps1)?]
 Bản Portable lẻ cố ý **không chứa code tải** (offline tuyệt đối). Khi đó `-Update` sẽ hướng dẫn hai cách: chạy `MOLIK_WINLIK-Online.bat`, hoặc tải ZIP mới từ GitHub giải nén đè — backup của bạn ở `C:\MOLIK_WINLIK_Backups\` không bị đụng vào.
 :::
 
 ## Truyền tham số qua bản online
 
-```powershell
-# Qua file win.ps1 đã tải về:
-powershell -ExecutionPolicy Bypass -File .\win.ps1 -Gui
-powershell -ExecutionPolicy Bypass -File .\win.ps1 -Mode HardcoreGaming -Apply -Yes
-powershell -ExecutionPolicy Bypass -File .\win.ps1 -Force        # ép tải lại bản mới nhất
-powershell -ExecutionPolicy Bypass -File .\win.ps1 -NoLaunch     # chỉ tải & kiểm chứng, không chạy
-
-# Qua Online.bat:
-MOLIK_WINLIK-Online.bat -Gui
-MOLIK_WINLIK-Online.bat -Doctor
-```
+<Tabs syncKey="online-params">
+  <TabItem label="Qua win.ps1" icon="seti:powershell">
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File .\win.ps1 -Gui
+    powershell -ExecutionPolicy Bypass -File .\win.ps1 -Mode HardcoreGaming -Apply -Yes
+    powershell -ExecutionPolicy Bypass -File .\win.ps1 -Force        # ép tải lại bản mới nhất
+    powershell -ExecutionPolicy Bypass -File .\win.ps1 -NoLaunch     # chỉ tải & kiểm chứng, không chạy
+    ```
+  </TabItem>
+  <TabItem label="Qua Online.bat" icon="laptop">
+    ```powershell
+    MOLIK_WINLIK-Online.bat -Gui
+    MOLIK_WINLIK-Online.bat -Doctor
+    ```
+  </TabItem>
+</Tabs>
 
 ## Lỗi thường gặp ở kênh online
 
