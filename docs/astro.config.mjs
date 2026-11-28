@@ -23,6 +23,8 @@ export default defineConfig({
         baseUrl: 'https://github.com/MoLik-Labs/MOLIK_WINLIK/edit/main/docs/',
       },
       lastUpdated: true,
+      tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 3 },
+      expressiveCode: { themes: ['catppuccin-latte', 'catppuccin-mocha'] },
       customCss: ['./src/styles/custom.css'],
       locales: {
         root: { label: 'Tiếng Việt', lang: 'vi' },
@@ -58,7 +60,7 @@ export default defineConfig({
           items: [
             { label: 'Cài đặt & chạy lần đầu', slug: 'guide/getting-started' },
             { label: 'Tải xuống & các bản phân phối', slug: 'guide/download' },
-            { label: '🌐 Bản Online (cập nhật an toàn)', slug: 'guide/online' },
+            { label: '🌐 Bản Online (cập nhật an toàn)', slug: 'guide/online', badge: { text: 'Mới', variant: 'tip' } },
           ],
         },
         {

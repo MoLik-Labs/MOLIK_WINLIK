@@ -3,25 +3,30 @@ title: "Cài đặt & chạy lần đầu"
 description: "Hai đường vào MOLIK WINLIK: online chạy ngay trong 10 giây, hoặc offline chuẩn 3 bước — cùng một bản Portable đã kiểm chứng SHA256."
 ---
 
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
 MOLIK WINLIK không cần cài đặt. Có hai đường vào — **online để thử ngay** và **offline để dùng lâu dài**; cả hai đều dẫn tới cùng một bản Portable đã kiểm chứng.
 
-## Cách 1 — Online: chạy ngay trong 10 giây
+<Tabs syncKey="start-way">
+  <TabItem label="🌐 Online — chạy ngay" icon="rocket">
+    Mở PowerShell và dán một dòng:
 
-Mở PowerShell và dán một dòng:
+    ```powershell
+    irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex
+    ```
 
-```powershell
-irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex
-```
+    `win.ps1` sẽ tải bản mới nhất về `%LOCALAPPDATA%\MOLIK_WINLIK`, **kiểm chứng SHA256 + cú pháp**, xin quyền Admin rồi chạy file local. Những lần sau, nếu bản cache vẫn mới nhất thì mở gần như tức thì. Chi tiết & các biến thể: [Bản Online](../online).
+  </TabItem>
+  <TabItem label="📦 Offline — chuẩn, dùng lâu dài" icon="laptop">
+    <Steps>
+    1. **Tải** ZIP của repo từ [GitHub](https://github.com/MoLik-Labs/MOLIK_WINLIK) (nút `Code → Download ZIP`) và giải nén vào một thư mục bất kỳ, ví dụ `D:\MOLIK_WINLIK` — xem [giải thích từng file](../download).
+    2. **Double-click `MOLIK_WINLIK.bat`** → bấm **Yes** khi Windows hỏi quyền Administrator.
+    3. Giao diện tick-chọn mở ra: dùng `↑`/`↓` di chuyển, `SPACE` tick tweak, `ENTER` áp dụng.
+    </Steps>
 
-`win.ps1` sẽ tải bản mới nhất về `%LOCALAPPDATA%\MOLIK_WINLIK`, **kiểm chứng SHA256 + cú pháp**, xin quyền Admin rồi chạy file local. Những lần sau, nếu bản cache vẫn mới nhất thì mở gần như tức thì. Chi tiết & các biến thể: [Bản Online](../online).
-
-## Cách 2 — Offline (chuẩn, khuyến nghị lâu dài): 3 bước
-
-1. **Tải** ZIP của repo từ [GitHub](https://github.com/MoLik-Labs/MOLIK_WINLIK) (nút `Code → Download ZIP`) và giải nén vào một thư mục bất kỳ, ví dụ `D:\MOLIK_WINLIK` — xem [giải thích từng file](../download).
-2. **Double-click `MOLIK_WINLIK.bat`** → bấm **Yes** khi Windows hỏi quyền Administrator.
-3. Giao diện tick-chọn mở ra: dùng `↑`/`↓` di chuyển, `SPACE` tick tweak, `ENTER` áp dụng.
-
-Chỉ cần giữ `MOLIK_WINLIK.bat` và `MolikWinlik-Portable.ps1` cùng thư mục là mang sang máy khác chạy tiếp được (USB cũng được).
+    Chỉ cần giữ `MOLIK_WINLIK.bat` và `MolikWinlik-Portable.ps1` cùng thư mục là mang sang máy khác chạy tiếp được (USB cũng được).
+  </TabItem>
+</Tabs>
 
 ## Các cách chạy khác
 
