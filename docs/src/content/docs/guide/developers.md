@@ -5,7 +5,7 @@ description: "Kiến trúc engine PowerShell, quy tắc kênh online, audit tĩn
 
 ## Kiến trúc
 
-- **Engine**: PowerShell 5.1+ (quyết định tại [ADR-001](../adr-001-engine-language)) — `MolikWinlik.ps1` là launcher, 18 module engine trong `Optimizer/` được inline thành bản 1-file `MolikWinlik-Portable.ps1` bằng `Optimizer/Build-Portable.ps1`. Không sửa tay file Portable.
+- **Engine**: PowerShell 5.1+ (quyết định tại [ADR-001](../../adr-001-engine-language)) — `MolikWinlik.ps1` là launcher, 18 module engine trong `Optimizer/` được inline thành bản 1-file `MolikWinlik-Portable.ps1` bằng `Optimizer/Build-Portable.ps1`. Không sửa tay file Portable.
 - **Dữ liệu**: catalog 172 tweak native (`Optimizer/Catalog/`) + 28 tweak vendor từ [winutil](https://github.com/ChrisTitusTech/winutil) (MIT, `Optimizer/Data/`).
 - `src/` là module Sophia upstream — **giữ nguyên 100%**, chỉ nạp khi có `-LoadNativeSophia`.
 
@@ -45,4 +45,5 @@ npm run build    # kiểm tra build ra docs/dist
 - Tìm kiếm Pagefind và sitemap do Starlight tự sinh khi build.
 - Trang tương tác dùng component native của Starlight (`Tabs`, `Steps`, `CardGrid` trong file `.mdx`) — ưu tiên chúng thay vì tự chế HTML/CSS.
 - Hosting: GitHub Pages phải đặt **Settings → Pages → Source: GitHub Actions** thì workflow mới deploy được bản Starlight; nếu để legacy (branch `/`) web sẽ hiện README thay vì docs.
-- Bật Pages (1 lần): repo **Settings → Pages → Source: GitHub Actions**.
+- Hosting 2 lớp: workflow Actions đã sẵn sàng, đồng thời bản build được **xuất bản ra gốc repo** (`python3 docs/scripts/publish_root_site.py` sau khi build) để Pages legacy (main /) phục vụ ngay — audit kiểm tra lớp gốc này tồn tại và khớp `docs/dist`. Khi nào tiện, bật thêm **Settings → Pages → Source: GitHub Actions** thì workflow tự lo hoàn toàn.
+- Sau khi sửa docs, luôn build lại + chạy kiểm tra link nội bộ trước khi commit (mọi `href`/`src`/neo trong `docs/dist` phải trỏ tới file/ID tồn tại — ID neo của Starlight giữ nguyên dấu tiếng Việt).

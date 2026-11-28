@@ -3,6 +3,17 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.8.0 — Hoàn thiện web docs: sửa mọi lỗi link/neo & host trực tiếp
+
+- **Crawl kiểm chứng toàn site**: 607 link/asset/neo nội bộ được kiểm tra
+  tự động — sửa 6 lỗi thật (5 neo tiếng Việt bị lệch do Starlight giữ dấu
+  trong ID heading, 1 link ADR sai cấp thư mục). Kết quả: 0 lỗi.
+- **Host trực tiếp bằng GitHub Pages**: bản Starlight build được xuất bản
+  ra gốc repo (kèm `.nojekyll`) để chế độ Pages legacy (main /) đang bật
+  phục vụ ngay — không còn cảnh web chỉ hiện README và trang con 404.
+  Thêm `docs/scripts/publish_root_site.py` + audit tự canh tính đồng bộ;
+  workflow Actions vẫn sẵn sàng khi chuyển Source sau này.
+
 ## v5.7.0 — Starlight tối ưu trải nghiệm đọc & sẵn sàng host GitHub Pages
 
 - Trang **Bản Online** và **Cài đặt lần đầu** chuyển sang MDX dùng
