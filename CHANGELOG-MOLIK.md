@@ -3,6 +3,19 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.9.0 — Docs như code: bộ kiểm tra tự động & llms.txt
+
+- **`docs/scripts/check_site.py`** (triết lý checks của Nimbus, giữ
+  Starlight làm nền): lint nguồn (frontmatter, code fence phải có nhãn,
+  heading không nhảy cấp) + crawl bản build (607 link/asset/neo, đúng
+  1 h1/trang, title/description/lang, alt ảnh) + đối chiếu bản Pages ở
+  gốc repo. Debug có bằng chứng: lần chạy đầu bắt đúng llms.txt còn
+  thiếu và lệch mốc `lastUpdated` (đã chuẩn hoá khi so khớp).
+- Thêm **`llms.txt`** ở gốc site: bản đồ tài liệu cho người & agent.
+- CI Pages chạy thêm bước check sau build — docs lỗi là build đỏ.
+- VitePress giữ vai trò lịch sử (đã rời bỏ từ v5.6, lý do ghi trong
+  trang nhà phát triển); không chạy song song 2 framework docs.
+
 ## v5.8.0 — Hoàn thiện web docs: sửa mọi lỗi link/neo & host trực tiếp
 
 - **Crawl kiểm chứng toàn site**: 607 link/asset/neo nội bộ được kiểm tra
