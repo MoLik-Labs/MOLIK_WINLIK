@@ -1,10 +1,20 @@
 # Cài đặt & chạy lần đầu
 
-MOLIK WINLIK không cần cài đặt và không cần Internet khi tối ưu.
+MOLIK WINLIK không cần cài đặt. Có hai đường vào — **online để thử ngay** và **offline để dùng lâu dài**; cả hai đều dẫn tới cùng một bản Portable đã kiểm chứng.
 
-## Cách chuẩn (offline) — 3 bước
+## Cách 1 — Online: chạy ngay trong 10 giây
 
-1. **Tải** ZIP của repo từ GitHub (nút `Code → Download ZIP`) và giải nén vào một thư mục bất kỳ, ví dụ `D:\MOLIK_WINLIK`.
+Mở PowerShell và dán một dòng:
+
+```powershell
+irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex
+```
+
+`win.ps1` sẽ tải bản mới nhất về `%LOCALAPPDATA%\MOLIK_WINLIK`, **kiểm chứng SHA256 + cú pháp**, xin quyền Admin rồi chạy file local. Những lần sau, nếu bản cache vẫn mới nhất thì mở gần như tức thì. Chi tiết & các biến thể: [Bản Online](/guide/online).
+
+## Cách 2 — Offline (chuẩn, khuyến nghị lâu dài): 3 bước
+
+1. **Tải** ZIP của repo từ [GitHub](https://github.com/MoLik-Labs/MOLIK_WINLIK) (nút `Code → Download ZIP`) và giải nén vào một thư mục bất kỳ, ví dụ `D:\MOLIK_WINLIK` — xem [giải thích từng file](/guide/download).
 2. **Double-click `MOLIK_WINLIK.bat`** → bấm **Yes** khi Windows hỏi quyền Administrator.
 3. Giao diện tick-chọn mở ra: dùng `↑`/`↓` di chuyển, `SPACE` tick tweak, `ENTER` áp dụng.
 
@@ -16,14 +26,16 @@ Chỉ cần giữ `MOLIK_WINLIK.bat` và `MolikWinlik-Portable.ps1` cùng thư m
 |---|---|---|
 | GUI cửa sổ | `MOLIK_WINLIK.bat -Gui` | Thích dùng chuột, kiểu winutil |
 | Menu số | `MOLIK_WINLIK.bat -Menu` | Terminal không hỗ trợ phím trực tiếp |
-| Online | `MOLIK_WINLIK.bat -Update` hoặc `irm .../win.ps1 | iex` | Muốn bản mới nhất / bản cũ bị lỗi cần thay |
-| Headless | `MOLIK_WINLIK.bat -Mode HardcoreGaming -Apply -Yes` | Script, tự động hóa |
+| Kiểm tra bản mới | `MOLIK_WINLIK.bat -CheckUpdate` | Xem có bản mới không (chỉ kiểm tra) |
+| Cập nhật / sửa bản lỗi | `MOLIK_WINLIK.bat -Update` / `-Repair` | Bản mới nhất, hoặc bản đang dùng bị lỗi cần thay sạch |
+| Headless | `MOLIK_WINLIK.bat -Mode HardcoreGaming -Apply -Yes` | Script, tự động hóa — xem [Tham chiếu CLI](/guide/cli-reference) |
 
 ## Trước khi áp lần đầu
 
 - Tool **tự tạo backup** (Restore Point + Registry/BCD) trước khi áp — cứ yên tâm.
 - Chạy thử `MOLIK_WINLIK.bat -SelfTest` (chỉ đọc) để chắc chắn môi trường khỏe.
 - Chưa rõ máy mình hợp Mode nào: `MOLIK_WINLIK.bat -Smart -Plan` — tool đọc phần cứng và in kế hoạch kèm lý do, chưa áp gì cả.
+- Muốn tuyệt đối an toàn cho lần đầu: dùng [Preset `safe-daily`](/guide/presets) (chỉ tweak mức Safe).
 
 ## Gỡ / quay lại như cũ
 

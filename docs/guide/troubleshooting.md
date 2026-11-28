@@ -24,7 +24,7 @@ powershell -STA -File MolikWinlik.ps1 -Gui
 
 ## Bản đang dùng bị lỗi / nghi hỏng file
 
-`MOLIK_WINLIK.bat -Repair` — tải bản sạch, kiểm chứng SHA256, sao lưu bản cũ rồi thay thế. Không có mạng thì tải ZIP mới từ GitHub và giải nén đè (backup của bạn ở `C:\MOLIK_WINLIK_Backups\` không bị đụng).
+`MOLIK_WINLIK.bat -Repair` — tải bản sạch, kiểm chứng SHA256, sao lưu bản cũ rồi thay thế (chi tiết: [Bản Online](/guide/online)). Lỗi riêng của kênh online (hash lệch, tải 3 lần thất bại, antivirus soi file tải) xem bảng xử lý ở [trang Bản Online](/guide/online#loi-thuong-gap-o-kenh-online). Không có mạng thì tải ZIP mới từ GitHub và giải nén đè (backup của bạn ở `C:\MOLIK_WINLIK_Backups\` không bị đụng).
 
 ## Kiểm tra sức khỏe tổng thể
 

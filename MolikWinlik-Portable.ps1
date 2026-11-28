@@ -1,5 +1,5 @@
 ﻿<#
-	MOLIK WINLIK by @nggkhaiz v5.4.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
+	MOLIK WINLIK by @nggkhaiz v5.5.0 - BAN OFFLINE 1 FILE (MolikWinlik-Portable.ps1)
 	Chay: double-click MOLIK_WINLIK.bat (tu xin Admin), hoac powershell -ExecutionPolicy Bypass -File .\MolikWinlik-Portable.ps1
 	File nay duoc sinh tu dong boi Optimizer\Build-Portable.ps1 - dung sua tay, hay sua nguon trong Optimizer/ roi build lai.
 #>
@@ -53,6 +53,7 @@ param(
 	[switch]$RepairWindows,
 	[switch]$Update,
 	[switch]$Repair,
+	[switch]$CheckUpdate,
 	[switch]$BoostEmulators,
 	[switch]$RestoreDefaults,
 	[switch]$Benchmark,
@@ -103,11 +104,11 @@ trap
 	break
 }
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-$Global:MolikWinlikVersion = "5.4.0"
+$Global:MolikWinlikVersion = "5.5.0"
 
 # ── Self-elevate to Administrator (chi khi thao tac that su can Admin) ───────
 # Cac lenh chi-doc duoi day chay ngay khong can UAC cho khoi dong nhanh:
-$readOnlyRequest = ($ListModes -or $ListTweaks -or $ListApps -or $SelfTest -or $Plan -or $CompareBenchmarks -or $Version -or $ListPresets -or $Doctor -or $ListBackups -or $ListProfiles -or ($Status -ne "__none__"))
+$readOnlyRequest = ($ListModes -or $ListTweaks -or $ListApps -or $SelfTest -or $Plan -or $CompareBenchmarks -or $Version -or $ListPresets -or $Doctor -or $ListBackups -or $ListProfiles -or $CheckUpdate -or ($Status -ne "__none__"))
 if (-not $readOnlyRequest)
 {
 	try
@@ -178,18 +179,18 @@ if (-not $readOnlyRequest)
 $RepoRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 
 # ── Online Update/Repair (kenh tuy chon, tach rieng - ban Portable khong co) ──
-if ($Update -or $Repair)
+if ($Update -or $Repair -or $CheckUpdate)
 {
 	$onlineFile = Join-Path $RepoRoot "Optimizer\Core\OnlineUpdate.ps1"
 	if (Test-Path $onlineFile)
 	{
 		. $onlineFile
-		Update-MolikWinlik -Force:$Repair | Out-Null
+		if ($CheckUpdate) { Test-MolikUpdateAvailable | Out-Null } else { Update-MolikWinlik -Force:$Repair | Out-Null }
 	}
 	else
 	{
 		Write-Host "  [i] Đây là bản Portable OFFLINE nên không tự tải. Để cập nhật/thay bản mới:" -ForegroundColor Yellow
-		Write-Host "      Cách 1 (online): chay MOLIK_WINLIK-Online.bat (tu tai ban moi co kiem chung SHA256)." -ForegroundColor Gray
+		Write-Host "      Cách 1 (online): chay MOLIK_WINLIK-Online.bat hoac lenh mot dong trong tai lieu web (tai ban moi, kiem chung SHA256)." -ForegroundColor Gray
 		Write-Host "      Cách 2 (offline): tai ZIP moi tu GitHub roi giai nen de len thu muc nay." -ForegroundColor Gray
 	}
 	return
@@ -2268,7 +2269,7 @@ function Export-MolikHtmlReport
 	}
 
 	$enc = { param($v) if ($null -eq $v) { return "" } return [System.Net.WebUtility]::HtmlEncode([string]$v) }
-	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.4.0" }
+	$ver = if ($Global:MolikWinlikVersion) { $Global:MolikWinlikVersion } else { "5.5.0" }
 	$now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 	$status = @{}
@@ -3391,6 +3392,8 @@ function Test-SophiaOptimizerHealth
 	# 8) Tinh nang v3.1: Doctor / Undo / Backup list
 	$missingFn = @()
 	foreach ($fn in @("Show-MolikSystemDoctor", "Restore-MolikLastSession", "Get-MolikBackupFolders", "Show-MolikBackupList", "Invoke-MolikCleanup", "Restore-MolikLastCleanup", "Invoke-MolikWindowsRepair"))
+	# LUU Y: khong liet ke ham online (Update-MolikWinlik...) o day - Portable
+	# offline co chu dich khong chua OnlineUpdate.ps1, SelfTest phai PASS tren Portable.
 	{
 		if (-not (Get-Command $fn -ErrorAction SilentlyContinue)) { $missingFn += $fn }
 	}
@@ -4689,7 +4692,7 @@ function Get-SophiaSelectionProfile
 function Get-MolikUiVersion
 {
 	if ($Global:MolikWinlikVersion) { return [string]$Global:MolikWinlikVersion }
-	return "5.4.0"
+	return "5.5.0"
 }
 
 function Format-MolikTruncate

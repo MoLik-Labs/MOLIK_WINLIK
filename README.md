@@ -77,16 +77,18 @@ Không chắc máy mình tầng nào? Chạy `MOLIK_WINLIK.bat -Smart -Plan` —
 
 ## Online & tự thay bản mới khi lỗi (tùy chọn)
 
-Bản chuẩn vẫn là **offline**. Khi muốn lấy bản mới nhất hoặc bản đang dùng bị lỗi:
+Bản chuẩn vẫn là **offline**. Kênh online phục vụ: chạy ngay không cần tải ZIP, kiểm tra/cập nhật bản mới, và thay bản sạch khi bản đang dùng bị lỗi:
 
 ```powershell
-MOLIK_WINLIK.bat -Update    # tải bản mới từ GitHub, kiểm chứng SHA256 rồi thay (tự sao lưu .bak)
-MOLIK_WINLIK.bat -Repair    # ép thay lại bản sạch kể cả khi cùng version
-# hoặc chạy online luôn (tải + kiểm chứng + tự xin Admin):
-irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex
+irm https://raw.githubusercontent.com/MoLik-Labs/MOLIK_WINLIK/main/win.ps1 | iex   # chạy bản online ngay
+MOLIK_WINLIK.bat -CheckUpdate   # chỉ kiểm tra có bản mới không (không thay gì)
+MOLIK_WINLIK.bat -Update        # tải bản mới, kiểm chứng SHA256 rồi thay (tự sao lưu .bak)
+MOLIK_WINLIK.bat -Repair        # ép thay lại bản sạch kể cả khi cùng version
 ```
 
-Mọi đường online đều **đối chiếu SHA256 với file `.sha256` chính thức trước khi thay** — lệch hash là hủy ngay và giữ nguyên bản hiện tại. Cũng có `MOLIK_WINLIK-Online.bat` để double-click.
+Mọi đường online đều theo cùng quy trình: **đối chiếu SHA256 với file `.sha256` chính thức → kiểm tra cú pháp → sao lưu `.bak` → mới thay/chạy** — lệch hash là hủy ngay và giữ nguyên bản hiện tại. `win.ps1` còn dùng lại bản cache đã kiểm chứng cho những lần mở sau (khởi động nhanh), tải tối đa 3 lần thử. Cũng có `MOLIK_WINLIK-Online.bat` để double-click và chuyển tham số (ví dụ `-Gui`).
+
+📚 **Tài liệu đầy đủ (web)**: https://molik-labs.github.io/MOLIK_WINLIK/ — hướng dẫn từng bước, bảng 11 Mode/8 Preset, tham chiếu CLI, FAQ (nguồn trong `docs/`, VitePress).
 
 ## An toàn & khôi phục
 

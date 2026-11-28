@@ -28,4 +28,4 @@ Chạy `MOLIK_WINLIK.bat -Doctor` để xem tầng máy của bạn, hoặc `-Sm
 
 ## Mode "ảo" là gì?
 
-5 Mode cuối (PrivacyMax → BatterySaver) được hợp tự động từ Mode nền + nhóm tweak + trần rủi ro, nên số lượng luôn khớp catalog thật và không bao giờ chứa tweak Extreme ngoài ý muốn. Ngoài Mode còn có **7 Preset** tình huống (`-ListPresets`) tinh hơn cho từng hoàn cảnh cụ thể.
+5 Mode cuối (PrivacyMax → BatterySaver) được hợp tự động từ Mode nền + nhóm tweak + trần rủi ro, nên số lượng luôn khớp catalog thật và không bao giờ chứa tweak Extreme ngoài ý muốn. Ngoài Mode còn có **8 Preset** tình huống tinh hơn cho từng hoàn cảnh cụ thể — xem [trang Preset](/guide/presets) (máy người thân nên bắt đầu bằng `safe-daily`).
