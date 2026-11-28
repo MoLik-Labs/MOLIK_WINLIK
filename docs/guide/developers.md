@@ -19,6 +19,12 @@ python3 skills/molik-deep-debug/scripts/audit_molik.py --root .
 
 3. Sửa xong: bump version đồng bộ (launcher/UI/Report/builder), build lại Portable, đối chiếu `.sha256`, rồi mới commit → PR → merge → xóa branch (chi tiết: `skills/molik-release-qa/SKILL.md`).
 
+## Kênh online (quy tắc bất biến)
+
+- Code được phép chạm mạng chỉ nằm ở: `win.ps1`, `MOLIK_WINLIK-Online.bat`, `Optimizer/Core/OnlineUpdate.ps1` — audit **FAIL** nếu Portable chứa bất kỳ code tải/chạy từ mạng nào.
+- Mọi đường tải đều phải: đối chiếu SHA256 trước → kiểm tra cú pháp → sao lưu `.bak` → mới thay. Không bao giờ ghi đè file đang chạy (dùng tiến trình phụ).
+- Thêm lệnh online mới phải có mặt ở: launcher (switch + dispatch), `docs/guide/online.md`, `docs/guide/cli-reference.md`.
+
 ## Web tài liệu này
 
 VitePress trong `docs/`, deploy bằng GitHub Pages qua `.github/workflows/pages.yml`:

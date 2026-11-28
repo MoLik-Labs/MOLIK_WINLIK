@@ -3,6 +3,21 @@
 Tool tối ưu Windows offline của fork này (nằm ngoài module upstream `src/`).
 Chạy: double-click `MOLIK_WINLIK.bat`. Chi tiết kỹ thuật: `Optimizer/README.md`.
 
+## v5.5.0 — Bản Online hoàn thiện & Web docs chuyên nghiệp
+
+- **Online v2** (`win.ps1`): đọc `.sha256` trước và dùng lại cache đã
+  kiểm chứng (mở nhanh lần sau), tải tối đa 3 lần thử, kiểm tra cú pháp
+  PowerShell + định dạng trước khi thay, sao lưu bản cache cũ, chuyển
+  tiếp tham số cho Portable (`-Gui`, `-Mode ...`), `-Force`/`-NoLaunch`.
+- **Cập nhật an toàn hơn**: thêm `-CheckUpdate` (chỉ kiểm tra, không
+  Admin); `-Update`/`-Repair` dùng chung bộ tải có retry + kiểm tra
+  cú pháp bản mới trước khi thay.
+- **Web docs VitePress chuyên nghiệp**: logo/favicon + ảnh TUI, trang
+  chủ có khối số liệu và **component chọn cách cài (tab Online/Offline/
+  Cập nhật, nút Copy)**, sitemap, tìm kiếm tiếng Việt; thêm trang Bản
+  Online (chủ lực), Tải xuống, Preset, Tham chiếu CLI, FAQ — tổng 13
+  trang hướng dẫn. Theme sáng Forest / tối Catppuccin Mocha giữ nguyên.
+
 ## v5.4.0 — Ổn định & an toàn toàn diện
 
 - **Xóa gì cũng hoàn lại được**: Cleanup mặc định CHUYỂN vào vùng cách ly

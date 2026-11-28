@@ -2,7 +2,7 @@
   MOLIK WINLIK docs theme
   - Light appearance: "Forest" — deep greens on warm paper white
   - Dark appearance:  "Catppuccin Mocha" — official Mocha palette
-  Toggle with the standard VitePress appearance switch in the navbar.
+  Đổi bằng nút appearance chuẩn của VitePress trên thanh điều hướng.
 */
 
 /* ---------- Forest (light) ---------- */
@@ -10,18 +10,21 @@
   --vp-c-bg: #f7f5ee;
   --vp-c-bg-alt: #efead9;
   --vp-c-bg-elv: #fffdf6;
+  --vp-c-bg-soft: #f1eddd;
   --vp-c-text-1: #1c2a1e;
   --vp-c-text-2: #41523f;
   --vp-c-text-3: #6d7f6a;
-  --vp-c-divider: #d9d2ba;
+  --vp-c-divider: #ddd5bc;
   --vp-c-border: #cfc7a8;
-  --vp-c-brand-1: #2e7d46;
-  --vp-c-brand-2: #359455;
+  --vp-c-brand-1: #22713c;
+  --vp-c-brand-2: #2e8a49;
   --vp-c-brand-3: #43ad66;
   --vp-c-brand-soft: rgba(46, 125, 70, 0.12);
-  --vp-button-brand-bg: #2e7d46;
-  --vp-button-brand-hover-bg: #359455;
-  --vp-home-hero-name-color: #2e7d46;
+  --vp-button-brand-bg: #22713c;
+  --vp-button-brand-hover-bg: #2e8a49;
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(100deg, #22713c 20%, #43ad66 55%, #b3930a 105%);
+  --vp-font-family-base: "Segoe UI", system-ui, -apple-system, "Noto Sans", Roboto, sans-serif;
 }
 
 /* ---------- Catppuccin Mocha (dark) ---------- */
@@ -29,6 +32,7 @@
   --vp-c-bg: #1e1e2e;
   --vp-c-bg-alt: #181825;
   --vp-c-bg-elv: #313244;
+  --vp-c-bg-soft: #181825;
   --vp-c-text-1: #cdd6f4;
   --vp-c-text-2: #a6adc8;
   --vp-c-text-3: #7f849c;
@@ -42,14 +46,154 @@
   --vp-button-brand-text: #1e1e2e;
   --vp-button-brand-hover-bg: #b4befe;
   --vp-button-brand-hover-text: #1e1e2e;
-  --vp-home-hero-name-color: #cba6f7;
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(100deg, #a6e3a1 5%, #cba6f7 55%, #89b4fa 100%);
   --vp-code-block-bg: #181825;
 }
 
-/* Small polish: rounder cards, calm hero */
-.VPFeature {
-  border-radius: 10px;
+/* ---------- Trang chủ: hero & thẻ tính năng ---------- */
+.VPHero .image-src {
+  filter: drop-shadow(0 18px 42px rgba(20, 30, 20, 0.35));
+  border-radius: 14px;
 }
 .VPHero .name {
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
+}
+.VPFeature {
+  border-radius: 14px;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.VPFeature:hover {
+  transform: translateY(-3px);
+  border-color: var(--vp-c-brand-2);
+  box-shadow: 0 12px 30px rgba(20, 40, 25, 0.14);
+}
+.dark .VPFeature:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- Khối số liệu (dùng trong docs/index.md) ---------- */
+.molik-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 28px 0 8px;
+}
+.molik-stat {
+  border: 1px solid var(--vp-c-border);
+  border-radius: 14px;
+  padding: 16px 14px;
+  text-align: center;
+  background: var(--vp-c-bg-elv);
+}
+.molik-stat b {
+  display: block;
+  font-size: 30px;
+  line-height: 1.1;
+  color: var(--vp-c-brand-1);
+}
+.molik-stat span {
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+}
+
+/* ---------- InstallBox (component chọn cách cài) ---------- */
+.install-box {
+  border: 1px solid var(--vp-c-border);
+  border-radius: 16px;
+  background: var(--vp-c-bg-elv);
+  padding: 18px;
+  margin: 24px 0;
+}
+.install-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.install-tabs button {
+  border: 1px solid var(--vp-c-border);
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.install-tabs button:hover {
+  border-color: var(--vp-c-brand-2);
+  color: var(--vp-c-text-1);
+}
+.install-tabs button.active {
+  background: var(--vp-c-brand-1);
+  border-color: var(--vp-c-brand-1);
+  color: #ffffff;
+}
+.dark .install-tabs button.active {
+  color: #1e1e2e;
+}
+.install-title {
+  font-weight: 600;
+  margin: 4px 0 10px;
+}
+.install-code {
+  position: relative;
+}
+.install-code pre {
+  background: var(--vp-code-block-bg, #181825);
+  color: #cdd6f4;
+  border-radius: 12px;
+  padding: 16px 88px 16px 16px;
+  overflow-x: auto;
+  margin: 0;
+}
+.install-code code {
+  font-family: var(--vp-font-family-mono, ui-monospace, Consolas, monospace);
+  font-size: 13.5px;
+  white-space: pre;
+}
+.install-copy {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: 1px solid #45475a;
+  background: #313244;
+  color: #cdd6f4;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.install-copy:hover {
+  border-color: #cba6f7;
+}
+.install-note {
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  margin: 10px 0 0;
+}
+.install-more {
+  font-size: 14px;
+  margin: 14px 0 0;
+}
+
+/* ---------- Bảng & chi tiết đọc dễ hơn ---------- */
+.vp-doc table {
+  display: table;
+  width: 100%;
+}
+.vp-doc th {
+  background: var(--vp-c-bg-soft);
+}
+.vp-doc tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 55%, transparent);
+}
+.vp-doc .custom-block {
+  border-radius: 12px;
+}
+
+::selection {
+  background: var(--vp-c-brand-soft);
 }

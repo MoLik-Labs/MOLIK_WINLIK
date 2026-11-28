@@ -260,6 +260,8 @@ function Test-SophiaOptimizerHealth
 	# 8) Tinh nang v3.1: Doctor / Undo / Backup list
 	$missingFn = @()
 	foreach ($fn in @("Show-MolikSystemDoctor", "Restore-MolikLastSession", "Get-MolikBackupFolders", "Show-MolikBackupList", "Invoke-MolikCleanup", "Restore-MolikLastCleanup", "Invoke-MolikWindowsRepair"))
+	# LUU Y: khong liet ke ham online (Update-MolikWinlik...) o day - Portable
+	# offline co chu dich khong chua OnlineUpdate.ps1, SelfTest phai PASS tren Portable.
 	{
 		if (-not (Get-Command $fn -ErrorAction SilentlyContinue)) { $missingFn += $fn }
 	}

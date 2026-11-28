@@ -1,6 +1,6 @@
 # 👑 MOLIK_WINLIK — MOLIK WINLIK by @nggkhaiz
 
-> **Credit:** Phát triển bởi **@nggkhaiz** (repo [MOLIK_WINLIK](https://github.com/NggKhaiz/MOLIK_WINLIK)) — dựa trên [Sophia Script](https://github.com/farag2/Sophia-Script-for-Windows) của farag2 và tích hợp data [winutil](https://github.com/ChrisTitusTech/winutil) của Chris Titus Tech (đều MIT).
+> **Credit:** Phát triển bởi **@nggkhaiz** (repo [MOLIK_WINLIK](https://github.com/MoLik-Labs/MOLIK_WINLIK)) — dựa trên [Sophia Script](https://github.com/farag2/Sophia-Script-for-Windows) của farag2 và tích hợp data [winutil](https://github.com/ChrisTitusTech/winutil) của Chris Titus Tech (đều MIT).
 
 Tool tối ưu Windows **sâu & cực mạnh** xây trên nền [Sophia Script for Windows](https://github.com/farag2/Sophia-Script-for-Windows) gốc (`src/`), bổ sung engine riêng trong `Optimizer/` với **200 tweak** chia 10 nhóm, **11 Mode** theo nhu cầu (6 Mode vật lý + 5 Mode ảo hợp theo nhóm/trần rủi ro), GUI cửa sổ kiểu winutil (`-Gui`) và giao diện **tick-chọn CLI** `[✓]/[ ]` bằng phím.
 
